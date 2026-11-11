@@ -1,0 +1,3020 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1E4FA0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Cuentas">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<script>if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(()=>{});});}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cuentas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F4F6F9;
+    --surface: #FFFFFF;
+    --surface-2: #F8FAFC;
+    --ink: #16202E;
+    --ink-soft: #6B7787;
+    --border: #E3E7EE;
+    --border-strong: #CBD2DE;
+    --accent: #1E4FA0;
+    --accent-ink: #16386F;
+    --accent-soft: #E9F0FC;
+    --success: #17824F;
+    --danger: #C13B3B;
+    --font-ui: 'Inter', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  :root:not([data-theme="light"]) {
+    @media (prefers-color-scheme: dark) {
+      --bg: #10151D;
+      --surface: #171E28;
+      --surface-2: #1D2531;
+      --ink: #EAF0F8;
+      --ink-soft: #93A1B4;
+      --border: #2B3444;
+      --border-strong: #3A4457;
+      --accent: #6B9BE8;
+      --accent-ink: #9AC0F5;
+      --accent-soft: #1C2C46;
+      --success: #4CBB84;
+      --danger: #E2726B;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #10151D; --surface: #171E28; --surface-2: #1D2531;
+    --ink: #EAF0F8; --ink-soft: #93A1B4; --border: #2B3444; --border-strong: #3A4457;
+    --accent: #6B9BE8; --accent-ink: #9AC0F5; --accent-soft: #1C2C46;
+    --success: #4CBB84; --danger: #E2726B;
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); height: 100%; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; height: 100%;
+    background: var(--bg); color: var(--ink);
+    font-family: var(--font-ui);
+    -webkit-font-smoothing: antialiased;
+    display: flex; justify-content: center;
+  }
+  #app {
+    width: 100%; max-width: 560px; min-height: 100%;
+    display: flex; flex-direction: column; position: relative;
+    background: var(--bg);
+  }
+
+  /* ===== Header ===== */
+  header {
+    position: sticky; top: 0; z-index: 20;
+    padding: calc(16px + env(safe-area-inset-top, 0px)) 20px 14px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .brand-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .brand-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .biz-logo {
+    width: 34px; height: 34px; border-radius: 8px; object-fit: cover;
+    border: 1px solid var(--border); flex-shrink: 0; background: var(--surface-2);
+  }
+  .biz-logo-placeholder {
+    width: 34px; height: 34px; border-radius: 8px; flex-shrink: 0;
+    background: var(--accent-soft); color: var(--accent-ink);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 14px;
+  }
+  .biz-name { font-size: 17px; font-weight: 700; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .gear-btn { background: none; border: none; color: var(--ink-soft); font-size: 20px; padding: 4px; cursor: pointer; line-height: 1; flex-shrink: 0; }
+  .view-title { font-size: 12.5px; font-weight: 600; letter-spacing: 0.01em; color: var(--ink-soft); margin-top: 6px; text-transform: capitalize; }
+
+  /* ===== Main ===== */
+  main { flex: 1; padding: 8px 20px 110px; overflow-x: hidden; }
+  .search-row { margin: 14px 0 6px; }
+  .search-row input {
+    width: 100%; border: 1px solid var(--border); background: var(--surface);
+    border-radius: 10px; font-family: var(--font-ui); font-size: 14.5px; color: var(--ink);
+    padding: 10px 12px; outline: none;
+  }
+  .search-row input::placeholder { color: var(--ink-soft); }
+  .search-row input:focus { border-color: var(--accent); }
+
+  .summary-bar { display: flex; gap: 10px; margin: 14px 0 4px; }
+  .summary-card { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; }
+  .summary-card .label { font-size: 11px; color: var(--ink-soft); font-weight: 500; }
+  .summary-card .value { font-family: var(--font-mono); font-size: 16px; margin-top: 4px; font-weight: 600; }
+  .summary-card.pos .value { color: var(--success); }
+  .summary-card.neg .value { color: var(--danger); }
+  .section-label { font-size: 11.5px; font-weight: 700; letter-spacing: 0.02em; color: var(--ink-soft); margin: 22px 2px 8px; text-transform: uppercase; }
+
+  .empty-state { margin-top: 60px; text-align: center; color: var(--ink-soft); }
+  .empty-state .stamp { font-size: 17px; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+  .empty-state p { font-size: 13.5px; line-height: 1.5; max-width: 280px; margin: 0 auto; }
+
+  ul.list { list-style: none; margin: 0; padding: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 14px; border-bottom: 1px solid var(--border); cursor: pointer; }
+  .row:last-child { border-bottom: none; }
+  .row:active { background: var(--surface-2); }
+  .row-main { min-width: 0; flex: 1; }
+  .row-title { font-size: 14.5px; font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row-sub { font-size: 12px; color: var(--ink-soft); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row-value { font-family: var(--font-mono); font-size: 14px; font-weight: 600; color: var(--ink); flex-shrink: 0; text-align: right; }
+  .row-value.low, .row-value.neg { color: var(--danger); }
+  .row-value-wrap { flex-shrink: 0; text-align: right; }
+  .row-badge { font-size: 10.5px; font-weight: 600; color: var(--success); margin-top: 2px; }
+  .row-badge.neg { color: var(--danger); }
+  .row-cat { display: inline-block; font-size: 10.5px; font-weight: 600; color: var(--accent-ink); background: var(--accent-soft); border-radius: 5px; padding: 1px 6px; margin-top: 3px; }
+
+  .chip-row { display: flex; gap: 6px; overflow-x: auto; padding: 2px 2px 10px; margin-bottom: 2px; }
+  .chip-row::-webkit-scrollbar { display: none; }
+  .chip { flex-shrink: 0; font-size: 12.5px; font-weight: 600; color: var(--ink-soft); background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 6px 13px; cursor: pointer; white-space: nowrap; }
+  .chip.active { color: #fff; background: var(--accent); border-color: var(--accent); }
+
+  /* ===== FAB ===== */
+  .fab {
+    position: fixed; right: 50%; transform: translateX(232px);
+    bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+    width: 54px; height: 54px; border-radius: 16px;
+    background: var(--accent); color: #fff; border: none; font-size: 26px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 16px rgba(30,79,160,0.35); cursor: pointer; z-index: 25;
+  }
+  @media (max-width: 560px) { .fab { right: 20px; transform: none; } }
+  .fab.hidden { display: none; }
+
+  /* ===== Bottom nav ===== */
+  nav.tabbar {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 560px; display: flex;
+    background: var(--surface); border-top: 1px solid var(--border);
+    padding-bottom: env(safe-area-inset-bottom, 0px); z-index: 20;
+  }
+  nav.tabbar button { flex: 1; background: none; border: none; padding: 9px 2px 11px; display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--ink-soft); cursor: pointer; font-family: var(--font-ui); }
+  nav.tabbar button .icon { font-size: 17px; }
+  nav.tabbar button .label { font-size: 9.5px; font-weight: 600; letter-spacing: 0.01em; }
+  nav.tabbar button.active { color: var(--accent); }
+
+  /* ===== Modal / sheet ===== */
+  .overlay { position: fixed; inset: 0; background: rgba(10,14,20,0.45); display: flex; align-items: flex-end; justify-content: center; z-index: 50; }
+  .sheet { width: 100%; max-width: 560px; background: var(--surface); border-top: 1px solid var(--border); border-radius: 18px 18px 0 0; padding: 18px 20px calc(24px + env(safe-area-inset-bottom, 0px)); max-height: 90vh; overflow-y: auto; }
+  .sheet-handle { width: 36px; height: 4px; background: var(--border-strong); border-radius: 2px; margin: 0 auto 16px; }
+  .sheet h2 { font-size: 18px; font-weight: 700; margin: 0 0 4px; }
+  .sheet .step-note { font-size: 12px; color: var(--ink-soft); margin-bottom: 14px; font-weight: 500; }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 12px; font-weight: 600; color: var(--ink-soft); margin-bottom: 5px; }
+  .field input, .field textarea, .field select {
+    width: 100%; border: 1px solid var(--border); background: var(--surface-2);
+    border-radius: 9px; padding: 10px 12px; font-family: var(--font-ui);
+    font-size: 15px; color: var(--ink); outline: none;
+  }
+  .field input:focus, .field textarea:focus, .field select:focus { border-color: var(--accent); }
+  .field.mono input { font-family: var(--font-mono); }
+  .row2 { display: flex; gap: 10px; }
+  .row2 .field { flex: 1; }
+  .logo-row { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .logo-preview { width: 56px; height: 56px; border-radius: 10px; object-fit: cover; border: 1px solid var(--border); background: var(--surface-2); }
+  .logo-preview-empty { width: 56px; height: 56px; border-radius: 10px; border: 1px dashed var(--border-strong); background: var(--surface-2); display: flex; align-items: center; justify-content: center; color: var(--ink-soft); font-size: 11px; text-align: center; }
+  .logo-actions { display: flex; flex-direction: column; gap: 6px; }
+  .link-btn { background: none; border: none; color: var(--accent); font-size: 13.5px; font-weight: 600; padding: 0; cursor: pointer; text-align: left; }
+  .link-btn.danger { color: var(--danger); }
+
+  .sheet-actions { display: flex; gap: 10px; margin-top: 6px; }
+  .btn { flex: 1; border: none; border-radius: 10px; padding: 13px; font-family: var(--font-ui); font-weight: 700; font-size: 14.5px; cursor: pointer; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-secondary { background: var(--surface-2); color: var(--ink); border: 1px solid var(--border); }
+  .btn:disabled { opacity: 0.4; }
+  .btn-danger-text { background: none; border: none; color: var(--danger); font-size: 13.5px; font-weight: 600; padding: 10px 0 0; cursor: pointer; width: 100%; text-align: center; }
+
+  .pick-list { max-height: 40vh; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 14px; }
+  .pick-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--border); cursor: pointer; }
+  .pick-row:last-child { border-bottom: none; }
+  .pick-row:active { background: var(--surface-2); }
+  .pick-row .name { font-size: 14px; font-weight: 500; }
+  .pick-row .meta { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink-soft); }
+
+  .cart-item { padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .cart-item .cart-row1 { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .cart-item .name { flex: 1; font-size: 14px; font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cart-item .remove { color: var(--danger); background: none; border: none; font-size: 17px; cursor: pointer; padding: 0 0 0 4px; }
+  .cart-item .cart-row2 { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+  .qty-ctrl { display: flex; align-items: center; gap: 6px; }
+  .qty-ctrl button { width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface-2); color: var(--ink); font-size: 14px; cursor: pointer; }
+  .qty-ctrl .qty { font-family: var(--font-mono); font-size: 13px; min-width: 16px; text-align: center; }
+  .cart-item .unit-price { width: 78px; font-family: var(--font-mono); font-size: 12.5px; border: 1px solid var(--border); border-radius: 6px; padding: 4px 6px; background: var(--surface-2); color: var(--ink); }
+  .cart-item .unit-price.discounted { border-color: var(--success); color: var(--success); }
+  .cart-item .line-total { font-family: var(--font-mono); font-size: 13px; font-weight: 600; flex: 1; text-align: right; }
+  .discount-field { display: flex; align-items: center; gap: 8px; margin: 12px 0 0; }
+  .discount-field label { font-size: 12.5px; color: var(--ink-soft); font-weight: 500; flex: 1; }
+  .discount-field input { width: 72px; font-family: var(--font-mono); font-size: 14px; border: 1px solid var(--border); border-radius: 8px; padding: 7px 9px; background: var(--surface-2); color: var(--ink); text-align: right; }
+  .ganancia-panel { margin-top: 12px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: var(--surface-2); }
+  .ganancia-toggle { display: flex; align-items: center; justify-content: space-between; padding: 11px 13px; cursor: pointer; }
+  .ganancia-toggle .g-label { font-size: 13px; font-weight: 600; color: var(--ink-soft); }
+  .ganancia-toggle .g-value { font-family: var(--font-mono); font-size: 14.5px; font-weight: 700; }
+  .ganancia-toggle .g-value.pos { color: var(--success); }
+  .ganancia-toggle .g-value.neg { color: var(--danger); }
+  .ganancia-toggle .chev { font-size: 11px; color: var(--ink-soft); margin-left: 6px; }
+  .ganancia-body { padding: 0 13px 12px; border-top: 1px solid var(--border); }
+  .ganancia-body .totals-row { color: var(--ink-soft); }
+
+  .totals-box { margin-top: 14px; border-top: 1px solid var(--border); padding-top: 10px; }
+  .totals-row { display: flex; justify-content: space-between; font-size: 13.5px; padding: 3px 0; color: var(--ink-soft); }
+  .totals-row.grand { color: var(--ink); font-weight: 700; font-size: 16px; font-family: var(--font-mono); border-top: 1px solid var(--border); margin-top: 6px; padding-top: 8px; }
+
+  .add-item-row { display: flex; gap: 8px; margin-bottom: 10px; }
+  .add-item-row input { flex: 1; }
+
+  /* ===== Factura (documento) ===== */
+  .invoice-doc {
+    background: #FFFFFF; color: #16202E;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 22px 18px;
+    font-size: 12.5px;
+  }
+  .invoice-doc .inv-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+  .invoice-doc .inv-biz { display: flex; gap: 10px; align-items: flex-start; min-width: 0; }
+  .invoice-doc .inv-logo { width: 46px; height: 46px; border-radius: 8px; object-fit: cover; flex-shrink: 0; border: 1px solid var(--border); }
+  .invoice-doc .inv-logo-placeholder { width: 46px; height: 46px; border-radius: 8px; flex-shrink: 0; background: var(--accent-soft); color: var(--accent-ink); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 17px; }
+  .invoice-doc .inv-biz-name { font-size: 16px; font-weight: 800; }
+  .invoice-doc .inv-biz-meta { font-size: 11.5px; color: #5B6472; line-height: 1.5; margin-top: 2px; }
+  .invoice-doc .inv-title { font-size: 22px; font-weight: 800; letter-spacing: 0.02em; text-align: right; color: #16202E; }
+  .invoice-doc .inv-title .inv-num { font-family: var(--font-mono); font-size: 12.5px; font-weight: 600; color: #5B6472; margin-top: 4px; }
+  .invoice-doc .inv-parties { display: flex; justify-content: space-between; gap: 16px; padding: 14px 0; border-top: 1px solid #E3E7EE; border-bottom: 1px solid #E3E7EE; margin-bottom: 14px; }
+  .invoice-doc .inv-parties .p-label { font-size: 10.5px; font-weight: 700; color: #8A93A3; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 3px; }
+  .invoice-doc .inv-parties .p-name { font-size: 13.5px; font-weight: 700; }
+  .invoice-doc .inv-parties .p-meta { font-size: 11.5px; color: #5B6472; line-height: 1.5; }
+  .invoice-doc .inv-parties .to-right { text-align: right; }
+  table.inv-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+  table.inv-table thead th { background: var(--accent); color: #fff; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; padding: 8px 8px; text-align: left; }
+  table.inv-table thead th.num { text-align: right; }
+  table.inv-table tbody td { padding: 9px 8px; border-bottom: 1px solid #EEF1F5; font-size: 12.5px; }
+  table.inv-table tbody td.num { text-align: right; font-family: var(--font-mono); }
+  .invoice-doc .inv-notes { font-size: 11.5px; color: #5B6472; background: #F8FAFC; border: 1px solid #E3E7EE; border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; }
+  .invoice-doc .inv-totals { margin-left: auto; width: 62%; }
+  .invoice-doc .inv-totals .t-row { display: flex; justify-content: space-between; padding: 5px 2px; font-size: 12.5px; color: #5B6472; }
+  .invoice-doc .inv-totals .t-row.grand { background: var(--accent-soft); color: var(--accent-ink); font-weight: 800; font-size: 15px; border-radius: 6px; padding: 9px 10px; margin-top: 4px; }
+  .invoice-doc .inv-footer { margin-top: 22px; text-align: center; font-size: 10.5px; color: #9AA3B2; }
+
+  .rep-hero { border-radius: 16px; padding: 18px 18px 16px; margin: 14px 0 2px; background: linear-gradient(135deg, #1E4FA0, #173E80); color: #fff; box-shadow: 0 6px 18px rgba(30,79,160,0.18); }
+  .rep-hero.neg { background: linear-gradient(135deg, #B42318, #8F1D14); box-shadow: 0 6px 18px rgba(180,35,24,0.18); }
+  .rep-hero-label { font-size: 12.5px; font-weight: 600; opacity: 0.85; }
+  .rep-hero-value { font-size: 30px; font-weight: 800; margin-top: 4px; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+  .rep-hero-sub { font-size: 12.5px; opacity: 0.85; margin-top: 8px; font-variant-numeric: tabular-nums; }
+  .rep-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .rep-stat { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px; min-width: 0; }
+  .rep-stat-label { font-size: 12px; color: var(--ink-soft); font-weight: 500; line-height: 1.3; }
+  .rep-stat-value { font-size: 17px; font-weight: 700; margin-top: 6px; color: var(--ink); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+  .rep-stat-value.pos { color: var(--success); }
+  .rep-stat-value.neg { color: var(--danger); }
+  .rep-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+  .rep-line { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--border); font-size: 14px; color: var(--ink); }
+  .rep-line:last-child { border-bottom: none; }
+  .rep-line > span:last-child { font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; overflow-wrap: anywhere; }
+  .rep-line.strong { background: var(--surface-2); font-weight: 700; }
+  .rep-line .pos { color: var(--success); }
+  .rep-line .neg { color: var(--danger); }
+  .rep-rank-wrap { display: flex; align-items: center; gap: 10px; min-width: 0; overflow-wrap: anywhere; }
+  .rep-rank { width: 24px; height: 24px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-ink); font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .seg { display: flex; background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 3px; gap: 3px; }
+  .seg button { flex: 1; border: none; background: transparent; padding: 9px; border-radius: 8px; font-family: var(--font-ui); font-size: 13.5px; font-weight: 600; color: var(--ink-soft); cursor: pointer; }
+  .seg button.on { background: var(--surface); color: var(--accent); box-shadow: 0 1px 3px rgba(16,24,40,0.12); }
+  .credit-title { font-size: 14px; color: var(--ink); font-weight: 600; }
+  .credit-sub { font-size: 12px; color: var(--ink-soft); margin-top: 2px; font-weight: 400; }
+  .saldo-tag { font-size: 12px; font-weight: 700; color: var(--danger); background: rgba(180,35,24,0.08); padding: 4px 9px; border-radius: 999px; white-space: nowrap; }
+  .inv-sub { margin: 2px 0 14px; }
+  .file-input { font-size: 12px; color: var(--ink-soft); max-width: 100%; }
+  .file-input::file-selector-button { font-family: var(--font-ui); font-size: 12px; font-weight: 600; padding: 7px 12px; margin-right: 10px; border-radius: 8px; border: 1px solid var(--border-strong); background: var(--surface); color: var(--ink); cursor: pointer; }
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 14px; color: var(--ink); cursor: pointer; }
+  .toggle-row input { width: 18px; height: 18px; accent-color: var(--accent); flex-shrink: 0; }
+  /* ===== Pulido visual ===== */
+  .row-value { font-family: var(--font-ui); font-variant-numeric: tabular-nums; font-weight: 700; letter-spacing: -0.01em; }
+  ul.list, .rep-card, .rep-stat, .summary-card { box-shadow: 0 1px 2px rgba(16,24,40,0.04); }
+  .row { transition: background 0.15s ease; }
+  .row-title { font-weight: 650; }
+  .row-sub { margin-top: 3px; }
+  .section-label { margin: 24px 2px 9px; letter-spacing: 0.04em; }
+  .field input:focus, .field textarea:focus, .field select:focus { box-shadow: 0 0 0 3px var(--accent-soft); }
+  .field input, .field textarea { transition: border-color 0.15s ease, box-shadow 0.15s ease; }
+  .btn { transition: transform 0.08s ease, opacity 0.15s ease, background 0.15s ease; }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary { box-shadow: 0 2px 8px rgba(30,79,160,0.22); }
+  .chip.active { box-shadow: 0 2px 6px rgba(30,79,160,0.2); }
+  .overlay { background: rgba(10,14,20,0.4); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+  .sheet { box-shadow: 0 -8px 30px rgba(10,14,20,0.12); }
+  .rep-line { padding: 13px 14px; }
+  .rep-stat-value, .summary-card .value { font-variant-numeric: tabular-nums; }
+  .empty-state .stamp { letter-spacing: -0.01em; }
+  nav.tabbar button { transition: color 0.15s ease; }
+  nav.tabbar button.active .icon { transform: translateY(-1px); }
+  nav.tabbar button .icon { transition: transform 0.15s ease; }
+  ::-webkit-scrollbar { width: 0; height: 0; }
+
+  @media print {
+    body * { visibility: hidden; }
+    #printArea, #printArea * { visibility: visible; }
+    #printArea { position: absolute; top: 0; left: 0; width: 100%; }
+    .invoice-doc { border: none; padding: 0; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header>
+    <div class="brand-row">
+      <div class="brand-left">
+        <div id="bizLogoWrap"></div>
+        <div class="biz-name" id="bizNameLabel">Mi negocio</div>
+      </div>
+      <button class="gear-btn" id="gearBtn" aria-label="Ajustes">⚙</button>
+    </div>
+    <div class="view-title" id="viewTitle">clientes</div>
+  </header>
+
+  <main>
+    <div class="search-row" id="searchRow">
+      <input type="text" id="searchInput" placeholder="Buscar...">
+    </div>
+    <div id="listWrap"></div>
+  </main>
+
+  <button class="fab" id="fabBtn" aria-label="Agregar">+</button>
+
+  <nav class="tabbar">
+    <button data-view="clientes" class="tab active"><span class="icon">◆</span><span class="label">Clientes</span></button>
+    <button data-view="inventario" class="tab"><span class="icon">▤</span><span class="label">Inventario</span></button>
+    <button data-view="ventas" class="tab"><span class="icon">⧉</span><span class="label">Ventas</span></button>
+    <button data-view="facturas" class="tab"><span class="icon">▦</span><span class="label">Facturas</span></button>
+    <button data-view="gastos" class="tab"><span class="icon">◎</span><span class="label">Gastos</span></button>
+    <button data-view="reportes" class="tab"><span class="icon">▥</span><span class="label">Reportes</span></button>
+  </nav>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- Storage helpers ----------
+  function load(key, fallback){
+    try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
+    catch(e){ return fallback; }
+  }
+  function save(key, value){
+    try { localStorage.setItem(key, JSON.stringify(value)); }
+    catch(e){ console.warn('No se pudo guardar', e); }
+  }
+
+  let clientes = load('cuentas_clientes', []);
+  let inventario = load('cuentas_inventario', []);
+  let ventas = load('cuentas_ventas', []);
+  let gastos = load('cuentas_gastos', []);
+  let movimientos = load('cuentas_movimientos', []);
+  let pedidos = load('cuentas_pedidos', []);
+  let ventasVista = 'ventas';
+  let config = load('cuentas_config', {
+    nombre: 'Mi negocio', moneda: '$', impuesto: 0, siguienteFolio: 1,
+    direccion: '', telefono: '', email: '', logo: '', notaFactura: ''
+  });
+  const CONFIG_DEFAULTS = { impuesto: 0, siguienteFolio: 1, direccion: '', telefono: '', email: '', logo: '', fotoPerfil: '', notaFactura: '', margenDefault: '', stockMinimo: 3, facturaTitulo: 'FACTURA', facturaPie: 'Gracias por su compra', mostrarDireccion: true, mostrarTelefono: true, mostrarEmail: true };
+  Object.keys(CONFIG_DEFAULTS).forEach(k => {
+    if(config[k] === undefined) config[k] = CONFIG_DEFAULTS[k];
+  });
+
+  let currentView = 'clientes';
+  let categoriaFiltro = '';
+  let invSub = 'productos';
+
+  const bizNameLabel = document.getElementById('bizNameLabel');
+  const bizLogoWrap = document.getElementById('bizLogoWrap');
+  const viewTitle = document.getElementById('viewTitle');
+  const listWrap = document.getElementById('listWrap');
+  const searchInput = document.getElementById('searchInput');
+  const searchRow = document.getElementById('searchRow');
+  const fabBtn = document.getElementById('fabBtn');
+  const gearBtn = document.getElementById('gearBtn');
+  const tabs = document.querySelectorAll('.tab');
+
+  function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+  function money(n){
+    const num = Number(n) || 0;
+    return config.moneda + ' ' + num.toLocaleString('es', {minimumFractionDigits:2, maximumFractionDigits:2});
+  }
+  function escapeHtml(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function initials(name){
+    return (name||'?').trim().split(/\s+/).slice(0,2).map(w => w[0]).join('').toUpperCase();
+  }
+  function todayStr(){ return new Date().toISOString().slice(0,10); }
+  function fmtDate(iso){
+    const d = new Date(iso + 'T00:00:00');
+    return d.toLocaleDateString('es', { day:'2-digit', month:'short', year:'numeric' });
+  }
+  function monthKey(iso){ return iso.slice(0,7); }
+
+  // ============================================================
+  // HEADER / NAV
+  // ============================================================
+  function renderHeader(){
+    bizNameLabel.textContent = config.nombre || 'Mi negocio';
+    const avatarSrc = config.fotoPerfil || config.logo;
+    bizLogoWrap.innerHTML = avatarSrc
+      ? `<img class="biz-logo" src="${avatarSrc}" alt="">`
+      : `<div class="biz-logo-placeholder">${escapeHtml(initials(config.nombre))}</div>`;
+    viewTitle.textContent = currentView;
+    const placeholders = { clientes:'Buscar cliente...', inventario:'Buscar producto...', ventas:'Buscar por cliente o folio...', facturas:'Buscar factura...', gastos:'Buscar gasto...' };
+    searchInput.placeholder = placeholders[currentView] || 'Buscar...';
+    searchRow.style.display = currentView === 'reportes' ? 'none' : '';
+    fabBtn.classList.toggle('hidden', currentView === 'reportes' || (currentView === 'inventario' && invSub !== 'productos'));
+  }
+
+  function emptyState(title, text){
+    return `<div class="empty-state"><div class="stamp">${escapeHtml(title)}</div><p>${escapeHtml(text)}</p></div>`;
+  }
+
+  // ============================================================
+  // LIST RENDER
+  // ============================================================
+  function renderList(){
+    if(currentView === 'clientes') return renderClientes();
+    if(currentView === 'inventario') return renderInventario();
+    if(currentView === 'ventas') return renderVentas();
+    if(currentView === 'facturas') return renderFacturas();
+    if(currentView === 'gastos') return renderGastos();
+    if(currentView === 'reportes') return renderReportes();
+  }
+
+  // ============================================================
+  // CRÉDITOS (ventas a crédito y abonos)
+  // ============================================================
+  const METODOS = { efectivo: 'Efectivo', tarjeta: 'Tarjeta', credito: 'A crédito', mixto: 'Mixto' };
+  function metodoLabel(v){ return v.metodoPago ? (METODOS[v.metodoPago] || '') : ''; }
+  function segHtml(group, opts, selected){
+    return `<div class="seg" data-group="${group}">${opts.map(([val, label]) => `<button type="button" data-val="${val}" class="${val === selected ? 'on' : ''}">${label}</button>`).join('')}</div>`;
+  }
+
+  function abonadoVenta(v){ return (v.abonos||[]).reduce((s,a) => s + (Number(a.monto)||0), 0); }
+  function saldoVenta(v){ return v.fiado ? Math.max(0, (Number(v.total)||0) - abonadoVenta(v)) : 0; }
+  function clienteSaldo(id){ return ventas.filter(v => v.clienteId === id).reduce((s,v) => s + saldoVenta(v), 0); }
+
+  function openAbonoForm(ventaId, volver){
+    const v = ventas.find(x => x.id === ventaId);
+    if(!v) return;
+    const saldo = saldoVenta(v);
+    const abonos = (v.abonos||[]).slice().sort((a,b) => b.fecha.localeCompare(a.fecha));
+    let metodoAb = 'efectivo';
+    openOverlay(`
+      <div class="sheet-handle"></div>
+      <h2>Registrar abono</h2>
+      <div class="step-note">${escapeHtml(v.clienteNombre)} · ${v.folio ? 'F-' + String(v.folio).padStart(4,'0') + ' · ' : ''}${fmtDate(v.fecha)}</div>
+      <div class="rep-card" style="margin-bottom:14px;">
+        <div class="rep-line"><span>Total de la venta</span><span>${money(v.total)}</span></div>
+        <div class="rep-line"><span>Abonado</span><span class="pos">${money(abonadoVenta(v))}</span></div>
+        <div class="rep-line strong"><span>Saldo pendiente</span><span class="${saldo > 0 ? 'neg' : 'pos'}">${money(saldo)}</span></div>
+      </div>
+      ${saldo > 0 ? `
+        <div class="row2">
+          <div class="field mono"><label>Monto (${config.moneda})</label><input type="number" inputmode="decimal" id="ab_monto" value="${saldo}"></div>
+          <div class="field"><label>Fecha</label><input type="date" id="ab_fecha" value="${todayStr()}"></div>
+        </div>
+        <div class="field"><label>Nota (opcional)</label><input type="text" id="ab_nota" placeholder="Ej. Nequi, transferencia, número de recibo"></div>
+        <div class="field"><label>Medio de pago</label>${segHtml('abm', [['efectivo','Efectivo'],['tarjeta','Tarjeta']], 'efectivo')}</div>
+        <div class="sheet-actions">
+          <button class="btn btn-secondary" id="abVolver">Volver</button>
+          <button class="btn btn-primary" id="abSave">Registrar abono</button>
+        </div>
+      ` : `
+        <p style="color:var(--ink-soft); font-size:14px; line-height:1.5;">Esta venta ya está pagada por completo.</p>
+        <div class="sheet-actions"><button class="btn btn-secondary" id="abVolver" style="flex:1;">Volver</button></div>
+      `}
+      ${abonos.length ? `
+        <div class="section-label">Abonos registrados</div>
+        <div class="rep-card">
+          ${abonos.map(a => `<div class="rep-line"><span>${fmtDate(a.fecha)}${a.nota ? ' · ' + escapeHtml(a.nota) : ''}</span><span>${money(a.monto)}</span></div>`).join('')}
+        </div>` : ''}
+    `, (overlay) => {
+      const volverFn = () => { overlay.remove(); if(volver) volver(); else if(v.clienteId) openClienteForm(v.clienteId); };
+      overlay.querySelector('#abVolver').addEventListener('click', volverFn);
+      overlay.querySelectorAll('[data-group="abm"] button').forEach(b => b.addEventListener('click', () => {
+        metodoAb = b.dataset.val;
+        overlay.querySelectorAll('[data-group="abm"] button').forEach(x => x.classList.toggle('on', x.dataset.val === metodoAb));
+      }));
+      const sb = overlay.querySelector('#abSave');
+      if(sb) sb.addEventListener('click', () => {
+        const montoInput = overlay.querySelector('#ab_monto');
+        const monto = Math.min(Number(montoInput.value) || 0, saldo);
+        if(monto <= 0){ montoInput.focus(); return; }
+        ventas = ventas.map(x => x.id !== v.id ? x : {
+          ...x,
+          abonos: [...(x.abonos||[]), {
+            id: uid(),
+            fecha: overlay.querySelector('#ab_fecha').value || todayStr(),
+            monto,
+            nota: overlay.querySelector('#ab_nota').value.trim(),
+            metodo: metodoAb,
+          }]
+        });
+        save('cuentas_ventas', ventas);
+        overlay.remove();
+        renderList();
+        if(volver) volver(); else if(v.clienteId) openClienteForm(v.clienteId);
+      });
+    });
+  }
+
+  function renderClientes(){
+    const term = searchInput.value.trim().toLowerCase();
+    const items = clientes.filter(c => c.nombre.toLowerCase().includes(term));
+    if(items.length === 0){
+      listWrap.innerHTML = emptyState(
+        clientes.length === 0 ? 'Aún no tienes clientes' : 'Sin resultados',
+        clientes.length === 0 ? 'Toca el botón + para registrar tu primer cliente.' : 'Prueba con otro nombre.'
+      );
+      return;
+    }
+    listWrap.innerHTML = '<ul class="list">' + items.map(c => `
+      <li class="row" data-id="${c.id}">
+        <div class="row-main">
+          <div class="row-title">${escapeHtml(c.nombre)}</div>
+          <div class="row-sub">${escapeHtml(c.telefono || c.email || 'Sin datos de contacto')}</div>
+        </div>
+        ${clienteSaldo(c.id) > 0 ? `<span class="saldo-tag">Debe ${money(clienteSaldo(c.id))}</span>` : ''}
+      </li>`).join('') + '</ul>';
+    listWrap.querySelectorAll('.row').forEach(row => row.addEventListener('click', () => openClienteForm(row.getAttribute('data-id'))));
+  }
+
+  function getCategorias(){
+    const set = new Set();
+    inventario.forEach(p => { if(p.categoria) set.add(p.categoria); });
+    return Array.from(set).sort((a,b) => a.localeCompare(b));
+  }
+
+  function bindInvSub(){
+    listWrap.querySelectorAll('[data-group="invsub"] button').forEach(b => b.addEventListener('click', () => { invSub = b.dataset.val; renderInventario(); }));
+  }
+
+  function movimientosInventario(){
+    const ev = [];
+    ventas.forEach(v => (v.items||[]).forEach(it => ev.push({
+      tipo: 'venta', fecha: v.fecha, ts: v.creadoTs || 0, nombre: it.nombre,
+      cantidad: Number(it.cantidad) || 0,
+      detalle: `${v.clienteNombre}${v.folio ? ' · F-' + String(v.folio).padStart(4,'0') : ''} · ${money(it.precio)} c/u`,
+    })));
+    gastos.filter(g => g.tipo === 'compra').forEach(g => {
+      const prod = inventario.find(p => p.id === g.productoId);
+      ev.push({
+        tipo: 'compra', fecha: g.fecha, ts: 0, nombre: prod ? prod.nombre : (g.descripcion || 'Producto'),
+        cantidad: Number(g.cantidad) || 0,
+        detalle: `${money(g.cantidad ? g.monto / g.cantidad : 0)} c/u · total ${money(g.monto)}`,
+      });
+    });
+    movimientos.forEach(m => {
+      const tipo = m.tipo || 'ajuste';
+      ev.push({
+        tipo, fecha: m.fecha, ts: m.ts || 0, nombre: m.productoNombre || m.nombre || 'Producto',
+        stockAnterior: m.stockAnterior, stockNuevo: m.stockNuevo, cantidad: m.cantidad,
+        detalle: m.motivo || (tipo === 'alta' ? 'Producto agregado' : tipo === 'baja' ? 'Producto eliminado' : 'Ajuste manual'),
+      });
+    });
+    return ev.sort((a,b) => b.fecha.localeCompare(a.fecha) || b.ts - a.ts);
+  }
+
+  function renderHistorialHtml(){
+    const term = searchInput.value.trim().toLowerCase();
+    const evs = movimientosInventario().filter(e => (e.nombre || '').toLowerCase().includes(term));
+    if(evs.length === 0){
+      return emptyState(
+        movimientos.length + ventas.length + gastos.length === 0 ? 'Sin movimientos' : 'Sin resultados',
+        movimientos.length + ventas.length + gastos.length === 0 ? 'Aquí aparecerán tus ventas, compras, ajustes y productos agregados o eliminados.' : 'Prueba con otro nombre de producto.'
+      );
+    }
+    const TIPO_LABEL = { venta:'Venta', compra:'Compra', ajuste:'Ajuste de stock', alta:'Producto nuevo', baja:'Producto eliminado', devolucion:'Devolución' };
+    const qty = (e) => {
+      if(e.tipo === 'venta') return { t: `-${e.cantidad}`, c: 'neg' };
+      if(e.tipo === 'devolucion') return { t: `+${e.cantidad}`, c: 'pos' };
+      if(e.tipo === 'compra') return { t: `+${e.cantidad}`, c: 'pos' };
+      if(e.tipo === 'ajuste'){ const d = (Number(e.stockNuevo) || 0) - (Number(e.stockAnterior) || 0); return { t: `${d > 0 ? '+' : ''}${d}`, c: d >= 0 ? 'pos' : 'neg' }; }
+      if(e.tipo === 'alta') return { t: (e.stockNuevo !== undefined && e.stockNuevo !== '') ? `Stock ${e.stockNuevo}` : '', c: '' };
+      return { t: '', c: 'neg' };
+    };
+    return `<div class="rep-card">${evs.slice(0, 200).map(e => {
+      const q = qty(e);
+      return `
+        <div class="rep-line">
+          <span style="min-width:0;"><span class="credit-title" style="display:block;">${escapeHtml(e.nombre)}</span><span class="credit-sub" style="display:block;">${fmtDate(e.fecha)} · ${TIPO_LABEL[e.tipo] || e.tipo}${e.detalle ? ' · ' + escapeHtml(e.detalle) : ''}</span></span>
+          <span class="${q.c}" style="font-weight:700; white-space:nowrap;">${q.t}</span>
+        </div>`;
+    }).join('')}</div>`;
+  }
+
+  function renderStockHtml(){
+    if(inventario.length === 0) return emptyState('Aún no tienes productos', 'Agrega productos en la pestaña Productos.');
+    const enStock = (p) => (p.stock === '' || p.stock === null) ? null : Number(p.stock);
+    const unidades = inventario.reduce((s,p) => s + (enStock(p) || 0), 0);
+    const valorCosto = inventario.reduce((s,p) => s + (enStock(p) || 0) * (Number(p.costo) || 0), 0);
+    const valorVenta = inventario.reduce((s,p) => s + (enStock(p) || 0) * (Number(p.precio) || 0), 0);
+    const sinControl = inventario.filter(p => enStock(p) === null).length;
+    const reservadasTot = inventario.reduce((s,p) => s + unidadesReservadas(p.id), 0);
+    const bajos = inventario.filter(p => enStock(p) !== null && enStock(p) <= config.stockMinimo).length;
+    const detalle = inventario
+      .map(p => ({ p, stock: enStock(p), valor: (enStock(p) || 0) * (Number(p.costo) || 0) }))
+      .sort((a,b) => b.valor - a.valor);
+    return `
+      <div class="rep-hero">
+        <div class="rep-hero-label">Costo total del inventario</div>
+        <div class="rep-hero-value">${money(valorCosto)}</div>
+        <div class="rep-hero-sub">${inventario.length} productos · ${unidades} unidades en stock</div>
+      </div>
+      <div class="rep-grid" style="margin-top:10px;">
+        <div class="rep-stat"><div class="rep-stat-label">Cantidad de productos</div><div class="rep-stat-value">${inventario.length}</div></div>
+        <div class="rep-stat"><div class="rep-stat-label">Unidades en stock</div><div class="rep-stat-value">${unidades}</div></div>
+        <div class="rep-stat"><div class="rep-stat-label">Valor a precio de venta</div><div class="rep-stat-value">${money(valorVenta)}</div></div>
+        <div class="rep-stat"><div class="rep-stat-label">Reservadas para pedidos</div><div class="rep-stat-value">${reservadasTot}</div></div>
+        <div class="rep-stat"><div class="rep-stat-label">Poco stock</div><div class="rep-stat-value ${bajos > 0 ? 'neg' : ''}">${bajos}</div></div>
+      </div>
+      ${sinControl ? `<div class="step-note" style="margin-top:8px;">${sinControl} producto(s) sin control de stock no se cuentan en las unidades.</div>` : ''}
+      <div class="section-label">Detalle por producto</div>
+      <div class="rep-card">
+        ${detalle.map(d => `
+          <div class="rep-line">
+            <span style="min-width:0;"><span class="credit-title" style="display:block;">${escapeHtml(d.p.nombre)}</span><span class="credit-sub" style="display:block;">${d.stock === null ? 'Sin control de stock' : d.stock + ' unid. × ' + money(Number(d.p.costo) || 0) + (unidadesReservadas(d.p.id) > 0 ? ' · ' + unidadesReservadas(d.p.id) + ' reservadas · ' + Math.max(0, d.stock - unidadesReservadas(d.p.id)) + ' disponibles' : '')}</span></span>
+            <span>${money(d.valor)}</span>
+          </div>`).join('')}
+      </div>`;
+  }
+
+  function renderInventario(){
+    const subSeg = `<div class="inv-sub">${segHtml('invsub', [['productos','Productos'],['stock','Stock'],['historial','Historial']], invSub)}</div>`;
+    if(invSub === 'stock'){ listWrap.innerHTML = subSeg + renderStockHtml(); bindInvSub(); return; }
+    if(invSub === 'historial'){ listWrap.innerHTML = subSeg + renderHistorialHtml(); bindInvSub(); return; }
+    const term = searchInput.value.trim().toLowerCase();
+    const categorias = getCategorias();
+    if(categoriaFiltro && !categorias.includes(categoriaFiltro)) categoriaFiltro = '';
+    let items = inventario.filter(p => p.nombre.toLowerCase().includes(term));
+    if(categoriaFiltro) items = items.filter(p => p.categoria === categoriaFiltro);
+    const lowStockItems = inventario.filter(p => p.stock !== '' && p.stock !== null && Number(p.stock) <= config.stockMinimo);
+    const lowStockBanner = lowStockItems.length > 0
+      ? `<div class="summary-card neg" style="margin-bottom:14px;"><div class="label">⚠ Poco stock (${lowStockItems.length})</div><div class="value" style="font-size:13px; font-weight:600;">${lowStockItems.map(p => escapeHtml(p.nombre)).join(', ')}</div></div>`
+      : '';
+    const chipRow = categorias.length > 0 ? `
+      <div class="chip-row" id="catChipRow">
+        <div class="chip ${categoriaFiltro === '' ? 'active' : ''}" data-cat="">Todas</div>
+        ${categorias.map(c => `<div class="chip ${categoriaFiltro === c ? 'active' : ''}" data-cat="${escapeHtml(c)}">${escapeHtml(c)}</div>`).join('')}
+      </div>` : '';
+    if(items.length === 0){
+      listWrap.innerHTML = subSeg + chipRow + lowStockBanner + emptyState(
+        inventario.length === 0 ? 'Aún no tienes productos' : 'Sin resultados',
+        inventario.length === 0 ? 'Toca el botón + para agregar tu primer producto.' : 'Prueba con otro nombre o categoría.'
+      );
+      if(chipRow) bindCatChips();
+      bindInvSub();
+      return;
+    }
+    listWrap.innerHTML = subSeg + chipRow + lowStockBanner + '<ul class="list">' + items.map(p => {
+      const lowStock = p.stock !== '' && p.stock !== null && Number(p.stock) <= config.stockMinimo;
+      const costo = Number(p.costo) || 0;
+      const gananciaUnit = costo > 0 ? (p.precio - costo) : null;
+      const margenPct = (costo > 0) ? Math.round((gananciaUnit / costo) * 100) : null;
+      const reservadas = unidadesReservadas(p.id);
+      const stockLine = p.stock === '' || p.stock === null ? 'Sin control de stock' : 'Stock: ' + p.stock + ' unid.' + (reservadas > 0 ? ` · ${reservadas} reservadas · ${Math.max(0, p.stock - reservadas)} disponibles` : '');
+      return `
+      <li class="row" data-id="${p.id}">
+        <div class="row-main">
+          <div class="row-title">${escapeHtml(p.nombre)}</div>
+          <div class="row-sub">${stockLine}${costo > 0 ? ' · Costo: ' + money(costo) : ''}</div>
+          ${p.categoria ? `<div class="row-cat">${escapeHtml(p.categoria)}</div>` : ''}
+        </div>
+        <div class="row-value-wrap">
+          <div class="row-value ${lowStock ? 'low' : ''}">${money(p.precio)}</div>
+          ${margenPct !== null ? `<div class="row-badge ${margenPct < 0 ? 'neg' : ''}">${margenPct >= 0 ? '+' : ''}${margenPct}% · ${money(gananciaUnit)}</div>` : ''}
+        </div>
+      </li>`;
+    }).join('') + '</ul>';
+    listWrap.querySelectorAll('.row').forEach(row => row.addEventListener('click', () => openProductoForm(row.getAttribute('data-id'))));
+    if(chipRow) bindCatChips();
+    bindInvSub();
+  }
+
+  function bindCatChips(){
+    listWrap.querySelectorAll('.chip').forEach(chip => chip.addEventListener('click', () => {
+      categoriaFiltro = chip.getAttribute('data-cat');
+      renderInventario();
+    }));
+  }
+
+  // ============================================================
+  // PEDIDOS (agenda de entregas dentro de Ventas)
+  // ============================================================
+  function unidadesReservadas(productoId){
+    return pedidos
+      .filter(p => p.estado === 'pendiente')
+      .reduce((s,p) => s + p.items.filter(it => it.productoId === productoId).reduce((a,it) => a + (Number(it.cantidad) || 0), 0), 0);
+  }
+
+  function segVentas(){
+    return `<div class="inv-sub">${segHtml('ventasvista', [['ventas','Ventas'],['pedidos','Pedidos']], ventasVista)}</div>`;
+  }
+  function bindVentasSeg(){
+    listWrap.querySelectorAll('[data-group="ventasvista"] button').forEach(b => b.addEventListener('click', () => { ventasVista = b.dataset.val; renderVentas(); }));
+  }
+
+  function pedidoEstadoInfo(p){
+    const hoy = todayStr();
+    if(p.fechaEntrega < hoy) return { txt: 'Vencido · ' + fmtDate(p.fechaEntrega), cls: 'low', hoy: false };
+    if(p.fechaEntrega === hoy) return { txt: 'Hoy', cls: '', hoy: true };
+    return { txt: fmtDate(p.fechaEntrega), cls: '', hoy: false };
+  }
+
+  function renderPedidosHtml(){
+    const term = searchInput.value.trim().toLowerCase();
+    const activos = pedidos
+      .filter(p => p.estado === 'pendiente' && p.clienteNombre.toLowerCase().includes(term))
+      .sort((a,b) => a.fechaEntrega.localeCompare(b.fechaEntrega) || (a.creadoTs||0) - (b.creadoTs||0));
+    if(activos.length === 0){
+      return emptyState(
+        pedidos.some(p => p.estado === 'pendiente') ? 'Sin resultados' : 'Sin pedidos pendientes',
+        pedidos.some(p => p.estado === 'pendiente') ? 'Prueba con otro nombre de cliente.' : 'Toca + para agendar un pedido con su fecha de entrega.'
+      );
+    }
+    const hoy = todayStr();
+    const vencidos = activos.filter(p => p.fechaEntrega < hoy);
+    const paraHoy = activos.filter(p => p.fechaEntrega === hoy);
+    const proximos = activos.filter(p => p.fechaEntrega > hoy);
+    const fila = (p) => {
+      const info = pedidoEstadoInfo(p);
+      const resumen = p.items.map(it => `${it.cantidad} × ${it.nombre}`).join(', ');
+      return `
+        <li class="row" data-pid="${p.id}">
+          <div class="row-main">
+            <div class="row-title">${escapeHtml(p.clienteNombre)}</div>
+            <div class="row-sub">${escapeHtml(resumen)}</div>
+          </div>
+          <div class="row-value-wrap">
+            <div class="row-value ${info.cls}" style="font-size:12.5px;${info.hoy ? 'color:var(--accent-ink);' : ''}">${escapeHtml(info.txt)}</div>
+          </div>
+        </li>`;
+    };
+    const grupo = (titulo, arr) => arr.length ? `<div class="section-label">${titulo}</div><ul class="list">${arr.map(fila).join('')}</ul>` : '';
+    return grupo('Vencidos', vencidos) + grupo('Para hoy', paraHoy) + grupo('Próximas entregas', proximos);
+  }
+
+  function openPedidoForm(id){
+    const record = id ? pedidos.find(p => p.id === id) : null;
+    if(clientes.length === 0){
+      alert('Primero registra un cliente en la pestaña Clientes.');
+      return;
+    }
+    let items = record ? record.items.map(it => ({ ...it })) : [];
+    openOverlay(`
+      <div class="sheet-handle"></div>
+      <h2>${record ? 'Editar' : 'Nuevo'} pedido</h2>
+      <div class="step-note">Agenda cuándo debe entregarse y qué lleva cada pedido.</div>
+      <div class="field"><label>Cliente</label>
+        <select id="pd_cliente">${clientes.map(c => `<option value="${c.id}" ${record && record.clienteId === c.id ? 'selected' : ''}>${escapeHtml(c.nombre)}</option>`).join('')}</select>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Fecha de entrega</label><input type="date" id="pd_fecha" value="${record ? record.fechaEntrega : todayStr()}"></div>
+        <div class="field mono"><label>Anticipo (${config.moneda})</label><input type="number" inputmode="decimal" id="pd_anticipo" value="${record && record.anticipo ? record.anticipo : ''}" placeholder="0"></div>
+      </div>
+      <div class="field"><label>Fecha del anticipo</label><input type="date" id="pd_fechaAnt" value="${record && record.fechaAnticipo ? record.fechaAnticipo : todayStr()}"></div>
+      <div class="section-label" style="margin-top:6px;">Productos del pedido</div>
+      <div id="pdItems"></div>
+      <div class="field" style="margin-top:12px; padding:12px; border:1px dashed var(--border-strong); border-radius:12px;">
+        <label>Agregar producto</label>
+        <input type="text" id="pd_nombre" list="pdProdList" placeholder="Nombre del producto">
+        <datalist id="pdProdList">${inventario.map(p => `<option value="${escapeHtml(p.nombre)}">`).join('')}</datalist>
+        <div class="row2" style="margin-top:8px;">
+          <div class="field mono" style="margin-bottom:8px;"><label>Cantidad</label><input type="number" inputmode="numeric" id="pd_cant" value="1"></div>
+          <div class="field mono" style="margin-bottom:8px;"><label>Precio c/u (${config.moneda})</label><input type="number" inputmode="decimal" id="pd_precio" placeholder="0"></div>
+        </div>
+        <div class="field" style="margin-bottom:8px;"><label>Características</label><input type="text" id="pd_car" placeholder="Ej. talla M, color azul, sin azúcar"></div>
+        <button class="btn btn-secondary" id="pd_add" style="width:100%;">Agregar al pedido</button>
+      </div>
+      <div class="field"><label>Notas generales (opcional)</label><textarea id="pd_notas" rows="2" placeholder="Ej. Entregar en la oficina, llamar antes">${escapeHtml(record ? (record.notas || '') : '')}</textarea></div>
+      <div class="sheet-actions">
+        <button class="btn btn-secondary" id="pd_cancel">Cancelar</button>
+        <button class="btn btn-primary" id="pd_save">Guardar pedido</button>
+      </div>
+    `, (overlay) => {
+      const itemsWrap = overlay.querySelector('#pdItems');
+      const nombreInput = overlay.querySelector('#pd_nombre');
+      const precioInput = overlay.querySelector('#pd_precio');
+      const renderItems = () => {
+        itemsWrap.innerHTML = items.length ? `<div class="rep-card">${items.map((it, i) => `
+          <div class="rep-line">
+            <span style="min-width:0;"><span class="credit-title" style="display:block;">${it.cantidad} × ${escapeHtml(it.nombre)}</span><span class="credit-sub" style="display:block;">${it.caracteristicas ? escapeHtml(it.caracteristicas) : 'Sin características'}${it.precio ? ' · ' + money(it.precio) + ' c/u' : ''}</span></span>
+            <button class="link-btn danger" data-rm="${i}">Quitar</button>
+          </div>`).join('')}</div>` : `<div class="step-note">Aún no has agregado productos.</div>`;
+        itemsWrap.querySelectorAll('[data-rm]').forEach(b => b.addEventListener('click', () => { items.splice(Number(b.dataset.rm), 1); renderItems(); }));
+      };
+      nombreInput.addEventListener('input', () => {
+        const prod = inventario.find(x => x.nombre.toLowerCase() === nombreInput.value.trim().toLowerCase());
+        if(prod && !precioInput.value) precioInput.value = prod.precio || '';
+      });
+      overlay.querySelector('#pd_add').addEventListener('click', () => {
+        const nombre = nombreInput.value.trim();
+        const cant = Number(overlay.querySelector('#pd_cant').value) || 0;
+        if(!nombre){ nombreInput.focus(); return; }
+        if(cant <= 0){ overlay.querySelector('#pd_cant').focus(); return; }
+        const prod = inventario.find(x => x.nombre.toLowerCase() === nombre.toLowerCase());
+        items.push({
+          productoId: prod ? prod.id : null,
+          nombre: prod ? prod.nombre : nombre,
+          cantidad: cant,
+          precio: Number(precioInput.value) || 0,
+          caracteristicas: overlay.querySelector('#pd_car').value.trim(),
+        });
+        nombreInput.value = '';
+        precioInput.value = '';
+        overlay.querySelector('#pd_car').value = '';
+        overlay.querySelector('#pd_cant').value = 1;
+        renderItems();
+      });
+      overlay.querySelector('#pd_cancel').addEventListener('click', () => overlay.remove());
+      overlay.querySelector('#pd_save').addEventListener('click', () => {
+        const cli = clientes.find(c => c.id === overlay.querySelector('#pd_cliente').value);
+        const fecha = overlay.querySelector('#pd_fecha').value;
+        if(!cli) return;
+        if(!fecha){ overlay.querySelector('#pd_fecha').focus(); return; }
+        if(items.length === 0){ nombreInput.focus(); return; }
+        const data = {
+          id: record ? record.id : uid(),
+          clienteId: cli.id,
+          clienteNombre: cli.nombre,
+          fechaEntrega: fecha,
+          anticipo: Number(overlay.querySelector('#pd_anticipo').value) || 0,
+          fechaAnticipo: overlay.querySelector('#pd_fechaAnt').value || todayStr(),
+          items,
+          notas: overlay.querySelector('#pd_notas').value.trim(),
+          estado: 'pendiente',
+          creadoTs: record ? (record.creadoTs || Date.now()) : Date.now(),
+        };
+        pedidos = record ? pedidos.map(x => x.id === record.id ? data : x) : [...pedidos, data];
+        save('cuentas_pedidos', pedidos);
+        overlay.remove();
+        renderList();
+      });
+      renderItems();
+    });
+  }
+
+  function entregarPedido(p, opts){
+    const cantPorProd = {};
+    p.items.forEach(it => { if(it.productoId) cantPorProd[it.productoId] = (cantPorProd[it.productoId] || 0) + (Number(it.cantidad) || 0); });
+    const faltante = Object.keys(cantPorProd).map(pid => {
+      const prod = inventario.find(x => x.id === pid);
+      return prod && prod.stock !== '' && prod.stock !== null && Number(prod.stock) < cantPorProd[pid] ? prod : null;
+    }).find(Boolean);
+    if(faltante){
+      alert(`No hay suficiente stock de ${faltante.nombre} para entregar este pedido (disponibles: ${faltante.stock}).`);
+      return;
+    }
+    const items = p.items.map(it => ({ productoId: it.productoId, nombre: it.nombre, precio: Number(it.precio) || 0, cantidad: Number(it.cantidad) || 0 }));
+    const sumaItems = items.reduce((s,it) => s + it.precio * it.cantidad, 0);
+    const impuesto = sumaItems * (Number(config.impuesto) || 0) / 100;
+    const total = sumaItems + impuesto;
+    const costoTotal = items.reduce((s,it) => {
+      const prod = inventario.find(x => x.id === it.productoId);
+      return s + (prod ? (Number(prod.costo) || 0) : 0) * it.cantidad;
+    }, 0);
+    const anticipo = Math.min(Number(p.anticipo) || 0, total);
+    const saldo = total - anticipo;
+    const hoy = todayStr();
+    const cli = clientes.find(c => c.id === p.clienteId) || {};
+    const detalles = p.items.filter(it => it.caracteristicas).map(it => `${it.nombre}: ${it.caracteristicas}`);
+    const pagaAhora = !!(opts && opts.pagaAhora) && saldo > 0;
+    const metodoSaldo = (opts && opts.metodo) || 'efectivo';
+    const quedaCredito = saldo > 0 && !pagaAhora;
+    const abonosVenta = [];
+    if(anticipo > 0) abonosVenta.push({ id: uid(), fecha: p.fechaAnticipo || hoy, monto: anticipo, metodo: 'efectivo', nota: 'Anticipo del pedido' });
+    if(pagaAhora) abonosVenta.push({ id: uid(), fecha: hoy, monto: saldo, metodo: metodoSaldo, nota: 'Pago al entregar' });
+    let metodoVenta;
+    if(quedaCredito) metodoVenta = 'credito';
+    else if(pagaAhora && anticipo > 0 && metodoSaldo !== 'efectivo') metodoVenta = 'mixto';
+    else metodoVenta = pagaAhora ? metodoSaldo : 'efectivo';
+    const venta = {
+      id: uid(), folio: null, creadoTs: Date.now(),
+      clienteId: p.clienteId, clienteNombre: p.clienteNombre,
+      clienteDireccion: cli.direccion || '', clienteTelefono: cli.telefono || '', clienteEmail: cli.email || '',
+      items, sumaItems, descuentoPct: 0, descuentoMonto: 0, subtotal: sumaItems,
+      impuesto, total, costoTotal, gananciaEstimada: sumaItems - costoTotal,
+      notas: [p.notas, ...detalles].filter(Boolean).join(' · '),
+      fecha: hoy,
+      metodoPago: metodoVenta,
+      fiado: quedaCredito,
+      abonos: abonosVenta,
+    };
+    inventario = inventario.map(x => {
+      const cant = cantPorProd[x.id];
+      if(!cant || x.stock === '' || x.stock === null) return x;
+      return { ...x, stock: Math.max(0, Number(x.stock) - cant) };
+    });
+    ventas = [...ventas, venta];
+    pedidos = pedidos.map(x => x.id === p.id ? { ...x, estado: 'entregado' } : x);
+    save('cuentas_ventas', ventas);
+    save('cuentas_inventario', inventario);
+    save('cuentas_pedidos', pedidos);
+    document.querySelectorAll('.overlay').forEach(o => o.remove());
+    renderList();
+    alert('Pedido entregado y registrado como venta. Puedes generar su factura desde Ventas.');
+  }
+
+  function openPedidoDetalle(id){
+    const p = pedidos.find(x => x.id === id);
+    if(!p) return;
+    const total = p.items.reduce((s,it) => s + (Number(it.precio) || 0) * (Number(it.cantidad) || 0), 0);
+    const anticipo = Number(p.anticipo) || 0;
+    const info = pedidoEstadoInfo(p);
+    openOverlay(`
+      <div class="sheet-handle"></div>
+      <h2>${escapeHtml(p.clienteNombre)}</h2>
+      <div class="step-note">Entrega: <strong>${fmtDate(p.fechaEntrega)}</strong> · ${escapeHtml(info.txt)}</div>
+      <div class="rep-card">
+        ${p.items.map(it => `
+          <div class="rep-line">
+            <span style="min-width:0;"><span class="credit-title" style="display:block;">${it.cantidad} × ${escapeHtml(it.nombre)}</span><span class="credit-sub" style="display:block;">${it.caracteristicas ? escapeHtml(it.caracteristicas) : 'Sin características'}</span></span>
+            <span>${it.precio ? money(it.precio * it.cantidad) : '—'}</span>
+          </div>`).join('')}
+        <div class="rep-line strong"><span>Total estimado</span><span>${money(total)}</span></div>
+        <div class="rep-line"><span>Anticipo${p.fechaAnticipo ? ' · ' + fmtDate(p.fechaAnticipo) : ''}</span><span>${money(anticipo)}</span></div>
+        <div class="rep-line"><span>Saldo al entregar</span><span>${money(Math.max(0, total - anticipo))}</span></div>
+      </div>
+      ${p.notas ? `<div class="inv-notes" style="margin-top:12px;"><strong>Notas:</strong> ${escapeHtml(p.notas)}</div>` : ''}
+      <div class="sheet-actions" style="margin-top:16px;">
+        <button class="btn btn-secondary" id="pdEditar">Editar</button>
+        <button class="btn btn-primary" id="pdEntregar">Marcar entregado</button>
+      </div>
+      <div id="pdConfirm"></div>
+      <button class="btn-danger-text" id="pdCancelar">Cancelar pedido</button>
+    `, (overlay) => {
+      const confirmBox = overlay.querySelector('#pdConfirm');
+      overlay.querySelector('#pdEditar').addEventListener('click', () => { overlay.remove(); openPedidoForm(p.id); });
+      overlay.querySelector('#pdEntregar').addEventListener('click', () => {
+        const saldoPend = Math.max(0, total - anticipo);
+        confirmBox.innerHTML = `
+          <div class="rep-card" style="margin-top:12px; padding:14px;">
+            <p style="font-size:14px; line-height:1.5; margin-bottom:10px;">Entrega a ${escapeHtml(p.clienteNombre)}. Saldo al entregar: <strong>${money(saldoPend)}</strong></p>
+            ${saldoPend > 0 ? `
+              ${segHtml('pdpago', [['pagado','Pagó el saldo'],['credito','Queda a crédito']], 'pagado')}
+              <div id="pdMetWrap" style="margin-top:10px;">${segHtml('pdmet', [['efectivo','Efectivo'],['tarjeta','Tarjeta']], 'efectivo')}</div>` : ''}
+            <div class="sheet-actions" style="margin-top:14px;">
+              <button class="btn btn-secondary" id="pdNo">No</button>
+              <button class="btn btn-primary" id="pdSi">Entregar</button>
+            </div>
+          </div>`;
+        let modo = 'pagado';
+        let met = 'efectivo';
+        overlay.querySelectorAll('[data-group="pdpago"] button').forEach(b => b.addEventListener('click', () => {
+          modo = b.dataset.val;
+          overlay.querySelectorAll('[data-group="pdpago"] button').forEach(x => x.classList.toggle('on', x === b));
+          const wrap = overlay.querySelector('#pdMetWrap');
+          if(wrap) wrap.style.display = modo === 'pagado' ? '' : 'none';
+        }));
+        overlay.querySelectorAll('[data-group="pdmet"] button').forEach(b => b.addEventListener('click', () => {
+          met = b.dataset.val;
+          overlay.querySelectorAll('[data-group="pdmet"] button').forEach(x => x.classList.toggle('on', x === b));
+        }));
+        overlay.querySelector('#pdNo').addEventListener('click', () => { confirmBox.innerHTML = ''; });
+        overlay.querySelector('#pdSi').addEventListener('click', () => entregarPedido(p, { pagaAhora: modo === 'pagado', metodo: met }));
+      });
+      overlay.querySelector('#pdCancelar').addEventListener('click', () => {
+        confirmBox.innerHTML = `
+          <div class="rep-card" style="margin-top:12px; padding:14px;">
+            <p style="font-size:14px; line-height:1.5; margin-bottom:12px;">¿Cancelar el pedido de ${escapeHtml(p.clienteNombre)? escapeHtml(p.clienteNombre) : ''}? Dejará de aparecer en la agenda.</p>
+            <div class="sheet-actions" style="margin-top:0;">
+              <button class="btn btn-secondary" id="pcNo">No</button>
+              <button class="btn btn-primary" id="pcSi" style="background:var(--danger);">Sí, cancelar pedido</button>
+            </div>
+          </div>`;
+        overlay.querySelector('#pcNo').addEventListener('click', () => { confirmBox.innerHTML = ''; });
+        overlay.querySelector('#pcSi').addEventListener('click', () => {
+          pedidos = pedidos.map(x => x.id === p.id ? { ...x, estado: 'cancelado' } : x);
+          save('cuentas_pedidos', pedidos);
+          overlay.remove();
+          renderList();
+        });
+      });
+    });
+  }
+
+  function renderVentas(){
+    if(ventasVista === 'pedidos'){
+      listWrap.innerHTML = segVentas() + renderPedidosHtml();
+      bindVentasSeg();
+      listWrap.querySelectorAll('[data-pid]').forEach(row => row.addEventListener('click', () => openPedidoDetalle(row.getAttribute('data-pid'))));
+      return;
+    }
+    renderVentasLista();
+    listWrap.insertAdjacentHTML('afterbegin', segVentas());
+    bindVentasSeg();
+  }
+
+  function renderVentasLista(){
+    const term = searchInput.value.trim().toLowerCase();
+    const items = ventas
+      .filter(v => v.clienteNombre.toLowerCase().includes(term) || (v.folio && ('f' + v.folio).includes(term)))
+      .sort((a,b) => b.fecha.localeCompare(a.fecha) || (b.creadoTs||0) - (a.creadoTs||0));
+    if(items.length === 0){
+      listWrap.innerHTML = emptyState(
+        ventas.length === 0 ? 'Aún no tienes ventas' : 'Sin resultados',
+        ventas.length === 0 ? 'Toca el botón + para registrar tu primera venta.' : 'Prueba con otro nombre o folio.'
+      );
+      return;
+    }
+    listWrap.innerHTML = '<ul class="list">' + items.map(v => `
+      <li class="row" data-id="${v.id}">
+        <div class="row-main">
+          <div class="row-title">${escapeHtml(v.clienteNombre)}</div>
+          <div class="row-sub">${v.folio ? 'Factura F-' + String(v.folio).padStart(4,'0') : 'Sin factura'} · ${fmtDate(v.fecha)}${metodoLabel(v) ? ' · ' + metodoLabel(v) : ''}</div>
+        </div>
+        <div class="row-value">${money(v.total)}</div>
+      </li>`).join('') + '</ul>';
+    listWrap.querySelectorAll('.row').forEach(row => row.addEventListener('click', () => openVentaDetail(row.getAttribute('data-id'))));
+  }
+
+  function renderGastos(){
+    const term = searchInput.value.trim().toLowerCase();
+    const items = gastos
+      .filter(g => g.descripcion.toLowerCase().includes(term) || (g.categoria||'').toLowerCase().includes(term))
+      .sort((a,b) => b.fecha.localeCompare(a.fecha));
+
+    if(items.length === 0){
+      listWrap.innerHTML = emptyState(
+        gastos.length === 0 ? 'Aún no tienes gastos registrados' : 'Sin resultados',
+        gastos.length === 0 ? 'Toca el botón + para registrar tu primer gasto.' : 'Prueba con otro término.'
+      );
+      return;
+    }
+    listWrap.innerHTML = '<ul class="list">' + items.map(g => `
+      <li class="row" data-id="${g.id}">
+        <div class="row-main">
+          <div class="row-title">${g.tipo === 'compra' ? '📦 ' : ''}${escapeHtml(g.descripcion)}</div>
+          <div class="row-sub">${escapeHtml(g.categoria || 'General')} · ${fmtDate(g.fecha)}</div>
+        </div>
+        <div class="row-value neg">-${money(g.monto)}</div>
+      </li>`).join('') + '</ul>';
+    listWrap.querySelectorAll('.row').forEach(row => row.addEventListener('click', () => openGastoForm(row.getAttribute('data-id'))));
+  }
+
+  // ============================================================
+  // CAJA (cierre automático diario y mensual)
+  // ============================================================
+  let repVista = 'resumen';
+  let cajaModo = 'dia';
+  let cajaFecha = todayStr();
+  let cajaMes = todayStr().slice(0,7);
+
+  function cajaResumen(enRango){
+    let efectivo = 0, tarjeta = 0, abonosCred = 0;
+    ventas.forEach(x => {
+      (x.abonos || []).forEach(a => {
+        if(!enRango(a.fecha)) return;
+        const monto = Number(a.monto) || 0;
+        if(a.metodo === 'tarjeta') tarjeta += monto; else efectivo += monto;
+        if(x.fiado) abonosCred += monto;
+      });
+      if(enRango(x.fecha) && !x.fiado && !(x.abonos && x.abonos.length)){
+        efectivo += Number(x.total) || 0; // ventas anteriores a los medios de pago: se cuentan como efectivo
+      }
+    });
+    const ventasTot = ventas.filter(x => enRango(x.fecha)).reduce((s,x) => s + (Number(x.total)||0), 0);
+    const creditoNuevo = ventas.filter(x => x.fiado && enRango(x.fecha)).reduce((s,x) => s + (Number(x.total)||0), 0);
+    const gs = gastos.filter(g => enRango(g.fecha));
+    const gastosTot = gs.reduce((s,g) => s + (Number(g.monto)||0), 0);
+    const compras = gs.filter(g => g.tipo === 'compra').reduce((s,g) => s + (Number(g.monto)||0), 0);
+    const ingresos = efectivo + tarjeta;
+    return {
+      efectivo, tarjeta, ingresos, abonosCred, ventasTot, creditoNuevo,
+      gastosTot, compras, otros: gastosTot - compras,
+      neto: ingresos - gastosTot, efectivoCaja: efectivo - gastosTot,
+    };
+  }
+
+  function renderCajaHtml(){
+    const esDia = cajaModo === 'dia';
+    const rango = esDia ? (f => f === cajaFecha) : (f => monthKey(f) === cajaMes);
+    const C = cajaResumen(rango);
+    const titulo = esDia
+      ? fmtDate(cajaFecha)
+      : new Date(cajaMes + '-01T12:00:00').toLocaleDateString('es-CO', { month: 'long', year: 'numeric' });
+
+    let detalleDias = '';
+    if(!esDia){
+      const dias = new Set();
+      ventas.forEach(x => {
+        if(monthKey(x.fecha) === cajaMes) dias.add(x.fecha);
+        (x.abonos || []).forEach(a => { if(monthKey(a.fecha) === cajaMes) dias.add(a.fecha); });
+      });
+      gastos.forEach(g => { if(monthKey(g.fecha) === cajaMes) dias.add(g.fecha); });
+      const lista = Array.from(dias).sort();
+      if(lista.length){
+        detalleDias = `
+          <div class="section-label">Cierre de cada día</div>
+          <div class="rep-card">
+            ${lista.map(d => {
+              const r = cajaResumen(f => f === d);
+              return `
+                <div class="rep-line">
+                  <span><span class="credit-title" style="display:block;">${fmtDate(d)}</span><span class="credit-sub" style="display:block;">Efectivo ${money(r.efectivo)} · Tarjeta ${money(r.tarjeta)} · Gastos ${money(r.gastosTot)}</span></span>
+                  <span class="${r.neto < 0 ? 'neg' : 'pos'}">${money(r.neto)}</span>
+                </div>`;
+            }).join('')}
+          </div>`;
+      }
+    }
+
+    return `
+      <div style="margin-top:14px;">${segHtml('vista', [['resumen','Resumen'],['caja','Caja']], repVista)}</div>
+      <div style="margin-top:10px;">${segHtml('cajamodo', [['dia','Diario'],['mes','Mensual']], cajaModo)}</div>
+      <div class="field" style="margin-top:12px;">
+        <label>${esDia ? 'Día' : 'Mes'}</label>
+        <input type="${esDia ? 'date' : 'month'}" id="cajaFechaInput" value="${esDia ? cajaFecha : cajaMes}">
+      </div>
+
+      <div class="rep-hero ${C.neto < 0 ? 'neg' : ''}" style="margin-top:8px;">
+        <div class="rep-hero-label">Cierre de caja · ${escapeHtml(titulo)}</div>
+        <div class="rep-hero-value">${money(C.neto)}</div>
+        <div class="rep-hero-sub">${money(C.ingresos)} en ingresos · ${money(C.gastosTot)} en egresos</div>
+      </div>
+      <div class="step-note" style="margin-top:8px;">Se calcula sola con tus ventas, abonos y gastos. No tienes que cerrar nada: siempre está al día.</div>
+
+      <div class="section-label">Ingresos</div>
+      <div class="rep-card">
+        <div class="rep-line"><span>Efectivo</span><span>${money(C.efectivo)}</span></div>
+        <div class="rep-line"><span>Tarjeta</span><span>${money(C.tarjeta)}</span></div>
+        <div class="rep-line strong"><span>Total ingresos</span><span>${money(C.ingresos)}</span></div>
+      </div>
+      <div class="step-note">De los ingresos, ${money(C.abonosCred)} son abonos de créditos.</div>
+
+      <div class="section-label">Egresos</div>
+      <div class="rep-card">
+        <div class="rep-line"><span>Compras de inventario</span><span>${money(C.compras)}</span></div>
+        <div class="rep-line"><span>Otros gastos</span><span>${money(C.otros)}</span></div>
+        <div class="rep-line strong"><span>Total egresos</span><span>${money(C.gastosTot)}</span></div>
+      </div>
+
+      <div class="section-label">Caja</div>
+      <div class="rep-card">
+        <div class="rep-line strong"><span>Efectivo que debe haber en caja</span><span class="${C.efectivoCaja < 0 ? 'neg' : 'pos'}">${money(C.efectivoCaja)}</span></div>
+        <div class="rep-line"><span>Ventas del período</span><span>${money(C.ventasTot)}</span></div>
+        <div class="rep-line"><span>Nuevas ventas a crédito (por cobrar)</span><span>${money(C.creditoNuevo)}</span></div>
+      </div>
+      <div class="step-note">El efectivo en caja resta todos los gastos, porque aún no registras con qué medio se pagó cada uno. Las ventas anteriores a los medios de pago se cuentan como efectivo.</div>
+
+      ${detalleDias}
+    `;
+  }
+
+  function bindVistaReportes(){
+    listWrap.querySelectorAll('[data-group="vista"] button').forEach(b => b.addEventListener('click', () => { repVista = b.dataset.val; renderReportes(); }));
+    listWrap.querySelectorAll('[data-group="cajamodo"] button').forEach(b => b.addEventListener('click', () => { cajaModo = b.dataset.val; renderReportes(); }));
+    const inp = listWrap.querySelector('#cajaFechaInput');
+    if(inp) inp.addEventListener('change', () => {
+      if(cajaModo === 'dia') cajaFecha = inp.value || cajaFecha;
+      else cajaMes = inp.value || cajaMes;
+      renderReportes();
+    });
+  }
+
+  let repPeriodo = 'mes';
+  function mesAnteriorKey(){
+    const [y, m] = todayStr().split('-').map(Number);
+    return m === 1 ? `${y - 1}-12` : `${y}-${String(m - 1).padStart(2, '0')}`;
+  }
+  function gananciaDe(vs, gs){
+    const ventasTot = vs.reduce((s,v) => s + v.total, 0);
+    const costo = vs.reduce((s,v) => s + (Number(v.costoTotal) || 0), 0);
+    const gastosTot = gs.reduce((s,g) => s + g.monto, 0);
+    const compras = gs.filter(g => g.tipo === 'compra').reduce((s,g) => s + g.monto, 0);
+    const otros = gastosTot - compras;
+    return { ventasTot, costo, gastosTot, compras, otros, ganancia: ventasTot - costo - otros };
+  }
+
+  function renderReportes(){
+    if(repVista === 'caja'){
+      listWrap.innerHTML = renderCajaHtml();
+      bindVistaReportes();
+      return;
+    }
+    const hoyKey = todayStr().slice(0,7);
+    const prevKey = mesAnteriorKey();
+    const clave = repPeriodo === 'mes' ? hoyKey : prevKey;
+    const ventasP = repPeriodo === 'todo' ? ventas : ventas.filter(v => monthKey(v.fecha) === clave);
+    const gastosP = repPeriodo === 'todo' ? gastos : gastos.filter(g => monthKey(g.fecha) === clave);
+    const P = gananciaDe(ventasP, gastosP);
+    const A = gananciaDe(ventas, gastos);
+    const prev = gananciaDe(ventas.filter(v => monthKey(v.fecha) === prevKey), gastos.filter(g => monthKey(g.fecha) === prevKey));
+    const porCobrar = ventas.reduce((s,v) => s + saldoVenta(v), 0);
+
+    const valorInventario = inventario.reduce((s,p) => {
+      const stockNum = (p.stock === '' || p.stock === null) ? 0 : Number(p.stock);
+      return s + stockNum * (Number(p.costo) || 0);
+    }, 0);
+    const bajoStockCount = inventario.filter(p => p.stock !== '' && p.stock !== null && Number(p.stock) <= config.stockMinimo).length;
+
+    const contadorProd = {};
+    ventasP.forEach(v => (v.items||[]).forEach(it => { contadorProd[it.nombre] = (contadorProd[it.nombre] || 0) + it.cantidad; }));
+    const topProd = Object.entries(contadorProd).sort((a,b) => b[1]-a[1]).slice(0,5);
+
+    const etiqueta = repPeriodo === 'mes' ? 'este mes' : repPeriodo === 'anterior' ? 'el mes anterior' : 'todo el tiempo';
+    const gColor = (n) => n >= 0 ? 'pos' : 'neg';
+    let cmpHtml = '';
+    if(repPeriodo === 'mes'){
+      if(prev.ventasTot === 0 && prev.gastosTot === 0) cmpHtml = `<div class="rep-hero-sub">Sin datos del mes anterior para comparar</div>`;
+      else {
+        const diff = P.ganancia - prev.ganancia;
+        cmpHtml = `<div class="rep-hero-sub"><strong>${diff >= 0 ? '▲' : '▼'} ${money(Math.abs(diff))}</strong> frente al mes anterior</div>`;
+      }
+    }
+
+    const topHtml = topProd.length ? `
+      <div class="section-label">Productos más vendidos</div>
+      <div class="rep-card">
+        ${topProd.map(([nombre, cant], idx) => `
+          <div class="rep-line">
+            <span class="rep-rank-wrap"><span class="rep-rank">${idx + 1}</span>${escapeHtml(nombre)}</span>
+            <span>${cant} unid.</span>
+          </div>`).join('')}
+      </div>` : `<div class="empty-state"><p>Cuando registres ventas en este período, aquí verás tus productos más vendidos.</p></div>`;
+
+    listWrap.innerHTML = `
+      <div style="margin-top:14px;">${segHtml('vista', [['resumen','Resumen'],['caja','Caja']], repVista)}</div>
+      <div style="margin-top:10px;">${segHtml('rep', [['mes','Este mes'],['anterior','Mes anterior'],['todo','Todo']], repPeriodo)}</div>
+
+      <div class="rep-hero ${gColor(P.ganancia)}" style="margin-top:12px;">
+        <div class="rep-hero-label">Ganancia de ${etiqueta}</div>
+        <div class="rep-hero-value">${money(P.ganancia)}</div>
+        <div class="rep-hero-sub">${money(P.ventasTot)} en ventas · ${money(P.costo)} de costo de lo vendido</div>
+        ${cmpHtml}
+      </div>
+      <div class="step-note" style="margin-top:8px;">Ganancia = ventas − costo de lo vendido − otros gastos. Las compras de inventario no restan hasta que se venden.</div>
+
+      <div class="section-label">Movimiento</div>
+      <div class="rep-grid">
+        <div class="rep-stat"><div class="rep-stat-label">Ventas</div><div class="rep-stat-value pos">${money(P.ventasTot)}</div></div>
+        <div class="rep-stat"><div class="rep-stat-label">Gastos totales</div><div class="rep-stat-value">${money(P.gastosTot)}</div></div>
+      </div>
+      <div class="rep-card" style="margin-top:10px;">
+        <div class="rep-line"><span>Costo de lo vendido</span><span>${money(P.costo)}</span></div>
+        <div class="rep-line"><span>Compras de inventario</span><span>${money(P.compras)}</span></div>
+        <div class="rep-line"><span>Otros gastos</span><span>${money(P.otros)}</span></div>
+      </div>
+
+      <div class="section-label">Histórico total</div>
+      <div class="rep-card">
+        <div class="rep-line"><span>Ventas</span><span class="pos">${money(A.ventasTot)}</span></div>
+        <div class="rep-line"><span>Por cobrar (créditos)</span><span class="${porCobrar > 0 ? 'neg' : ''}">${money(porCobrar)}</span></div>
+        <div class="rep-line strong"><span>Ganancia</span><span class="${gColor(A.ganancia)}">${money(A.ganancia)}</span></div>
+      </div>
+
+      <div class="section-label">Inventario</div>
+      <div class="rep-grid">
+        <div class="rep-stat"><div class="rep-stat-label">Valor de costo en stock</div><div class="rep-stat-value">${money(valorInventario)}</div></div>
+        <div class="rep-stat"><div class="rep-stat-label">Productos con poco stock</div><div class="rep-stat-value ${bajoStockCount > 0 ? 'neg' : ''}">${bajoStockCount}</div></div>
+      </div>
+
+      ${topHtml}
+    `;
+    listWrap.querySelectorAll('[data-group="rep"] button').forEach(b => b.addEventListener('click', () => { repPeriodo = b.dataset.val; renderReportes(); }));
+    bindVistaReportes();
+  }
+
+  // ============================================================
+  // OVERLAY HELPERS
+  // ============================================================
+  function openOverlay(innerHtml, onMount){
+    const overlay = document.createElement('div');
+    overlay.className = 'overlay';
+    overlay.innerHTML = `<div class="sheet">${innerHtml}</div>`;
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', e => { if(e.target === overlay) overlay.remove(); });
+    const sheet = overlay.querySelector('.sheet');
+    if(onMount) onMount(overlay, sheet);
+    return overlay;
+  }
+
+  // ============================================================
+  // CLIENTES form
+  // ============================================================
+  function openClienteForm(id){
+    const record = id ? clientes.find(c => c.id === id) : null;
+    const fiadosCli = record ? ventas.filter(v => v.clienteId === record.id && v.fiado).sort((a,b) => b.fecha.localeCompare(a.fecha)) : [];
+    const deudaCli = fiadosCli.reduce((s,v) => s + saldoVenta(v), 0);
+    const cuentaHtml = fiadosCli.length ? `
+      <div class="section-label" style="margin-top:16px;">Créditos</div>
+      <div class="rep-card">
+        <div class="rep-line strong"><span>Saldo pendiente</span><span class="${deudaCli > 0 ? 'neg' : 'pos'}">${money(deudaCli)}</span></div>
+        ${fiadosCli.map(v => `
+          <div class="rep-line credit-row" data-abonar="${v.id}">
+            <span><span class="credit-title" style="display:block;">${fmtDate(v.fecha)} · ${v.folio ? 'F-' + String(v.folio).padStart(4,'0') : 'Sin factura'}</span><span class="credit-sub" style="display:block;">Abonado ${money(abonadoVenta(v))} de ${money(v.total)}</span></span>
+            <span class="${saldoVenta(v) > 0 ? 'neg' : 'pos'}">${saldoVenta(v) > 0 ? money(saldoVenta(v)) : 'Pagado'}</span>
+          </div>`).join('')}
+      </div>
+      <div class="step-note" style="margin-top:6px;">Toca una venta para registrar un abono.</div>` : '';
+    openOverlay(`
+      <div class="sheet-handle"></div>
+      <h2>${record ? 'Editar' : 'Nuevo'} cliente</h2>
+      <div class="field"><label>Nombre</label><input type="text" id="f_nombre" value="${escapeHtml(record ? record.nombre : '')}" placeholder="Nombre del cliente"></div>
+      <div class="field"><label>Teléfono</label><input type="tel" id="f_telefono" value="${escapeHtml(record ? record.telefono : '')}" placeholder="Opcional"></div>
+      <div class="field"><label>Correo</label><input type="email" id="f_email" value="${escapeHtml(record ? record.email : '')}" placeholder="Opcional"></div>
+      <div class="field"><label>Dirección de facturación</label><textarea id="f_direccion" rows="2" placeholder="Opcional">${escapeHtml(record ? record.direccion : '')}</textarea></div>
+      ${cuentaHtml}
+      <div class="sheet-actions">
+        <button class="btn btn-secondary" id="cancelBtn">Cancelar</button>
+        <button class="btn btn-primary" id="saveBtn">Guardar</button>
+      </div>
+      ${record ? '<button class="btn-danger-text" id="deleteBtn">Eliminar</button>' : ''}
+    `, (overlay) => {
+      overlay.querySelector('#cancelBtn').addEventListener('click', () => overlay.remove());
+      overlay.querySelector('#saveBtn').addEventListener('click', () => {
+        const nombre = overlay.querySelector('#f_nombre').value.trim();
+        if(!nombre){ overlay.querySelector('#f_nombre').focus(); return; }
+        const data = {
+          id: record ? record.id : uid(),
+          nombre,
+          telefono: overlay.querySelector('#f_telefono').value.trim(),
+          email: overlay.querySelector('#f_email').value.trim(),
+          direccion: overlay.querySelector('#f_direccion').value.trim(),
+        };
+        clientes = record ? clientes.map(c => c.id === record.id ? data : c) : [...clientes, data];
+        save('cuentas_clientes', clientes);
+        overlay.remove();
+        renderList();
+      });
+      overlay.querySelectorAll('[data-abonar]').forEach(r => r.addEventListener('click', () => { overlay.remove(); openAbonoForm(r.getAttribute('data-abonar')); }));
+      const del = overlay.querySelector('#deleteBtn');
+      if(del) del.addEventListener('click', () => {
+        clientes = clientes.filter(c => c.id !== record.id);
+        save('cuentas_clientes', clientes);
+        overlay.remove();
+        renderList();
+      });
+    });
+  }
+
+  // ============================================================
+  // INVENTARIO form
+  // ============================================================
+  function openProductoForm(id){
+    const record = id ? inventario.find(p => p.id === id) : null;
+    const compras = record ? gastos.filter(g => g.tipo === 'compra' && g.productoId === record.id).sort((a,b) => b.fecha.localeCompare(a.fecha)) : [];
+    const unidCompradas = compras.reduce((s,g) => s + (Number(g.cantidad)||0), 0);
+    const invertido = compras.reduce((s,g) => s + (Number(g.monto)||0), 0);
+    const unidVendidas = record ? ventas.reduce((s,v) => s + (v.items||[]).filter(it => it.productoId === record.id).reduce((a,it) => a + (Number(it.cantidad)||0), 0), 0) : 0;
+    const historialHtml = record ? `
+      <div class="section-label" style="margin-top:6px;">Historial de compras</div>
+      ${compras.length ? `
+        <div class="rep-card">
+          <div class="rep-line strong"><span>Unidades compradas</span><span>${unidCompradas}</span></div>
+          <div class="rep-line"><span>Total invertido</span><span>${money(invertido)}</span></div>
+          <div class="rep-line"><span>Costo promedio por unidad</span><span>${money(unidCompradas ? invertido / unidCompradas : 0)}</span></div>
+          <div class="rep-line"><span>Unidades vendidas</span><span>${unidVendidas}</span></div>
+        </div>
+        <div class="rep-card" style="margin-top:10px;">
+          ${compras.map(g => `
+            <div class="rep-line">
+              <span><span class="credit-title" style="display:block;">${fmtDate(g.fecha)} · ${g.cantidad} unid.</span><span class="credit-sub" style="display:block;">${money(g.cantidad ? g.monto / g.cantidad : 0)} por unidad</span></span>
+              <span>${money(g.monto)}</span>
+            </div>`).join('')}
+        </div>` : `<div class="step-note">Aún no hay compras registradas para este producto. Usa "Registrar compra" para agregarlas.</div>`}
+    ` : '';
+    openOverlay(`
+      <div class="sheet-handle"></div>
+      <h2>${record ? 'Editar' : 'Nuevo'} producto</h2>
+      <div class="field"><label>Nombre del producto</label><input type="text" id="f_nombre" value="${escapeHtml(record ? record.nombre : '')}" placeholder="Nombre"></div>
+      <div class="field">
+        <label>Categoría (opcional)</label>
+        <input type="text" id="f_categoria" list="catList" value="${escapeHtml(record ? (record.categoria||'') : '')}" placeholder="Ej. Bebidas, Ropa, Accesorios">
+        <datalist id="catList">${getCategorias().map(c => `<option value="${escapeHtml(c)}">`).join('')}</datalist>
+      </div>
+      <div class="row2">
+        <div class="field mono"><label>Costo (${config.moneda})</label><input type="number" inputmode="decimal" id="f_costo" value="${record && record.costo ? record.costo : ''}" placeholder="¿Cuánto te cuesta?"></div>
+        <div class="field mono"><label>Ganancia deseada (%)</label><input type="number" inputmode="decimal" id="f_margen" value="${record ? (record.margen || '') : (config.margenDefault || '')}" placeholder="Ej. 40"></div>
+      </div>
+      <div class="row2">
+        <div class="field mono"><label>Precio de venta (${config.moneda})</label><input type="number" inputmode="decimal" id="f_precio" value="${record ? record.precio : ''}" placeholder="0.00"></div>
+        <div class="field mono"><label>Stock (opcional)</label><input type="number" inputmode="numeric" id="f_stock" value="${record && record.stock !== '' ? record.stock : ''}" placeholder="—"></div>
+      </div>
+      <div class="step-note" id="gananciaPreview" style="margin-top:-6px;"></div>
+      ${record ? `<div class="field" id="stockMotivoField" style="display:none;"><label>Motivo del ajuste de stock (opcional)</label><input type="text" id="f_stockMotivo" placeholder="Ej. producto dañado, conteo físico, devolución"></div>` : ''}
+      ${record ? `<button class="link-btn" id="compraBtn" style="display:block; margin:4px 0 16px;">📦 Registrar compra (reabastecer stock)</button>` : ''}
+      ${historialHtml}
+      <div class="sheet-actions">
+        <button class="btn btn-secondary" id="cancelBtn">Cancelar</button>
+        <button class="btn btn-primary" id="saveBtn">Guardar</button>
+      </div>
+      ${record ? '<button class="btn-danger-text" id="deleteBtn">Eliminar</button>' : ''}
+      <div id="delConfirm"></div>
+    `, (overlay) => {
+      const costoInput = overlay.querySelector('#f_costo');
+      const margenInput = overlay.querySelector('#f_margen');
+      const precioInput = overlay.querySelector('#f_precio');
+      const preview = overlay.querySelector('#gananciaPreview');
+      let lastEdited = (!record && config.margenDefault) ? 'margen' : 'precio';
+
+      function updatePreview(){
+        const costo = Number(costoInput.value) || 0;
+        const precio = Number(precioInput.value) || 0;
+        if(costo > 0 && precio > 0){
+          const ganancia = precio - costo;
+          const pct = Math.round((ganancia / costo) * 100);
+          preview.textContent = `Ganas ${money(ganancia)} por unidad (${pct}% sobre el costo)`;
+        } else {
+          preview.textContent = '';
+        }
+      }
+      function recalc(source){
+        const costo = Number(costoInput.value) || 0;
+        if(source === 'costo' || source === 'margen'){
+          const margen = Number(margenInput.value) || 0;
+          if(costo > 0 && margen !== 0) precioInput.value = (costo * (1 + margen/100)).toFixed(2);
+        } else if(source === 'precio'){
+          const precio = Number(precioInput.value) || 0;
+          if(costo > 0) margenInput.value = Math.round(((precio - costo) / costo) * 100);
+        }
+        updatePreview();
+      }
+      costoInput.addEventListener('input', () => recalc(lastEdited === 'precio' ? 'precio' : 'costo'));
+      margenInput.addEventListener('input', () => { lastEdited = 'margen'; recalc('margen'); });
+      precioInput.addEventListener('input', () => { lastEdited = 'precio'; recalc('precio'); });
+      updatePreview();
+
+      const stockInput = overlay.querySelector('#f_stock');
+      const stockMotivoField = overlay.querySelector('#stockMotivoField');
+      const stockOriginal = (record && record.stock !== '' && record.stock !== null) ? Number(record.stock) : null;
+      function checkStockChanged(){
+        if(!stockMotivoField) return;
+        const val = stockInput.value === '' ? null : Number(stockInput.value);
+        stockMotivoField.style.display = (val !== stockOriginal) ? 'block' : 'none';
+      }
+      if(stockInput) stockInput.addEventListener('input', checkStockChanged);
+      checkStockChanged();
+
+      overlay.querySelector('#cancelBtn').addEventListener('click', () => overlay.remove());
+      const compraBtn = overlay.querySelector('#compraBtn');
+      if(compraBtn) compraBtn.addEventListener('click', () => { overlay.remove(); openCompraForm(record.id); });
+      overlay.querySelector('#saveBtn').addEventListener('click', () => {
+        const nombre = overlay.querySelector('#f_nombre').value.trim();
+        if(!nombre){ overlay.querySelector('#f_nombre').focus(); return; }
+        const precioVal = precioInput.value;
+        const stockVal = stockInput.value;
+        const data = {
+          id: record ? record.id : uid(),
+          nombre,
+          categoria: overlay.querySelector('#f_categoria').value.trim(),
+          costo: costoInput.value === '' ? 0 : Number(costoInput.value),
+          margen: margenInput.value === '' ? 0 : Number(margenInput.value),
+          precio: precioVal === '' ? 0 : Number(precioVal),
+          stock: stockVal === '' ? '' : Number(stockVal),
+        };
+        if(record){
+          const stockAnterior = stockOriginal === null ? 0 : stockOriginal;
+          const stockNuevoVal = stockVal === '' ? 0 : Number(stockVal);
+          if(stockAnterior !== stockNuevoVal){
+            const motivoInput = overlay.querySelector('#f_stockMotivo');
+            movimientos = [...movimientos, {
+              id: uid(), tipo: 'ajuste', ts: Date.now(), productoId: data.id, productoNombre: nombre,
+              stockAnterior, stockNuevo: stockNuevoVal,
+              motivo: motivoInput ? motivoInput.value.trim() : '',
+              fecha: todayStr(),
+            }];
+            save('cuentas_movimientos', movimientos);
+          }
+        }
+        if(!record){
+          movimientos = [...movimientos, { id: uid(), tipo: 'alta', ts: Date.now(), productoId: data.id, productoNombre: nombre, stockNuevo: data.stock === '' ? '' : data.stock, fecha: todayStr() }];
+          save('cuentas_movimientos', movimientos);
+        }
+        inventario = record ? inventario.map(p => p.id === record.id ? data : p) : [...inventario, data];
+        save('cuentas_inventario', inventario);
+        overlay.remove();
+        renderList();
+      });
+      const del = overlay.querySelector('#deleteBtn');
+      if(del) del.addEventListener('click', () => {
+        const confirmBox = overlay.querySelector('#delConfirm');
+        confirmBox.innerHTML = `
+          <div class="rep-card" style="margin-top:14px; padding:14px;">
+            <p style="font-size:14px; line-height:1.5; margin-bottom:12px;">¿Seguro que quieres eliminar <strong>${escapeHtml(record.nombre)}</strong> del inventario? Esta acción no se puede deshacer.</p>
+            <div class="sheet-actions" style="margin-top:0;">
+              <button class="btn btn-secondary" id="delNo">No, cancelar</button>
+              <button class="btn btn-primary" id="delSi" style="background:var(--danger);">Sí, eliminar</button>
+            </div>
+          </div>`;
+        overlay.querySelector('#delNo').addEventListener('click', () => { confirmBox.innerHTML = ''; });
+        overlay.querySelector('#delSi').addEventListener('click', () => {
+          movimientos = [...movimientos, { id: uid(), tipo: 'baja', ts: Date.now(), productoId: record.id, productoNombre: record.nombre, stockAnterior: record.stock, fecha: todayStr() }];
+          save('cuentas_movimientos', movimientos);
+          inventario = inventario.filter(p => p.id !== record.id);
+          save('cuentas_inventario', inventario);
+          overlay.remove();
+          renderList();
+        });
+      });
+    });
+  }
+
+  function openCompraForm(productId){
+    const p = inventario.find(x => x.id === productId);
+    if(!p) return;
+    const stockActual = (p.stock === '' || p.stock === null) ? 0 : Number(p.stock);
+    const costoActual = Number(p.costo) || 0;
+    openOverlay(`
+      <div class="sheet-handle"></div>
+      <h2>Registrar compra</h2>
+      <div class="step-note">${escapeHtml(p.nombre)} · Stock actual: ${p.stock === '' || p.stock === null ? 'sin control' : stockActual + ' unid.'}${costoActual > 0 ? ' · Costo actual: ' + money(costoActual) : ''}</div>
+      <div class="row2">
+        <div class="field mono"><label>Cantidad comprada</label><input type="number" inputmode="numeric" id="c_cantidad" placeholder="Ej. 10"></div>
+        <div class="field mono"><label>Costo unitario (${config.moneda})</label><input type="number" inputmode="decimal" id="c_costo" value="${costoActual || ''}" placeholder="0.00"></div>
+      </div>
+      <div class="field"><label>Fecha de la compra</label><input type="date" id="c_fecha" value="${todayStr()}"></div>
+      <div class="step-note" id="promedioPreview" style="margin-top:-6px;"></div>
+      <div class="row2">
+        <div class="field mono"><label>Nuevo precio de venta (${config.moneda})</label><input type="number" inputmode="decimal" id="c_precioNuevo" value="${p.precio || ''}" placeholder="0.00"></div>
+        <div class="field mono"><label>Ganancia (%)</label><input type="number" inputmode="decimal" id="c_margenNuevo" value="${p.margen || ''}" placeholder="Ej. 40"></div>
+      </div>
+      <div class="step-note" id="gananciaNuevaPreview" style="margin-top:-6px;"></div>
+      <div class="sheet-actions">
+        <button class="btn btn-secondary" id="cancelBtn">Cancelar</button>
+        <button class="btn btn-primary" id="saveCompraBtn">Registrar compra</button>
+      </div>
+    `, (overlay) => {
+      const cantidadInput = overlay.querySelector('#c_cantidad');
+      const costoInput = overlay.querySelector('#c_costo');
+      const preview = overlay.querySelector('#promedioPreview');
+      const precioNuevoInput = overlay.querySelector('#c_precioNuevo');
+      const margenNuevoInput = overlay.querySelector('#c_margenNuevo');
+      const gananciaNuevaPreview = overlay.querySelector('#gananciaNuevaPreview');
+      let lastEditedPrecio = Number(p.margen) ? 'margen' : 'precio';
+
+      function calcularNuevoCosto(cant, costoCompra){
+        if(stockActual > 0 && costoActual > 0){
+          return ((stockActual * costoActual) + (cant * costoCompra)) / (stockActual + cant);
+        }
+        return costoCompra || costoActual;
+      }
+      function updatePreview(){
+        const cant = Number(cantidadInput.value) || 0;
+        const costoCompra = Number(costoInput.value) || 0;
+        if(cant > 0 && costoCompra > 0){
+          const nuevoCosto = calcularNuevoCosto(cant, costoCompra);
+          preview.textContent = (stockActual > 0 && costoActual > 0)
+            ? `Nuevo costo promedio: ${money(nuevoCosto)} por unidad (antes ${money(costoActual)})`
+            : `Costo por unidad: ${money(nuevoCosto)}`;
+        } else {
+          preview.textContent = '';
+        }
+      }
+      function syncPrecioNuevo(){
+        const cant = Number(cantidadInput.value) || 0;
+        const costoCompra = Number(costoInput.value) || 0;
+        const nuevoCosto = calcularNuevoCosto(cant, costoCompra);
+        if(lastEditedPrecio === 'margen'){
+          const margen = Number(margenNuevoInput.value) || 0;
+          if(nuevoCosto > 0) precioNuevoInput.value = (nuevoCosto * (1 + margen/100)).toFixed(2);
+        } else {
+          const precio = Number(precioNuevoInput.value) || 0;
+          if(nuevoCosto > 0) margenNuevoInput.value = Math.round(((precio - nuevoCosto) / nuevoCosto) * 100);
+        }
+        const precioFinal = Number(precioNuevoInput.value) || 0;
+        if(nuevoCosto > 0 && precioFinal > 0){
+          const ganancia = precioFinal - nuevoCosto;
+          gananciaNuevaPreview.textContent = `Con este precio ganas ${money(ganancia)} por unidad`;
+        } else {
+          gananciaNuevaPreview.textContent = '';
+        }
+      }
+      cantidadInput.addEventListener('input', () => { updatePreview(); syncPrecioNuevo(); });
+      costoInput.addEventListener('input', () => { updatePreview(); syncPrecioNuevo(); });
+      margenNuevoInput.addEventListener('input', () => { lastEditedPrecio = 'margen'; syncPrecioNuevo(); });
+      precioNuevoInput.addEventListener('input', () => { lastEditedPrecio = 'precio'; syncPrecioNuevo(); });
+      syncPrecioNuevo();
+
+      overlay.querySelector('#cancelBtn').addEventListener('click', () => overlay.remove());
+      overlay.querySelector('#saveCompraBtn').addEventListener('click', () => {
+        const cant = Number(cantidadInput.value) || 0;
+        const costoCompra = Number(costoInput.value) || 0;
+        const fecha = overlay.querySelector('#c_fecha').value || todayStr();
+        if(cant <= 0){ cantidadInput.focus(); return; }
+        const nuevoCosto = calcularNuevoCosto(cant, costoCompra);
+        const nuevoStock = stockActual + cant;
+        const precioFinal = Number(precioNuevoInput.value) || p.precio || 0;
+        const margenFinal = Number(margenNuevoInput.value) || 0;
+        inventario = inventario.map(x => {
+          if(x.id !== p.id) return x;
+          return { ...x, stock: nuevoStock, costo: nuevoCosto, precio: precioFinal, margen: margenFinal };
+        });
+        gastos = [...gastos, {
+          id: uid(),
+          descripcion: `Compra de inventario: ${p.nombre} x${cant}`,
+          monto: cant * costoCompra,
+          fecha,
+          categoria: 'Inventario',
+        }];
+        save('cuentas_inventario', inventario);
+        save('cuentas_gastos', gastos);
+        overlay.remove();
+        renderList();
+      });
+      updatePreview();
+    });
+  }
+  function openGastoForm(id){
+    const record = id ? gastos.find(g => g.id === id) : null;
+
+    // Editar un gasto existente: formulario simple, sin cambiar de tipo
+    if(record){
+      openOverlay(`
+        <div class="sheet-handle"></div>
+        <h2>Editar gasto</h2>
+        ${record.tipo === 'compra' ? `<div class="step-note">📦 Este gasto viene de una compra de inventario. Editar el monto aquí no ajusta el stock ni el costo del producto — eso se hace desde Inventario.</div>` : ''}
+        <div class="field"><label>Descripción</label><input type="text" id="f_desc" value="${escapeHtml(record.descripcion)}" placeholder="¿En qué se gastó?"></div>
+        <div class="row2">
+          <div class="field mono"><label>Monto (${config.moneda})</label><input type="number" inputmode="decimal" id="f_monto" value="${record.monto}" placeholder="0.00"></div>
+          <div class="field"><label>Fecha</label><input type="date" id="f_fecha" value="${record.fecha}"></div>
+        </div>
+        <div class="field"><label>Categoría (opcional)</label><input type="text" id="f_cat" value="${escapeHtml(record.categoria)}" placeholder="Ej. Renta, Insumos, Transporte"></div>
+        <div class="sheet-actions">
+          <button class="btn btn-secondary" id="cancelBtn">Cancelar</button>
+          <button class="btn btn-primary" id="saveBtn">Guardar</button>
+        </div>
+        <button class="btn-danger-text" id="deleteBtn">Eliminar</button>
+      `, (overlay) => {
+        overlay.querySelector('#cancelBtn').addEventListener('click', () => overlay.remove());
+        overlay.querySelector('#saveBtn').addEventListener('click', () => {
+          const descripcion = overlay.querySelector('#f_desc').value.trim();
+          if(!descripcion){ overlay.querySelector('#f_desc').focus(); return; }
+          const data = {
+            ...record,
+            descripcion,
+            monto: Number(overlay.querySelector('#f_monto').value) || 0,
+            fecha: overlay.querySelector('#f_fecha').value || todayStr(),
+            categoria: overlay.querySelector('#f_cat').value.trim(),
+          };
+          gastos = gastos.map(g => g.id === record.id ? data : g);
+          save('cuentas_gastos', gastos);
+          overlay.remove();
+          renderList();
+        });
+        overlay.querySelector('#deleteBtn').addEventListener('click', () => {
+          gastos = gastos.filter(g => g.id !== record.id);
+          save('cuentas_gastos', gastos);
+          overlay.remove();
+          renderList();
+        });
+      });
+      return;
+    }
+
+    // Nuevo gasto: elegir entre gasto general o compra de inventario
+    let tipo = 'general';
+    let compraProducto = null;
+    let compraEsNuevo = false;
+    let compraNuevoNombre = '';
+
+    const overlay = openOverlay(bodyMain(), mountMain);
+
+    function bodyMain(){
+      return `
+        <div class="sheet-handle"></div>
+        <h2>Nuevo gasto</h2>
+        <div class="chip-row" style="margin-bottom:4px;">
+          <div class="chip ${tipo === 'general' ? 'active' : ''}" data-tipo="general">Gasto general</div>
+          <div class="chip ${tipo === 'compra' ? 'active' : ''}" data-tipo="compra">📦 Compra de inventario</div>
+        </div>
+        <div id="gastoBody"></div>
+        <div class="sheet-actions" style="margin-top:14px;">
+          <button class="btn btn-secondary" id="cancelBtn">Cancelar</button>
+          <button class="btn btn-primary" id="saveBtn">Guardar</button>
+        </div>
+      `;
+    }
+
+    function bodyGeneral(){
+      return `
+        <div class="field"><label>Descripción</label><input type="text" id="f_desc" placeholder="¿En qué se gastó?"></div>
+        <div class="row2">
+          <div class="field mono"><label>Monto (${config.moneda})</label><input type="number" inputmode="decimal" id="f_monto" placeholder="0.00"></div>
+          <div class="field"><label>Fecha</label><input type="date" id="f_fecha" value="${todayStr()}"></div>
+        </div>
+        <div class="field"><label>Categoría (opcional)</label><input type="text" id="f_cat" placeholder="Ej. Renta, Insumos, Transporte"></div>
+      `;
+    }
+
+    function bodyCompra(){
+      const stockActual = compraProducto ? ((compraProducto.stock === '' || compraProducto.stock === null) ? 0 : Number(compraProducto.stock)) : 0;
+      const costoActual = compraProducto ? (Number(compraProducto.costo) || 0) : 0;
+      const productoListo = compraEsNuevo ? compraNuevoNombre.trim().length > 0 : !!compraProducto;
+      return `
+        ${!compraEsNuevo ? `
+          <div class="field"><label>Producto</label></div>
+          ${compraProducto ? `
+            <div class="pick-row" style="border:1px solid var(--border); border-radius:10px; margin-bottom:14px;">
+              <span class="name">${escapeHtml(compraProducto.nombre)}</span>
+              <button class="link-btn" id="changeProdBtn">Cambiar</button>
+            </div>
+          ` : `
+            <div class="add-item-row"><input type="text" id="prodSearchG" placeholder="Buscar producto..."></div>
+            <div class="pick-list" id="prodPickListG" style="display:none;"></div>
+          `}
+          ${!compraProducto ? `<button class="link-btn" id="nuevoProdBtn" style="display:block; margin:-8px 0 14px;">+ Registrar producto nuevo</button>` : ''}
+        ` : `
+          <div class="field"><label>Nombre del producto nuevo</label><input type="text" id="f_nuevoNombre" value="${escapeHtml(compraNuevoNombre)}" placeholder="Nombre"></div>
+          <button class="link-btn" id="usarExistenteBtn" style="display:block; margin:-8px 0 14px;">Usar un producto ya registrado</button>
+        `}
+        ${productoListo ? `
+          <div class="row2">
+            <div class="field mono"><label>Cantidad comprada</label><input type="number" inputmode="numeric" id="c_cantidad" placeholder="Ej. 10"></div>
+            <div class="field mono"><label>Costo unitario (${config.moneda})</label><input type="number" inputmode="decimal" id="c_costo" value="${costoActual || ''}" placeholder="0.00"></div>
+          </div>
+          <div class="field"><label>Fecha de la compra</label><input type="date" id="c_fecha" value="${todayStr()}"></div>
+          <div class="step-note" id="promedioPreview" style="margin-top:-6px;"></div>
+          <div class="row2">
+            <div class="field mono"><label>Precio de venta (${config.moneda})</label><input type="number" inputmode="decimal" id="c_precioNuevo" value="${compraProducto ? (compraProducto.precio || '') : ''}" placeholder="0.00"></div>
+            <div class="field mono"><label>Ganancia (%)</label><input type="number" inputmode="decimal" id="c_margenNuevo" value="${compraProducto ? (compraProducto.margen || '') : ''}" placeholder="Ej. 40"></div>
+          </div>
+          <div class="step-note" id="gananciaNuevaPreview" style="margin-top:-6px;"></div>
+        ` : ''}
+      `;
+    }
+
+    function renderGastoBody(sheet){
+      const gastoBody = sheet.querySelector('#gastoBody');
+      gastoBody.innerHTML = tipo === 'general' ? bodyGeneral() : bodyCompra();
+      if(tipo === 'compra') mountCompraBody(sheet, gastoBody);
+    }
+
+    function mountCompraBody(sheet, gastoBody){
+      const stockActual = compraProducto ? ((compraProducto.stock === '' || compraProducto.stock === null) ? 0 : Number(compraProducto.stock)) : 0;
+      const costoActual = compraProducto ? (Number(compraProducto.costo) || 0) : 0;
+
+      const prodSearch = gastoBody.querySelector('#prodSearchG');
+      if(prodSearch){
+        const prodPickList = gastoBody.querySelector('#prodPickListG');
+        prodSearch.addEventListener('input', () => {
+          const term = prodSearch.value.trim().toLowerCase();
+          if(!term){ prodPickList.style.display = 'none'; prodPickList.innerHTML = ''; return; }
+          const matches = inventario.filter(p => p.nombre.toLowerCase().includes(term)).slice(0,8);
+          prodPickList.style.display = 'block';
+          prodPickList.innerHTML = matches.length === 0
+            ? `<div class="pick-row" style="cursor:default;"><span class="name">Sin productos con ese nombre</span></div>`
+            : matches.map(p => `<div class="pick-row" data-id="${p.id}"><span class="name">${escapeHtml(p.nombre)}</span><span class="meta">${money(p.precio)}</span></div>`).join('');
+          prodPickList.querySelectorAll('.pick-row[data-id]').forEach(row => row.addEventListener('click', () => {
+            compraProducto = inventario.find(x => x.id === row.getAttribute('data-id'));
+            renderGastoBody(sheet);
+          }));
+        });
+      }
+      const changeBtn = gastoBody.querySelector('#changeProdBtn');
+      if(changeBtn) changeBtn.addEventListener('click', () => { compraProducto = null; renderGastoBody(sheet); });
+      const nuevoProdBtn = gastoBody.querySelector('#nuevoProdBtn');
+      if(nuevoProdBtn) nuevoProdBtn.addEventListener('click', () => { compraEsNuevo = true; compraProducto = null; renderGastoBody(sheet); });
+      const usarExistenteBtn = gastoBody.querySelector('#usarExistenteBtn');
+      if(usarExistenteBtn) usarExistenteBtn.addEventListener('click', () => { compraEsNuevo = false; renderGastoBody(sheet); });
+      const nuevoNombreInput = gastoBody.querySelector('#f_nuevoNombre');
+      if(nuevoNombreInput) nuevoNombreInput.addEventListener('input', () => {
+        compraNuevoNombre = nuevoNombreInput.value;
+        const listo = compraNuevoNombre.trim().length > 0;
+        const hasExtra = !!gastoBody.querySelector('#c_cantidad');
+        if(listo !== hasExtra) renderGastoBody(sheet);
+      });
+
+      const cantidadInput = gastoBody.querySelector('#c_cantidad');
+      if(!cantidadInput) return;
+      const costoInput = gastoBody.querySelector('#c_costo');
+      const preview = gastoBody.querySelector('#promedioPreview');
+      const precioNuevoInput = gastoBody.querySelector('#c_precioNuevo');
+      const margenNuevoInput = gastoBody.querySelector('#c_margenNuevo');
+      const gananciaNuevaPreview = gastoBody.querySelector('#gananciaNuevaPreview');
+      let lastEditedPrecio = (compraProducto && Number(compraProducto.margen)) ? 'margen' : 'precio';
+
+      function calcularNuevoCosto(cant, costoCompra){
+        if(stockActual > 0 && costoActual > 0) return ((stockActual * costoActual) + (cant * costoCompra)) / (stockActual + cant);
+        return costoCompra || costoActual;
+      }
+      function updatePreview(){
+        const cant = Number(cantidadInput.value) || 0;
+        const costoCompra = Number(costoInput.value) || 0;
+        if(cant > 0 && costoCompra > 0){
+          const nuevoCosto = calcularNuevoCosto(cant, costoCompra);
+          preview.textContent = (stockActual > 0 && costoActual > 0)
+            ? `Nuevo costo promedio: ${money(nuevoCosto)} por unidad (antes ${money(costoActual)})`
+            : `Costo por unidad: ${money(nuevoCosto)}`;
+        } else { preview.textContent = ''; }
+      }
+      function syncPrecioNuevo(){
+        const cant = Number(cantidadInput.value) || 0;
+        const costoCompra = Number(costoInput.value) || 0;
+        const nuevoCosto = calcularNuevoCosto(cant, costoCompra);
+        if(lastEditedPrecio === 'margen'){
+          const margen = Number(margenNuevoInput.value) || 0;
+          if(nuevoCosto > 0) precioNuevoInput.value = (nuevoCosto * (1 + margen/100)).toFixed(2);
+        } else {
+          const precio = Number(precioNuevoInput.value) || 0;
+          if(nuevoCosto > 0) margenNuevoInput.value = Math.round(((precio - nuevoCosto) / nuevoCosto) * 100);
+        }
+        const precioFinal = Number(precioNuevoInput.value) || 0;
+        if(nuevoCosto > 0 && precioFinal > 0){
+          gananciaNuevaPreview.textContent = `Con este precio ganas ${money(precioFinal - nuevoCosto)} por unidad`;
+        } else { gananciaNuevaPreview.textContent = ''; }
+      }
+      cantidadInput.addEventListener('input', () => { updatePreview(); syncPrecioNuevo(); });
+      costoInput.addEventListener('input', () => { updatePreview(); syncPrecioNuevo(); });
+      margenNuevoInput.addEventListener('input', () => { lastEditedPrecio = 'margen'; syncPrecioNuevo(); });
+      precioNuevoInput.addEventListener('input', () => { lastEditedPrecio = 'precio'; syncPrecioNuevo(); });
+      updatePreview();
+      syncPrecioNuevo();
+    }
+
+    function mountMain(ov, sheet){
+      renderGastoBody(sheet);
+      sheet.querySelectorAll('.chip').forEach(chip => chip.addEventListener('click', () => {
+        tipo = chip.getAttribute('data-tipo');
+        sheet.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c === chip));
+        renderGastoBody(sheet);
+      }));
+      sheet.querySelector('#cancelBtn').addEventListener('click', () => ov.remove());
+      sheet.querySelector('#saveBtn').addEventListener('click', () => {
+        if(tipo === 'general'){
+          const descInput = sheet.querySelector('#f_desc');
+          const descripcion = descInput.value.trim();
+          if(!descripcion){ descInput.focus(); return; }
+          gastos = [...gastos, {
+            id: uid(), tipo: 'general',
+            descripcion,
+            monto: Number(sheet.querySelector('#f_monto').value) || 0,
+            fecha: sheet.querySelector('#f_fecha').value || todayStr(),
+            categoria: sheet.querySelector('#f_cat').value.trim(),
+          }];
+          save('cuentas_gastos', gastos);
+          ov.remove();
+          renderList();
+          return;
+        }
+
+        // tipo === 'compra'
+        const cantidadInput = sheet.querySelector('#c_cantidad');
+        if(!cantidadInput){ return; }
+        const cant = Number(cantidadInput.value) || 0;
+        const costoCompra = Number(sheet.querySelector('#c_costo').value) || 0;
+        const fecha = sheet.querySelector('#c_fecha').value || todayStr();
+        if(cant <= 0){ cantidadInput.focus(); return; }
+
+        let producto = compraProducto;
+        let nombreProducto = compraEsNuevo ? compraNuevoNombre.trim() : (producto ? producto.nombre : '');
+        if(compraEsNuevo && !nombreProducto){ sheet.querySelector('#f_nuevoNombre').focus(); return; }
+
+        const precioNuevoInput = sheet.querySelector('#c_precioNuevo');
+        const margenNuevoInput = sheet.querySelector('#c_margenNuevo');
+        const precioFinal = Number(precioNuevoInput.value) || costoCompra || 0;
+        const margenFinal = Number(margenNuevoInput.value) || 0;
+
+        let productoId;
+        if(compraEsNuevo){
+          const nuevoProducto = {
+            id: uid(), nombre: nombreProducto, categoria: '',
+            costo: costoCompra, margen: margenFinal, precio: precioFinal, stock: cant,
+          };
+          inventario = [...inventario, nuevoProducto];
+          movimientos = [...movimientos, { id: uid(), tipo: 'alta', ts: Date.now(), productoId: nuevoProducto.id, productoNombre: nombreProducto, stockNuevo: cant, motivo: 'Creado desde una compra', fecha: todayStr() }];
+          save('cuentas_movimientos', movimientos);
+          productoId = nuevoProducto.id;
+        } else {
+          const stockActual = (producto.stock === '' || producto.stock === null) ? 0 : Number(producto.stock);
+          const costoActual = Number(producto.costo) || 0;
+          const nuevoCosto = (stockActual > 0 && costoActual > 0)
+            ? ((stockActual * costoActual) + (cant * costoCompra)) / (stockActual + cant)
+            : (costoCompra || costoActual);
+          const nuevoStock = stockActual + cant;
+          inventario = inventario.map(x => x.id === producto.id ? { ...x, stock: nuevoStock, costo: nuevoCosto, precio: precioFinal, margen: margenFinal } : x);
+          productoId = producto.id;
+        }
+
+        gastos = [...gastos, {
+          id: uid(), tipo: 'compra', productoId, cantidad: cant,
+          descripcion: `Compra de inventario: ${nombreProducto} x${cant}`,
+          monto: cant * costoCompra,
+          fecha,
+          categoria: 'Inventario',
+        }];
+        save('cuentas_inventario', inventario);
+        save('cuentas_gastos', gastos);
+        ov.remove();
+        renderList();
+      });
+    }
+  }
+
+  // ============================================================
+  // FACTURAS — flujo de nueva venta/factura
+  // ============================================================
+  function openVentaWizard(){
+    if(clientes.length === 0){
+      openOverlay(`
+        <div class="sheet-handle"></div>
+        <h2>Necesitas un cliente</h2>
+        <p style="color:var(--ink-soft); font-size:14px; line-height:1.5;">Antes de registrar una venta, registra al menos un cliente en la pestaña Clientes.</p>
+        <div class="sheet-actions"><button class="btn btn-primary" id="okBtn" style="flex:1;">Entendido</button></div>
+      `, (overlay) => overlay.querySelector('#okBtn').addEventListener('click', () => overlay.remove()));
+      return;
+    }
+    const cart = [];
+    let selectedCliente = null;
+    let notas = config.notaFactura || '';
+    let descuentoPct = 0;
+    let metodoPago = 'efectivo';
+    let abonoIni = 0;
+    let abonoMet = 'efectivo';
+    let mixEf = 0;
+    let mixTj = 0;
+
+    function sumaItems(){ return cart.reduce((s,it) => s + it.precioUnit * it.cantidad, 0); }
+    function descuentoMonto(){ return sumaItems() * (Number(descuentoPct)||0) / 100; }
+    function subtotal(){ return sumaItems() - descuentoMonto(); }
+    function impuestoMonto(){ return subtotal() * (Number(config.impuesto)||0) / 100; }
+    function total(){ return subtotal() + impuestoMonto(); }
+    function stockMax(productoId){
+      const p = inventario.find(x => x.id === productoId);
+      if(!p || p.stock === '' || p.stock === null || p.stock === undefined) return Infinity;
+      return Math.max(0, (Number(p.stock) || 0) - unidadesReservadas(productoId));
+    }
+    function sinStockMsg(nombre, max){
+      return max <= 0 ? `${nombre} no tiene stock disponible (puede estar reservado para pedidos).` : `Solo tienes ${max} unid. disponibles de ${nombre} (el resto está reservado para pedidos).`;
+    }
+
+    const overlay = openOverlay(bodyStep1(), mountStep1);
+
+    function bodyStep1(){
+      return `
+        <div class="sheet-handle"></div>
+        <h2>Nueva venta</h2>
+        <div class="step-note">Paso 1 de 2 · elige el cliente</div>
+        <div class="pick-list">
+          ${clientes.map(c => `<div class="pick-row" data-id="${c.id}"><span class="name">${escapeHtml(c.nombre)}</span><span class="meta">${escapeHtml(c.telefono||'')}</span></div>`).join('')}
+        </div>
+        <div class="sheet-actions"><button class="btn btn-secondary" id="cancelBtn" style="flex:1;">Cancelar</button></div>
+      `;
+    }
+    function mountStep1(ov, sheet){
+      sheet.querySelector('#cancelBtn').addEventListener('click', () => ov.remove());
+      sheet.querySelectorAll('.pick-row').forEach(row => row.addEventListener('click', () => {
+        selectedCliente = clientes.find(c => c.id === row.getAttribute('data-id'));
+        sheet.innerHTML = bodyStep2();
+        mountStep2(ov, sheet);
+      }));
+    }
+
+    function bodyStep2(){
+      return `
+        <div class="sheet-handle"></div>
+        <h2>Nueva venta</h2>
+        <div class="step-note">Paso 2 de 2 · cliente: ${escapeHtml(selectedCliente.nombre)}</div>
+        <div class="add-item-row"><input type="text" id="prodSearch" placeholder="Buscar producto..."></div>
+        <div class="pick-list" id="prodPickList" style="display:none;"></div>
+        <div id="cartWrap"></div>
+        <div class="field" style="margin-top:14px;"><label>Notas para el cliente (opcional)</label><textarea id="f_notas" rows="2" placeholder="Ej. Forma de pago, garantía, condiciones de entrega">${escapeHtml(notas)}</textarea></div>
+        <div class="section-label" style="margin:14px 0 8px;">Forma de pago</div>
+        ${segHtml('pago', [['efectivo','Efectivo'],['tarjeta','Tarjeta'],['credito','A crédito'],['mixto','Mixto']], metodoPago)}
+        <div id="abonoWrap" style="margin-top:12px;"></div>
+        <div class="totals-box" id="totalsBox"></div>
+        <div id="gananciaWrap"></div>
+        <div class="sheet-actions" style="margin-top:14px;">
+          <button class="btn btn-secondary" id="backBtn">Atrás</button>
+          <button class="btn btn-primary" id="saveVentaBtn">Registrar venta</button>
+        </div>
+        <button class="link-btn" id="agendarBtn" style="display:block; margin:12px auto 0; text-align:center;">Agendar para entregar después</button>
+      `;
+    }
+    function mountStep2(ov, sheet){
+      const prodSearch = sheet.querySelector('#prodSearch');
+      const prodPickList = sheet.querySelector('#prodPickList');
+      const cartWrap = sheet.querySelector('#cartWrap');
+      const totalsBox = sheet.querySelector('#totalsBox');
+      const saveBtn = sheet.querySelector('#saveVentaBtn');
+      sheet.querySelector('#agendarBtn').addEventListener('click', () => {
+        if(cart.length === 0){ alert('Agrega productos a la venta primero.'); return; }
+        const excedido = cart.find(it => it.cantidad > stockMax(it.productoId));
+        if(excedido){ alert(sinStockMsg(excedido.nombre, stockMax(excedido.productoId))); return; }
+        openOverlay(`
+          <div class="sheet-handle"></div>
+          <h2>Agendar entrega</h2>
+          <div class="step-note">Los productos quedan reservados hasta la fecha de entrega. Después podrás entregarlos desde Ventas › Pedidos.</div>
+          <div class="row2">
+            <div class="field"><label>Fecha de entrega</label><input type="date" id="ag_fecha" value="${todayStr()}"></div>
+            <div class="field mono"><label>Anticipo (${config.moneda})</label><input type="number" inputmode="decimal" id="ag_anticipo" placeholder="0"></div>
+          </div>
+          <div class="field"><label>Fecha del anticipo</label><input type="date" id="ag_fechaAnt" value="${todayStr()}"></div>
+          <div class="sheet-actions">
+            <button class="btn btn-secondary" id="agVolver">Volver</button>
+            <button class="btn btn-primary" id="agSave">Agendar</button>
+          </div>
+        `, (agOv) => {
+          agOv.querySelector('#agVolver').addEventListener('click', () => agOv.remove());
+          agOv.querySelector('#agSave').addEventListener('click', () => {
+            const fecha = agOv.querySelector('#ag_fecha').value;
+            if(!fecha){ agOv.querySelector('#ag_fecha').focus(); return; }
+            pedidos = [...pedidos, {
+              id: uid(), clienteId: selectedCliente.id, clienteNombre: selectedCliente.nombre,
+              fechaEntrega: fecha,
+              anticipo: Number(agOv.querySelector('#ag_anticipo').value) || 0,
+              fechaAnticipo: agOv.querySelector('#ag_fechaAnt').value || todayStr(),
+              items: cart.map(it => ({ productoId: it.productoId, nombre: it.nombre, cantidad: it.cantidad, precio: it.precioUnit, caracteristicas: '' })),
+              notas: notas || '',
+              estado: 'pendiente',
+              creadoTs: Date.now(),
+            }];
+            save('cuentas_pedidos', pedidos);
+            agOv.remove();
+            ov.remove();
+            ventasVista = 'pedidos';
+            renderList();
+            alert('Pedido agendado. Los productos quedan reservados hasta la entrega.');
+          });
+        });
+      });
+      const notasInput = sheet.querySelector('#f_notas');
+      const gananciaWrap = sheet.querySelector('#gananciaWrap');
+      let gananciaOpen = false;
+      notasInput.addEventListener('input', () => { notas = notasInput.value; });
+      const abonoWrap = sheet.querySelector('#abonoWrap');
+      function renderAbonoWrap(){
+        sheet.querySelectorAll('[data-group="pago"] button').forEach(b => b.classList.toggle('on', b.dataset.val === metodoPago));
+        if(metodoPago === 'credito'){
+          abonoWrap.innerHTML = `
+            <div class="field mono"><label>Abono inicial (${config.moneda}) · opcional</label><input type="number" inputmode="decimal" id="f_abonoIni" value="${abonoIni || ''}" placeholder="0"></div>
+            <div class="field"><label>Medio del abono inicial</label>${segHtml('abmet', [['efectivo','Efectivo'],['tarjeta','Tarjeta']], abonoMet)}</div>
+            <div class="step-note">Saldo a crédito: <strong id="restVal"></strong></div>`;
+        } else if(metodoPago === 'mixto'){
+          abonoWrap.innerHTML = `
+            <div class="row2">
+              <div class="field mono"><label>Efectivo (${config.moneda})</label><input type="number" inputmode="decimal" id="f_efectivo" value="${mixEf || ''}" placeholder="0"></div>
+              <div class="field mono"><label>Tarjeta (${config.moneda})</label><input type="number" inputmode="decimal" id="f_tarjeta" value="${mixTj || ''}" placeholder="0"></div>
+            </div>
+            <div class="step-note">Lo que quede se registra como saldo a crédito: <strong id="restVal"></strong></div>`;
+        } else {
+          abonoWrap.innerHTML = '';
+        }
+        updateRest();
+      }
+      function updateRest(){
+        const el = abonoWrap.querySelector('#restVal');
+        if(!el) return;
+        const t = total();
+        let rest;
+        if(metodoPago === 'credito'){ rest = t - Math.min(abonoIni, t); }
+        else { const ef = Math.min(mixEf, t); rest = t - ef - Math.min(mixTj, t - ef); }
+        el.textContent = money(Math.max(0, rest));
+      }
+      function calcPagos(){
+        const t = total();
+        const hoy = todayStr();
+        if(metodoPago === 'efectivo' || metodoPago === 'tarjeta'){
+          return { fiado: false, pagos: [{ id: uid(), fecha: hoy, monto: t, metodo: metodoPago, nota: '' }] };
+        }
+        if(metodoPago === 'credito'){
+          const ini = Math.min(abonoIni, t);
+          return { fiado: true, pagos: ini > 0 ? [{ id: uid(), fecha: hoy, monto: ini, metodo: abonoMet, nota: 'Abono inicial' }] : [] };
+        }
+        const ef = Math.min(mixEf, t);
+        const tj = Math.min(mixTj, t - ef);
+        const pagos = [];
+        if(ef > 0) pagos.push({ id: uid(), fecha: hoy, monto: ef, metodo: 'efectivo', nota: 'Mixto' });
+        if(tj > 0) pagos.push({ id: uid(), fecha: hoy, monto: tj, metodo: 'tarjeta', nota: 'Mixto' });
+        return { fiado: (t - ef - tj) > 0, pagos };
+      }
+      sheet.querySelectorAll('[data-group="pago"] button').forEach(b => b.addEventListener('click', () => {
+        metodoPago = b.dataset.val;
+        renderAbonoWrap();
+      }));
+      abonoWrap.addEventListener('click', (e) => {
+        const b = e.target.closest('[data-group="abmet"] button');
+        if(!b) return;
+        abonoMet = b.dataset.val;
+        renderAbonoWrap();
+      });
+      abonoWrap.addEventListener('input', (e) => {
+        if(e.target.id === 'f_abonoIni') abonoIni = Number(e.target.value) || 0;
+        else if(e.target.id === 'f_efectivo') mixEf = Number(e.target.value) || 0;
+        else if(e.target.id === 'f_tarjeta') mixTj = Number(e.target.value) || 0;
+        updateRest();
+      });
+      sheet.addEventListener('click', updateRest);
+      sheet.addEventListener('input', updateRest);
+      renderAbonoWrap();
+
+      function costoTotal(){ return cart.reduce((s,it) => s + (Number(it.costo)||0) * it.cantidad, 0); }
+      function gananciaEstimada(){ return subtotal() - costoTotal(); }
+
+      function renderGanancia(){
+        const g = gananciaEstimada();
+        const ct = costoTotal();
+        const margenPct = ct > 0 ? Math.round((g / ct) * 100) : null;
+        gananciaWrap.innerHTML = `
+          <div class="ganancia-panel">
+            <div class="ganancia-toggle" id="gananciaToggle">
+              <span class="g-label">Ganancia estimada de esta venta</span>
+              <span><span class="g-value ${g >= 0 ? 'pos' : 'neg'}">${money(g)}</span><span class="chev">${gananciaOpen ? '▲' : '▼'}</span></span>
+            </div>
+            ${gananciaOpen ? `
+              <div class="ganancia-body">
+                <div class="totals-row"><span>Costo de los productos</span><span>${money(ct)}</span></div>
+                <div class="totals-row"><span>Ingreso (después de descuento)</span><span>${money(subtotal())}</span></div>
+                ${margenPct !== null ? `<div class="totals-row"><span>Margen sobre el costo</span><span>${margenPct}%</span></div>` : ''}
+              </div>
+            ` : ''}
+          </div>
+        `;
+        gananciaWrap.querySelector('#gananciaToggle').addEventListener('click', () => { gananciaOpen = !gananciaOpen; renderGanancia(); });
+      }
+
+      sheet.querySelector('#backBtn').addEventListener('click', () => {
+        selectedCliente = null;
+        sheet.innerHTML = bodyStep1();
+        mountStep1(ov, sheet);
+      });
+
+      function renderProdPick(){
+        const term = prodSearch.value.trim().toLowerCase();
+        if(!term){ prodPickList.style.display = 'none'; prodPickList.innerHTML=''; return; }
+        const matches = inventario.filter(p => p.nombre.toLowerCase().includes(term)).slice(0,8);
+        if(matches.length === 0){
+          prodPickList.style.display = 'block';
+          prodPickList.innerHTML = `<div class="pick-row" style="cursor:default;"><span class="name">Sin productos con ese nombre</span></div>`;
+          return;
+        }
+        prodPickList.style.display = 'block';
+        prodPickList.innerHTML = matches.map(p => `<div class="pick-row" data-id="${p.id}"><span class="name">${escapeHtml(p.nombre)}</span><span class="meta">${money(p.precio)}</span></div>`).join('');
+        prodPickList.querySelectorAll('.pick-row[data-id]').forEach(row => row.addEventListener('click', () => {
+          const p = inventario.find(x => x.id === row.getAttribute('data-id'));
+          const existing = cart.find(it => it.productoId === p.id);
+          const enCarrito = existing ? existing.cantidad : 0;
+          if(enCarrito + 1 > stockMax(p.id)){ alert(sinStockMsg(p.nombre, stockMax(p.id))); return; }
+          if(existing) existing.cantidad += 1;
+          else cart.push({ productoId: p.id, nombre: p.nombre, precioCatalogo: p.precio, precioUnit: p.precio, costo: Number(p.costo)||0, cantidad: 1, stockDisponible: p.stock });
+          prodSearch.value = '';
+          prodPickList.style.display = 'none';
+          renderCart();
+        }));
+      }
+      prodSearch.addEventListener('input', renderProdPick);
+
+      function renderCart(){
+        if(cart.length === 0){
+          cartWrap.innerHTML = `<div class="empty-state" style="margin-top:16px;"><p>Busca productos arriba y tócalos para agregarlos a la factura.</p></div>`;
+        } else {
+          cartWrap.innerHTML = cart.map((it, idx) => `
+            <div class="cart-item" data-idx="${idx}">
+              <div class="cart-row1">
+                <div class="name">${escapeHtml(it.nombre)}</div>
+                <button class="remove">×</button>
+              </div>
+              <div class="cart-row2">
+                <div class="qty-ctrl"><button class="qtyMinus">−</button><span class="qty">${it.cantidad}</span><button class="qtyPlus">+</button></div>
+                <input type="number" inputmode="decimal" class="unit-price ${it.precioUnit < it.precioCatalogo ? 'discounted' : ''}" value="${it.precioUnit}">
+                <div class="line-total">${money(it.precioUnit * it.cantidad)}</div>
+              </div>
+            </div>`).join('');
+          cartWrap.querySelectorAll('.cart-item').forEach(el => {
+            const idx = Number(el.getAttribute('data-idx'));
+            el.querySelector('.qtyPlus').addEventListener('click', () => {
+              if(cart[idx].cantidad + 1 > stockMax(cart[idx].productoId)){ alert(sinStockMsg(cart[idx].nombre, stockMax(cart[idx].productoId))); return; }
+              cart[idx].cantidad += 1; renderCart();
+            });
+            el.querySelector('.qtyMinus').addEventListener('click', () => { cart[idx].cantidad -= 1; if(cart[idx].cantidad <= 0) cart.splice(idx,1); renderCart(); });
+            el.querySelector('.remove').addEventListener('click', () => { cart.splice(idx,1); renderCart(); });
+            el.querySelector('.unit-price').addEventListener('change', (e) => {
+              cart[idx].precioUnit = Number(e.target.value) || 0;
+              renderCart();
+            });
+          });
+        }
+        totalsBox.innerHTML = `
+          <div class="totals-row"><span>Suma de productos</span><span>${money(sumaItems())}</span></div>
+          <div class="discount-field"><label>Descuento sobre la venta (%)</label><input type="number" inputmode="decimal" id="descuentoInput" value="${descuentoPct || ''}" placeholder="0"></div>
+          ${descuentoMonto() > 0 ? `<div class="totals-row"><span>Descuento</span><span>-${money(descuentoMonto())}</span></div>` : ''}
+          ${Number(config.impuesto) > 0 ? `<div class="totals-row"><span>Impuesto (${config.impuesto}%)</span><span>${money(impuestoMonto())}</span></div>` : ''}
+          <div class="totals-row grand"><span>Total a cobrar</span><span>${money(total())}</span></div>
+        `;
+        const descInput = totalsBox.querySelector('#descuentoInput');
+        descInput.addEventListener('change', () => { descuentoPct = Number(descInput.value) || 0; renderCart(); });
+        renderGanancia();
+        saveBtn.disabled = cart.length === 0;
+      }
+      renderCart();
+
+      saveBtn.addEventListener('click', () => {
+        if(cart.length === 0) return;
+        const excedido = cart.find(it => it.cantidad > stockMax(it.productoId));
+        if(excedido){ alert(sinStockMsg(excedido.nombre, stockMax(excedido.productoId))); return; }
+        const pg = calcPagos();
+        const venta = {
+          id: uid(), folio: null, creadoTs: Date.now(),
+          clienteId: selectedCliente.id, clienteNombre: selectedCliente.nombre,
+          clienteDireccion: selectedCliente.direccion || '', clienteTelefono: selectedCliente.telefono || '', clienteEmail: selectedCliente.email || '',
+          items: cart.map(it => ({ productoId: it.productoId, nombre: it.nombre, precio: it.precioUnit, cantidad: it.cantidad })),
+          sumaItems: sumaItems(), descuentoPct, descuentoMonto: descuentoMonto(),
+          subtotal: subtotal(), impuesto: impuestoMonto(), total: total(),
+          costoTotal: costoTotal(), gananciaEstimada: gananciaEstimada(),
+          notas, fecha: todayStr(),
+          metodoPago, fiado: pg.fiado,
+          abonos: pg.pagos,
+        };
+        ventas.push(venta);
+        inventario = inventario.map(p => {
+          const it = cart.find(c => c.productoId === p.id);
+          if(it && p.stock !== '' && p.stock !== null) return { ...p, stock: Math.max(0, Number(p.stock) - it.cantidad) };
+          return p;
+        });
+        save('cuentas_ventas', ventas);
+        save('cuentas_inventario', inventario);
+        ov.remove();
+        renderList();
+        openVentaSavedConfirm(venta.id);
+      });
+    }
+  }
+
+  function openVentaSavedConfirm(id){
+    const v = ventas.find(x => x.id === id);
+    if(!v) return;
+    openOverlay(`
+      <div class="sheet-handle"></div>
+      <h2>Venta registrada</h2>
+      <div class="step-note">Cliente: ${escapeHtml(v.clienteNombre)} · ${fmtDate(v.fecha)}</div>
+      <div class="totals-box" style="margin-top:0;">
+        <div class="totals-row grand"><span>Total cobrado</span><span>${money(v.total)}</span></div>
+      </div>
+      <div class="ganancia-panel" style="margin-top:10px;">
+        <div class="ganancia-toggle" style="cursor:default;">
+          <span class="g-label">Ganancia de esta venta</span>
+          <span class="g-value ${v.gananciaEstimada >= 0 ? 'pos' : 'neg'}">${money(v.gananciaEstimada)}</span>
+        </div>
+      </div>
+      <p style="color:var(--ink-soft); font-size:13.5px; line-height:1.5; margin:14px 2px 0;">La factura es opcional — puedes generarla ahora para enviársela al cliente, o hacerlo más tarde desde esta misma venta.</p>
+      <div class="sheet-actions" style="margin-top:16px;">
+        <button class="btn btn-secondary" id="laterBtn">Listo, sin factura</button>
+        <button class="btn btn-primary" id="genBtn">Generar factura</button>
+      </div>
+    `, (overlay) => {
+      overlay.querySelector('#laterBtn').addEventListener('click', () => overlay.remove());
+      overlay.querySelector('#genBtn').addEventListener('click', () => {
+        overlay.remove();
+        generarFactura(v.id);
+      });
+    });
+  }
+
+  function generarFactura(id){
+    const idx = ventas.findIndex(x => x.id === id);
+    if(idx === -1) return;
+    if(!ventas[idx].folio){
+      ventas[idx] = { ...ventas[idx], folio: config.siguienteFolio };
+      config.siguienteFolio += 1;
+      save('cuentas_ventas', ventas);
+      save('cuentas_config', config);
+      renderList();
+    }
+    openVentaDetail(id);
+  }
+
+  // ============================================================
+  // FACTURAS — lista separada, detalle y edición
+  // ============================================================
+  function renderFacturas(){
+    const term = searchInput.value.trim().toLowerCase();
+    const items = ventas
+      .filter(v => v.folio)
+      .filter(v => v.clienteNombre.toLowerCase().includes(term) || ('f' + v.folio).includes(term) || String(v.folio).padStart(4,'0').includes(term))
+      .sort((a,b) => b.folio - a.folio);
+    const pendientes = ventas.filter(v => !v.folio).length;
+    const banner = pendientes > 0
+      ? `<div class="summary-card" style="margin-bottom:14px;"><div class="label">Ventas sin factura</div><div class="value" style="font-size:14px;">${pendientes} · toca + para facturar una</div></div>`
+      : '';
+    const hayFacturas = ventas.some(v => v.folio);
+    if(items.length === 0){
+      listWrap.innerHTML = banner + emptyState(
+        hayFacturas ? 'Sin resultados' : 'Aún no tienes facturas',
+        hayFacturas ? 'Prueba con otro nombre o folio.' : 'Toca + para generar una factura a partir de una venta registrada.'
+      );
+      return;
+    }
+    listWrap.innerHTML = banner + '<ul class="list">' + items.map(v => `
+      <li class="row" data-id="${v.id}">
+        <div class="row-main">
+          <div class="row-title">F-${String(v.folio).padStart(4,'0')} · ${escapeHtml(v.clienteNombre)}</div>
+          <div class="row-sub">${fmtDate(v.fecha)}</div>
+        </div>
+        <div class="row-value">${money(v.total)}</div>
+      </li>`).join('') + '</ul>';
+    listWrap.querySelectorAll('.row').forEach(row => row.addEventListener('click', () => openVentaDetail(row.getAttribute('data-id'))));
+  }
+
+  function openSinFacturaPicker(){
+    const pendientes = ventas
+      .filter(v => !v.folio)
+      .sort((a,b) => b.fecha.localeCompare(a.fecha) || (b.creadoTs||0) - (a.creadoTs||0));
+    if(pendientes.length === 0){
+      openOverlay(`
+        <div class="sheet-handle"></div>
+        <h2>Sin ventas pendientes</h2>
+        <p style="color:var(--ink-soft); font-size:14px; line-height:1.5;">Todas tus ventas ya tienen factura. Registra una venta nueva desde la pestaña Ventas.</p>
+        <div class="sheet-actions"><button class="btn btn-primary" id="okBtn" style="flex:1;">Entendido</button></div>
+      `, (ov) => ov.querySelector('#okBtn').addEventListener('click', () => ov.remove()));
+      return;
+    }
+    openOverlay(`
+      <div class="sheet-handle"></div>
+      <h2>Generar factura</h2>
+      <div class="step-note">Elige la venta a facturar</div>
+      <div class="pick-list">
+        ${pendientes.map(v => `<div class="pick-row" data-id="${v.id}"><span class="name">${escapeHtml(v.clienteNombre)} · ${fmtDate(v.fecha)}</span><span class="meta">${money(v.total)}</span></div>`).join('')}
+      </div>
+      <div class="sheet-actions"><button class="btn btn-secondary" id="cancelBtn" style="flex:1;">Cancelar</button></div>
+    `, (overlay) => {
+      overlay.querySelector('#cancelBtn').addEventListener('click', () => overlay.remove());
+      overlay.querySelectorAll('.pick-row').forEach(row => row.addEventListener('click', () => {
+        overlay.remove();
+        generarFactura(row.getAttribute('data-id'));
+      }));
+    });
+  }
+
+  function buildInvoiceHtml(v){
+    const logoBlock = config.logo
+      ? `<img class="inv-logo" src="${config.logo}" alt="">`
+      : `<div class="inv-logo-placeholder">${escapeHtml(initials(config.nombre))}</div>`;
+    const bizMetaLines = [
+      config.mostrarDireccion !== false ? config.direccion : '',
+      config.mostrarTelefono !== false ? config.telefono : '',
+      config.mostrarEmail !== false ? config.email : '',
+    ].filter(Boolean).map(escapeHtml).join('<br>');
+    const clienteMetaLines = [v.clienteDireccion, v.clienteTelefono, v.clienteEmail].filter(Boolean).map(escapeHtml).join('<br>');
+    return `
+      <div class="invoice-doc">
+        <div class="inv-header">
+          <div class="inv-biz">
+            ${logoBlock}
+            <div>
+              <div class="inv-biz-name">${escapeHtml(config.nombre)}</div>
+              <div class="inv-biz-meta">${bizMetaLines}</div>
+            </div>
+          </div>
+          <div class="inv-title">${escapeHtml(config.facturaTitulo || 'FACTURA')}<div class="inv-num">Nº ${String(v.folio).padStart(4,'0')}<br>${fmtDate(v.fecha)}</div></div>
+        </div>
+        <div class="inv-parties">
+          <div>
+            <div class="p-label">Facturar a</div>
+            <div class="p-name">${escapeHtml(v.clienteNombre)}</div>
+            <div class="p-meta">${clienteMetaLines}</div>
+          </div>
+        </div>
+        <table class="inv-table">
+          <thead><tr><th>Producto</th><th class="num">Cant.</th><th class="num">Precio</th><th class="num">Importe</th></tr></thead>
+          <tbody>
+            ${v.items.map(it => `<tr><td>${escapeHtml(it.nombre)}</td><td class="num">${it.cantidad}</td><td class="num">${money(it.precio)}</td><td class="num">${money(it.precio*it.cantidad)}</td></tr>`).join('')}
+          </tbody>
+        </table>
+        ${v.notas ? `<div class="inv-notes"><strong>Notas:</strong> ${escapeHtml(v.notas)}</div>` : ''}
+        <div class="inv-totals">
+          <div class="t-row"><span>Suma de productos</span><span>${money(v.sumaItems !== undefined ? v.sumaItems : v.subtotal)}</span></div>
+          ${v.descuentoMonto > 0 ? `<div class="t-row"><span>Descuento (${v.descuentoPct}%)</span><span>-${money(v.descuentoMonto)}</span></div>` : ''}
+          ${v.impuesto > 0 ? `<div class="t-row"><span>Impuesto</span><span>${money(v.impuesto)}</span></div>` : ''}
+          <div class="t-row grand"><span>Total</span><span>${money(v.total)}</span></div>
+          ${v.fiado ? `<div class="t-row"><span>Abonado</span><span>-${money(abonadoVenta(v))}</span></div><div class="t-row grand"><span>Saldo pendiente</span><span>${money(saldoVenta(v))}</span></div>` : ''}
+        </div>
+        ${metodoLabel(v) ? `<div class="inv-notes"><strong>Forma de pago:</strong> ${metodoLabel(v)}</div>` : ''}
+        ${config.facturaPie ? `<div class="inv-footer">${escapeHtml(config.facturaPie)}</div>` : ''}
+      </div>
+    `;
+  }
+
+  function buildVentaSummaryHtml(v){
+    return `
+      <div class="invoice-doc">
+        <div class="inv-header">
+          <div class="inv-biz"><div><div class="inv-biz-name">${escapeHtml(v.clienteNombre)}</div><div class="inv-biz-meta">${fmtDate(v.fecha)} · Sin factura generada</div></div></div>
+        </div>
+        <table class="inv-table">
+          <thead><tr><th>Producto</th><th class="num">Cant.</th><th class="num">Precio</th><th class="num">Importe</th></tr></thead>
+          <tbody>
+            ${v.items.map(it => `<tr><td>${escapeHtml(it.nombre)}</td><td class="num">${it.cantidad}</td><td class="num">${money(it.precio)}</td><td class="num">${money(it.precio*it.cantidad)}</td></tr>`).join('')}
+          </tbody>
+        </table>
+        ${v.notas ? `<div class="inv-notes"><strong>Notas:</strong> ${escapeHtml(v.notas)}</div>` : ''}
+        <div class="inv-totals">
+          <div class="t-row"><span>Suma de productos</span><span>${money(v.sumaItems !== undefined ? v.sumaItems : v.subtotal)}</span></div>
+          ${v.descuentoMonto > 0 ? `<div class="t-row"><span>Descuento (${v.descuentoPct}%)</span><span>-${money(v.descuentoMonto)}</span></div>` : ''}
+          ${v.impuesto > 0 ? `<div class="t-row"><span>Impuesto</span><span>${money(v.impuesto)}</span></div>` : ''}
+          <div class="t-row grand"><span>Total</span><span>${money(v.total)}</span></div>
+        </div>
+      </div>
+    `;
+  }
+
+  function openVentaDetail(id){
+    const v = ventas.find(x => x.id === id);
+    if(!v) return;
+
+    if(!v.folio){
+      openOverlay(`
+        <div class="sheet-handle"></div>
+        ${buildVentaSummaryHtml(v)}
+        ${v.gananciaEstimada !== undefined ? `
+          <div class="ganancia-panel" style="margin-top:12px;">
+            <div class="ganancia-toggle" style="cursor:default;">
+              <span class="g-label">Ganancia de esta venta</span>
+              <span class="g-value ${v.gananciaEstimada >= 0 ? 'pos' : 'neg'}">${money(v.gananciaEstimada)}</span>
+            </div>
+          </div>` : ''}
+        <div class="sheet-actions" style="margin-top:16px;">
+          <button class="btn btn-secondary" id="closeBtn">Cerrar</button>
+          <button class="btn btn-primary" id="genBtn">Generar factura</button>
+        </div>
+        <button class="btn-danger-text" id="deleteVentaBtn">Anular venta</button>
+      `, (overlay) => {
+        overlay.querySelector('#closeBtn').addEventListener('click', () => overlay.remove());
+        overlay.querySelector('#genBtn').addEventListener('click', () => { overlay.remove(); generarFactura(v.id); });
+        overlay.querySelector('#deleteVentaBtn').addEventListener('click', () => anularVenta(v.id));
+      });
+      return;
+    }
+
+    openOverlay(`
+      <div class="sheet-handle"></div>
+      <div id="printArea">${buildInvoiceHtml(v)}</div>
+      <div class="sheet-actions" style="margin-top:16px;">
+        <button class="btn btn-secondary" id="closeBtn">Cerrar</button>
+        <button class="btn btn-primary" id="printBtn">Guardar / Imprimir PDF</button>
+      </div>
+      <button class="btn btn-secondary" id="editFacBtn" style="width:100%; margin-top:10px;">Editar factura</button>
+      <button class="link-btn" id="shareBtn" style="display:block; margin:12px auto 0; text-align:center;">Compartir resumen</button>
+      <button class="link-btn" id="waFacBtn" style="display:block; margin:12px auto 0; text-align:center;">Enviar por WhatsApp</button>
+      <button class="btn-danger-text" id="deleteVentaBtn">Anular factura</button>
+    `, (overlay) => {
+      overlay.querySelector('#closeBtn').addEventListener('click', () => overlay.remove());
+      overlay.querySelector('#printBtn').addEventListener('click', () => window.print());
+      overlay.querySelector('#editFacBtn').addEventListener('click', () => { overlay.remove(); openFacturaEdit(v.id); });
+      overlay.querySelector('#shareBtn').addEventListener('click', async () => {
+        const resumen = `Factura F-${String(v.folio).padStart(4,'0')} — ${config.nombre}\nCliente: ${v.clienteNombre}\nFecha: ${fmtDate(v.fecha)}\n` +
+          v.items.map(it => `${it.cantidad} x ${it.nombre}: ${money(it.precio*it.cantidad)}`).join('\n') +
+          `\nTotal: ${money(v.total)}`;
+        if(navigator.share){
+          try { await navigator.share({ title: 'Factura F-' + String(v.folio).padStart(4,'0'), text: resumen }); }
+          catch(e){ /* cancelado */ }
+        } else {
+          try {
+            await navigator.clipboard.writeText(resumen);
+            alert('Resumen copiado. Pégalo en WhatsApp, correo o donde prefieras.');
+          } catch(e){
+            alert('No se pudo compartir automáticamente en este navegador. Usa "Guardar / Imprimir PDF" y comparte el archivo desde ahí.');
+          }
+        }
+      });
+      overlay.querySelector('#waFacBtn').addEventListener('click', () => {
+        const cli = clientes.find(c => c.id === v.clienteId);
+        window.open(waUrl(cli ? cli.telefono : v.clienteTelefono, textoFactura(v)), '_blank');
+      });
+      overlay.querySelector('#deleteVentaBtn').addEventListener('click', () => anularVenta(v.id));
+    });
+  }
+
+  function openFacturaEdit(id){
+    const v = ventas.find(x => x.id === id);
+    if(!v) return;
+    openOverlay(`
+      <div class="sheet-handle"></div>
+      <h2>Editar F-${String(v.folio).padStart(4,'0')}</h2>
+      <div class="step-note">Puedes cambiar los datos del cliente, la fecha y las notas. Los productos y precios no se editan para no descuadrar el inventario ni los reportes.</div>
+      <div class="field"><label>Nombre del cliente</label><input type="text" id="fe_nombre" value="${escapeHtml(v.clienteNombre)}"></div>
+      <div class="field"><label>Dirección</label><textarea id="fe_direccion" rows="2" placeholder="Opcional">${escapeHtml(v.clienteDireccion || '')}</textarea></div>
+      <div class="row2">
+        <div class="field"><label>Teléfono</label><input type="tel" id="fe_telefono" value="${escapeHtml(v.clienteTelefono || '')}" placeholder="Opcional"></div>
+        <div class="field"><label>Correo</label><input type="email" id="fe_email" value="${escapeHtml(v.clienteEmail || '')}" placeholder="Opcional"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Fecha de la factura</label><input type="date" id="fe_fecha" value="${v.fecha}"></div>
+      </div>
+      <div class="field"><label>Notas</label><textarea id="fe_notas" rows="3" placeholder="Ej. Forma de pago, garantía">${escapeHtml(v.notas || '')}</textarea></div>
+      <div class="sheet-actions">
+        <button class="btn btn-secondary" id="feBack">Volver</button>
+        <button class="btn btn-primary" id="feSave">Guardar cambios</button>
+      </div>
+    `, (overlay) => {
+      overlay.querySelector('#feBack').addEventListener('click', () => { overlay.remove(); openVentaDetail(id); });
+      overlay.querySelector('#feSave').addEventListener('click', () => {
+        const nombre = overlay.querySelector('#fe_nombre').value.trim();
+        if(!nombre){ overlay.querySelector('#fe_nombre').focus(); return; }
+        ventas = ventas.map(x => x.id !== id ? x : {
+          ...x,
+          clienteNombre: nombre,
+          clienteDireccion: overlay.querySelector('#fe_direccion').value.trim(),
+          clienteTelefono: overlay.querySelector('#fe_telefono').value.trim(),
+          clienteEmail: overlay.querySelector('#fe_email').value.trim(),
+          fecha: overlay.querySelector('#fe_fecha').value || x.fecha,
+          notas: overlay.querySelector('#fe_notas').value.trim(),
+        });
+        save('cuentas_ventas', ventas);
+        overlay.remove();
+        renderList();
+        openVentaDetail(id);
+      });
+    });
+  }
+
+  function resizeImageFile(file, maxSize, cb){
+    const reader = new FileReader();
+    reader.onerror = () => cb('');
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onerror = () => cb('');
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        if(!w || !h){ cb(''); return; }
+        if(w > h && w > maxSize){ h = Math.round(h * maxSize / w); w = maxSize; }
+        else if(h > maxSize){ w = Math.round(w * maxSize / h); h = maxSize; }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        cb(canvas.toDataURL('image/jpeg', 0.85));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function imagePickerHtml(prefix, titulo, current, vacio){
+    return `
+      <div class="logo-row">
+        <div id="${prefix}Preview">${current ? `<img class="logo-preview" src="${current}">` : `<div class="logo-preview-empty">${vacio}</div>`}</div>
+        <div style="flex:1; min-width:0;">
+          <div style="font-size:12px; font-weight:600; color:var(--ink-soft); margin-bottom:6px;">${titulo}</div>
+          <input type="file" accept="image/*" id="${prefix}Input" class="file-input">
+          <button class="link-btn danger" id="${prefix}Remove" style="margin-top:6px; ${current ? '' : 'display:none;'}">Quitar</button>
+        </div>
+      </div>`;
+  }
+
+  function wireImagePicker(overlay, prefix, vacio, maxSize, onChange){
+    const input = overlay.querySelector('#' + prefix + 'Input');
+    const preview = overlay.querySelector('#' + prefix + 'Preview');
+    const removeBtn = overlay.querySelector('#' + prefix + 'Remove');
+    input.addEventListener('change', () => {
+      const file = input.files && input.files[0];
+      input.value = '';
+      if(!file) return;
+      if(file.size > 15 * 1024 * 1024){ alert('La imagen es muy pesada. Elige una de menos de 15 MB.'); return; }
+      resizeImageFile(file, maxSize, (dataUrl) => {
+        if(!dataUrl){ alert('No pude leer esa imagen. Prueba con una foto en JPG o PNG.'); return; }
+        onChange(dataUrl);
+        preview.innerHTML = `<img class="logo-preview" src="${dataUrl}">`;
+        removeBtn.style.display = '';
+      });
+    });
+    removeBtn.addEventListener('click', () => {
+      onChange('');
+      preview.innerHTML = `<div class="logo-preview-empty">${vacio}</div>`;
+      removeBtn.style.display = 'none';
+    });
+  }
+
+  function toggleRowHtml(id, label, checked){
+    return `<label class="toggle-row"><span>${label}</span><input type="checkbox" id="${id}" ${checked ? 'checked' : ''}></label>`;
+  }
+
+  // ============================================================
+  // AJUSTES — menú por secciones
+  // ============================================================
+  // ============================================================
+  // AJUSTES › CRÉDITOS
+  // ============================================================
+  // ============================================================
+  // COMPARTIR (WhatsApp) y ANULACIÓN
+  // ============================================================
+  function waUrl(telefono, texto){
+    let d = String(telefono || '').replace(/\D/g, '');
+    if(d.length === 10 && d.startsWith('3')) d = '57' + d;
+    return `https://wa.me/${d}?text=${encodeURIComponent(texto)}`;
+  }
+  function textoFactura(v){
+    return `Factura F-${String(v.folio).padStart(4,'0')} — ${config.nombre}\nCliente: ${v.clienteNombre}\nFecha: ${fmtDate(v.fecha)}\n` +
+      (v.items||[]).map(it => `${it.cantidad} x ${it.nombre}: ${money(it.precio*it.cantidad)}`).join('\n') +
+      `\nTotal: ${money(v.total)}` + (v.fiado ? `\nSaldo pendiente: ${money(saldoVenta(v))}` : '');
+  }
+
+  function anularVenta(id){
+    const v = ventas.find(x => x.id === id);
+    if(!v) return;
+    const unidades = (v.items||[]).reduce((s,it) => s + (Number(it.cantidad)||0), 0);
+    openOverlay(`
+      <div class="sheet-handle"></div>
+      <h2>Anular venta</h2>
+      <div class="step-note">${escapeHtml(v.clienteNombre)} · ${money(v.total)} · ${fmtDate(v.fecha)}</div>
+      <p style="font-size:14px; line-height:1.5;">Se quitará la venta del historial y de los créditos. ${unidades} unidad(es) volverán al inventario${v.folio ? ` y la factura F-${String(v.folio).padStart(4,'0')} quedará anulada` : ''}. Esta acción no se puede deshacer.</p>
+      <div class="sheet-actions">
+        <button class="btn btn-secondary" id="anNo">No, cancelar</button>
+        <button class="btn btn-primary" id="anSi" style="background:var(--danger);">Sí, anular</button>
+      </div>
+    `, (ov) => {
+      ov.querySelector('#anNo').addEventListener('click', () => ov.remove());
+      ov.querySelector('#anSi').addEventListener('click', () => {
+        (v.items||[]).forEach(it => {
+          const cant = Number(it.cantidad) || 0;
+          const p = inventario.find(x => x.id === it.productoId);
+          if(!p) return;
+          if(p.stock !== '' && p.stock !== null) inventario = inventario.map(x => x.id === p.id ? { ...x, stock: Number(x.stock) + cant } : x);
+          movimientos = [...movimientos, { id: uid(), tipo: 'devolucion', ts: Date.now(), productoId: p.id, productoNombre: p.nombre, cantidad: cant, motivo: `Venta anulada · ${v.clienteNombre}`, fecha: todayStr() }];
+        });
+        ventas = ventas.filter(x => x.id !== v.id);
+        save('cuentas_ventas', ventas);
+        save('cuentas_inventario', inventario);
+        save('cuentas_movimientos', movimientos);
+        document.querySelectorAll('.overlay').forEach(o => o.remove());
+        renderList();
+      });
+    });
+  }
+
+  function totalPorCobrarAll(){ return ventas.reduce((s,v) => s + saldoVenta(v), 0); }
+
+  function openCreditosAjustes(back){
+    const deudores = clientes
+      .map(c => ({ c, deuda: clienteSaldo(c.id) }))
+      .filter(x => x.deuda > 0)
+      .sort((a,b) => b.deuda - a.deuda);
+    const total = deudores.reduce((s,x) => s + x.deuda, 0);
+    openOverlay(`
+      <div class="sheet-handle"></div>
+      <h2>Créditos</h2>
+      <div class="step-note">Clientes que te deben dinero. Toca uno para abonar o liquidar su deuda.</div>
+      <div class="rep-hero ${total > 0 ? 'neg' : ''}" style="margin-top:6px;">
+        <div class="rep-hero-label">Total por cobrar</div>
+        <div class="rep-hero-value">${money(total)}</div>
+        <div class="rep-hero-sub">${deudores.length} ${deudores.length === 1 ? 'cliente con saldo pendiente' : 'clientes con saldo pendiente'}</div>
+      </div>
+      ${deudores.length ? `
+        <ul class="list" style="margin-top:12px;">
+          ${deudores.map(({c, deuda}) => `
+            <li class="row" data-cli="${c.id}">
+              <div class="row-main">
+                <div class="row-title">${escapeHtml(c.nombre)}</div>
+                <div class="row-sub">${ventas.filter(v => v.clienteId === c.id && saldoVenta(v) > 0).length} venta(s) a crédito pendientes</div>
+              </div>
+              <div class="row-value" style="color:var(--danger);">${money(deuda)}</div>
+            </li>`).join('')}
+        </ul>` : `<div class="empty-state"><p>No tienes créditos pendientes. Cuando registres una venta a crédito, aparecerá aquí.</p></div>`}
+      <div class="sheet-actions" style="margin-top:16px;">
+        <button class="btn btn-secondary" id="credCerrar" style="flex:1;">Cerrar</button>
+      </div>
+    `, (overlay) => {
+      overlay.querySelector('#credCerrar').addEventListener('click', () => { overlay.remove(); back(); });
+      overlay.querySelectorAll('[data-cli]').forEach(r => r.addEventListener('click', () => {
+        overlay.remove();
+        openCreditoCliente(r.getAttribute('data-cli'), () => openCreditosAjustes(back));
+      }));
+    });
+  }
+
+  function openCreditoCliente(clienteId, volver){
+    const c = clientes.find(x => x.id === clienteId);
+    if(!c) return volver();
+    const pendientes = ventas
+      .filter(v => v.clienteId === clienteId && saldoVenta(v) > 0)
+      .sort((a,b) => a.fecha.localeCompare(b.fecha));
+    const deuda = pendientes.reduce((s,v) => s + saldoVenta(v), 0);
+    if(pendientes.length === 0){
+      openOverlay(`
+        <div class="sheet-handle"></div>
+        <h2>${escapeHtml(c.nombre)}</h2>
+        <p style="color:var(--ink-soft); font-size:14px; line-height:1.5;">Este cliente no tiene deudas pendientes.</p>
+        <div class="sheet-actions"><button class="btn btn-secondary" id="ccVolver" style="flex:1;">Volver</button></div>
+      `, (overlay) => overlay.querySelector('#ccVolver').addEventListener('click', () => { overlay.remove(); volver(); }));
+      return;
+    }
+    openOverlay(`
+      <div class="sheet-handle"></div>
+      <h2>${escapeHtml(c.nombre)}</h2>
+      <div class="step-note">Debe en total <strong style="color:var(--danger);">${money(deuda)}</strong>. Toca una venta para abonar.</div>
+      <div class="rep-card">
+        ${pendientes.map(v => `
+          <div class="rep-line credit-row" data-abonar="${v.id}">
+            <span><span class="credit-title" style="display:block;">${fmtDate(v.fecha)} · ${v.folio ? 'F-' + String(v.folio).padStart(4,'0') : 'Sin factura'}</span><span class="credit-sub" style="display:block;">Abonado ${money(abonadoVenta(v))} de ${money(v.total)}</span></span>
+            <span style="color:var(--danger); font-weight:600;">${money(saldoVenta(v))}</span>
+          </div>`).join('')}
+      </div>
+      <button class="link-btn" id="ccWa" style="display:block; margin:12px auto 0; text-align:center;">Enviar recordatorio por WhatsApp</button>
+      <div id="ccConfirm"></div>
+      <div class="sheet-actions" style="margin-top:14px;">
+        <button class="btn btn-secondary" id="ccVolver">Volver</button>
+        <button class="btn btn-primary" id="ccLiquidar">Liquidar deuda</button>
+      </div>
+    `, (overlay) => {
+      overlay.querySelector('#ccVolver').addEventListener('click', () => { overlay.remove(); volver(); });
+      overlay.querySelector('#ccWa').addEventListener('click', () => {
+        const texto = `Hola ${c.nombre}, tienes un saldo pendiente de ${money(deuda)} en ${config.nombre}. ¡Gracias!`;
+        window.open(waUrl(c.telefono, texto), '_blank');
+      });
+      overlay.querySelectorAll('[data-abonar]').forEach(r => r.addEventListener('click', () => {
+        overlay.remove();
+        openAbonoForm(r.getAttribute('data-abonar'), () => openCreditoCliente(clienteId, volver));
+      }));
+      let metodoLiq = 'efectivo';
+      overlay.querySelector('#ccLiquidar').addEventListener('click', () => {
+        overlay.querySelector('#ccConfirm').innerHTML = `
+          <div class="rep-card" style="margin-top:14px; padding:14px;">
+            <p style="font-size:14px; line-height:1.5; margin-bottom:12px;">Se registrará un abono por ${money(deuda)} para cerrar todas las ventas de ${escapeHtml(c.nombre)}. ¿Continuar?</p>
+            <div class="field"><label>Medio de pago</label>${segHtml('liq', [['efectivo','Efectivo'],['tarjeta','Tarjeta']], 'efectivo')}</div>
+            <div class="sheet-actions" style="margin-top:0;">
+              <button class="btn btn-secondary" id="ccNo">No</button>
+              <button class="btn btn-primary" id="ccSi">Sí, liquidar</button>
+            </div>
+          </div>`;
+        overlay.querySelector('#ccNo').addEventListener('click', () => { overlay.querySelector('#ccConfirm').innerHTML = ''; });
+        overlay.querySelectorAll('[data-group="liq"] button').forEach(b => b.addEventListener('click', () => {
+          metodoLiq = b.dataset.val;
+          overlay.querySelectorAll('[data-group="liq"] button').forEach(x => x.classList.toggle('on', x.dataset.val === metodoLiq));
+        }));
+        overlay.querySelector('#ccSi').addEventListener('click', () => {
+          const hoy = todayStr();
+          ventas = ventas.map(x => {
+            if(x.clienteId !== clienteId || !x.fiado) return x;
+            const saldo = saldoVenta(x);
+            if(saldo <= 0) return x;
+            return { ...x, abonos: [...(x.abonos||[]), { id: uid(), fecha: hoy, monto: saldo, nota: 'Liquidación', metodo: metodoLiq }] };
+          });
+          save('cuentas_ventas', ventas);
+          overlay.remove();
+          renderList();
+          volver();
+        });
+      });
+    });
+  }
+
+  // ============================================================
+  // AJUSTES › RESPALDO
+  // ============================================================
+  function openRespaldoAjustes(back){
+    openOverlay(`
+      <div class="sheet-handle"></div>
+      <h2>Respaldo</h2>
+      <div class="step-note">Tus datos se guardan en este navegador. Descarga un respaldo de vez en cuando para no perder nada si cambias de teléfono o borras el navegador.</div>
+      <button class="btn btn-primary" id="resExport" style="width:100%;">Descargar respaldo</button>
+      <div class="section-label" style="margin-top:18px;">Restaurar desde un respaldo</div>
+      <div class="step-note">Al importar, tus datos actuales se reemplazan por los del archivo.</div>
+      <input type="file" accept="application/json,.json" id="resFile" class="file-input">
+      <div id="resConfirm"></div>
+      <div class="sheet-actions" style="margin-top:16px;"><button class="btn btn-secondary" id="resVolver" style="flex:1;">Volver</button></div>
+    `, (overlay) => {
+      overlay.querySelector('#resVolver').addEventListener('click', () => { overlay.remove(); back(); });
+      overlay.querySelector('#resExport').addEventListener('click', async () => {
+        const data = JSON.stringify({ app: 'cuentas', version: 1, fecha: todayStr(), datos: { clientes, inventario, ventas, gastos, movimientos, config } });
+        const dl = (window.claude && typeof window.claude.use === 'function') ? await window.claude.use('downloads') : null;
+        if(!dl){ alert('Esta vista no permite descargar archivos. Abre Cuentas en el navegador para descargar tu respaldo.'); return; }
+        try {
+          await dl.save({ filename: `cuentas-respaldo-${todayStr()}.json`, data });
+          alert('Respaldo guardado.');
+        } catch(err){
+          if(err && err.code === 'declined') return;
+          alert('No se pudo guardar el respaldo. Intenta de nuevo.');
+        }
+      });
+      overlay.querySelector('#resFile').addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          let d = null;
+          try { d = JSON.parse(reader.result).datos; } catch(err) { d = null; }
+          if(!d || !Array.isArray(d.clientes) || !Array.isArray(d.inventario) || !Array.isArray(d.ventas) || !Array.isArray(d.gastos)){
+            overlay.querySelector('#resConfirm').innerHTML = `<p style="color:var(--danger); font-size:14px; margin-top:12px;">Ese archivo no es un respaldo válido de Cuentas.</p>`;
+            return;
+          }
+          overlay.querySelector('#resConfirm').innerHTML = `
+            <div class="rep-card" style="margin-top:12px; padding:14px;">
+              <p style="font-size:14px; line-height:1.5; margin-bottom:12px;">Se reemplazarán tus datos actuales (${d.clientes.length} clientes, ${d.inventario.length} productos, ${d.ventas.length} ventas, ${d.gastos.length} gastos). ¿Continuar?</p>
+              <div class="sheet-actions" style="margin-top:0;">
+                <button class="btn btn-secondary" id="resNo">No</button>
+                <button class="btn btn-primary" id="resSi" style="background:var(--danger);">Sí, reemplazar</button>
+              </div>
+            </div>`;
+          overlay.querySelector('#resNo').addEventListener('click', () => { overlay.querySelector('#resConfirm').innerHTML = ''; });
+          overlay.querySelector('#resSi').addEventListener('click', () => {
+            clientes = d.clientes;
+            inventario = d.inventario;
+            ventas = d.ventas;
+            gastos = d.gastos;
+            movimientos = Array.isArray(d.movimientos) ? d.movimientos : [];
+            if(d.config) Object.assign(config, d.config);
+            Object.keys(CONFIG_DEFAULTS).forEach(k => { if(config[k] === undefined) config[k] = CONFIG_DEFAULTS[k]; });
+            save('cuentas_clientes', clientes);
+            save('cuentas_inventario', inventario);
+            save('cuentas_ventas', ventas);
+            save('cuentas_gastos', gastos);
+            save('cuentas_movimientos', movimientos);
+            save('cuentas_config', config);
+            overlay.remove();
+            renderHeader();
+            renderList();
+            alert('Datos restaurados.');
+          });
+        };
+        reader.readAsText(file);
+      });
+    });
+  }
+
+  function openSettings(){
+    const secciones = [
+      { key:'usuario', icono:'◉', titulo:'Usuario', desc: (config.nombre || 'Mi negocio') + (config.fotoPerfil ? ' · con foto' : '') },
+      { key:'creditos', icono:'◑', titulo:'Créditos', desc: totalPorCobrarAll() > 0 ? `Por cobrar ${money(totalPorCobrarAll())}` : 'Sin deudas pendientes' },
+      { key:'factura', icono:'▦', titulo:'Factura', desc: (config.facturaTitulo || 'FACTURA') + (config.notaFactura ? ' · con nota' : '') },
+      { key:'productos', icono:'▤', titulo:'Productos', desc: `Poco stock desde ${config.stockMinimo} unid.` + (config.margenDefault ? ` · Ganancia por defecto ${config.margenDefault}%` : '') },
+      { key:'respaldo', icono:'⤓', titulo:'Respaldo', desc: 'Descargar o restaurar tus datos' },
+      { key:'ventas', icono:'⧉', titulo:'Moneda e impuestos', desc: `${config.moneda} · Impuesto ${config.impuesto}%` },
+    ];
+    openOverlay(`
+      <div class="sheet-handle"></div>
+      <h2>Ajustes</h2>
+      <div class="step-note">Elige una sección para editarla.</div>
+      <ul class="list" style="margin-top:6px;">
+        ${secciones.map(s => `
+          <li class="row" data-sec="${s.key}">
+            <div class="row-main">
+              <div class="row-title">${s.icono}&nbsp;&nbsp;${s.titulo}</div>
+              <div class="row-sub">${escapeHtml(s.desc)}</div>
+            </div>
+            <div class="row-value" style="color:var(--ink-soft);">›</div>
+          </li>`).join('')}
+      </ul>
+      <div class="sheet-actions" style="margin-top:16px;">
+        <button class="btn btn-secondary" id="closeSetBtn">Cerrar</button>
+      </div>
+    `, (overlay) => {
+      overlay.querySelector('#closeSetBtn').addEventListener('click', () => overlay.remove());
+      overlay.querySelectorAll('.row[data-sec]').forEach(row => row.addEventListener('click', () => {
+        overlay.remove();
+        openSettingSection(row.getAttribute('data-sec'));
+      }));
+    });
+  }
+
+  function openSettingSection(key){
+    const back = () => openSettings();
+    if(key === 'usuario') return openSettingsUsuario(back);
+    if(key === 'creditos') return openCreditosAjustes(back);
+    if(key === 'respaldo') return openRespaldoAjustes(back);
+    if(key === 'factura') return openSettingsFactura(back);
+    if(key === 'productos') return openSettingsProductos(back);
+    if(key === 'ventas') return openSettingsVentas(back);
+  }
+
+  function sectionShell(titulo, nota, fieldsHtml){
+    return `
+      <div class="sheet-handle"></div>
+      <h2>${titulo}</h2>
+      <div class="step-note">${nota}</div>
+      ${fieldsHtml}
+      <div class="sheet-actions">
+        <button class="btn btn-secondary" id="backSetBtn">Volver</button>
+        <button class="btn btn-primary" id="saveSetBtn">Guardar</button>
+      </div>
+    `;
+  }
+
+  function wireSection(overlay, back, onSave){
+    overlay.querySelector('#backSetBtn').addEventListener('click', () => { overlay.remove(); back(); });
+    overlay.querySelector('#saveSetBtn').addEventListener('click', () => {
+      onSave();
+      renderHeader();
+      renderList();
+      overlay.remove();
+      back();
+    });
+  }
+
+  function openSettingsUsuario(back){
+    let logo = config.logo || '';
+    let foto = config.fotoPerfil || '';
+    openOverlay(sectionShell('Usuario', 'Tu foto de perfil y los datos de tu negocio.', `
+      ${imagePickerHtml('foto', 'Foto de perfil', foto, 'Sin foto')}
+      ${imagePickerHtml('logo', 'Logo del negocio (sale en tus facturas)', logo, 'Sin logo')}
+      <div class="field"><label>Nombre del negocio</label><input type="text" id="s_nombre" value="${escapeHtml(config.nombre)}" placeholder="Mi negocio"></div>
+      <div class="field"><label>Dirección</label><textarea id="s_direccion" rows="2" placeholder="Opcional">${escapeHtml(config.direccion)}</textarea></div>
+      <div class="row2">
+        <div class="field"><label>Teléfono</label><input type="tel" id="s_telefono" value="${escapeHtml(config.telefono)}" placeholder="Opcional"></div>
+        <div class="field"><label>Correo</label><input type="email" id="s_email" value="${escapeHtml(config.email)}" placeholder="Opcional"></div>
+      </div>
+    `), (overlay) => {
+      wireImagePicker(overlay, 'foto', 'Sin foto', 400, (d) => { foto = d; });
+      wireImagePicker(overlay, 'logo', 'Sin logo', 400, (d) => { logo = d; });
+      wireSection(overlay, back, () => {
+        config.nombre = overlay.querySelector('#s_nombre').value.trim() || 'Mi negocio';
+        config.direccion = overlay.querySelector('#s_direccion').value.trim();
+        config.telefono = overlay.querySelector('#s_telefono').value.trim();
+        config.email = overlay.querySelector('#s_email').value.trim();
+        config.fotoPerfil = foto;
+        config.logo = logo;
+        save('cuentas_config', config);
+      });
+    });
+  }
+
+  function openSettingsFactura(back){
+    openOverlay(sectionShell('Factura', 'Cómo se ve tu factura y qué datos incluye.', `
+      <div class="field"><label>Título del documento</label><input type="text" id="sf_titulo" value="${escapeHtml(config.facturaTitulo || '')}" placeholder="FACTURA"></div>
+      <div class="field"><label>Pie de página</label><input type="text" id="sf_pie" value="${escapeHtml(config.facturaPie || '')}" placeholder="Ej. Gracias por su compra"></div>
+      <div class="field"><label>Nota por defecto (opcional)</label><textarea id="sf_nota" rows="2" placeholder="Ej. Forma de pago, garantía">${escapeHtml(config.notaFactura || '')}</textarea></div>
+      <div class="section-label" style="margin:14px 0 4px;">Datos del negocio en el encabezado</div>
+      ${toggleRowHtml('sf_dir', 'Mostrar dirección', config.mostrarDireccion !== false)}
+      ${toggleRowHtml('sf_tel', 'Mostrar teléfono', config.mostrarTelefono !== false)}
+      ${toggleRowHtml('sf_mail', 'Mostrar correo', config.mostrarEmail !== false)}
+    `), (overlay) => {
+      wireSection(overlay, back, () => {
+        config.facturaTitulo = overlay.querySelector('#sf_titulo').value.trim() || 'FACTURA';
+        config.facturaPie = overlay.querySelector('#sf_pie').value.trim();
+        config.notaFactura = overlay.querySelector('#sf_nota').value.trim();
+        config.mostrarDireccion = overlay.querySelector('#sf_dir').checked;
+        config.mostrarTelefono = overlay.querySelector('#sf_tel').checked;
+        config.mostrarEmail = overlay.querySelector('#sf_mail').checked;
+        save('cuentas_config', config);
+      });
+    });
+  }
+
+  function openSettingsProductos(back){
+    openOverlay(sectionShell('Productos', 'Valores que la app usa al crear y revisar tus productos.', `
+      <div class="row2">
+        <div class="field mono"><label>Ganancia por defecto (%)</label><input type="number" inputmode="decimal" id="s_margenDefault" value="${config.margenDefault || ''}" placeholder="Ej. 40"></div>
+        <div class="field mono"><label>Avisar poco stock desde</label><input type="number" inputmode="numeric" id="s_stockMin" value="${config.stockMinimo}" placeholder="3"></div>
+      </div>
+      <div class="step-note">Al crear un producto nuevo se usará esta ganancia para calcular su precio de venta. Te avisaremos cuando el stock llegue a esta cantidad o menos.</div>
+    `), (overlay) => {
+      wireSection(overlay, back, () => {
+        const m = overlay.querySelector('#s_margenDefault').value;
+        config.margenDefault = m === '' ? '' : Number(m);
+        const s = overlay.querySelector('#s_stockMin').value;
+        config.stockMinimo = s === '' ? 3 : Number(s);
+        save('cuentas_config', config);
+      });
+    });
+  }
+
+  function openSettingsVentas(back){
+    openOverlay(sectionShell('Moneda e impuestos', 'Se aplican a tus ventas y facturas.', `
+      <div class="row2">
+        <div class="field mono"><label>Símbolo de moneda</label><input type="text" id="s_moneda" value="${escapeHtml(config.moneda)}" placeholder="$"></div>
+        <div class="field mono"><label>Impuesto (%)</label><input type="number" inputmode="decimal" id="s_impuesto" value="${config.impuesto}" placeholder="0"></div>
+      </div>
+    `), (overlay) => {
+      wireSection(overlay, back, () => {
+        config.moneda = overlay.querySelector('#s_moneda').value.trim() || '$';
+        config.impuesto = Number(overlay.querySelector('#s_impuesto').value) || 0;
+        save('cuentas_config', config);
+      });
+    });
+  }
+
+  // ============================================================
+  // FAB dispatch
+  // ============================================================
+  function onFab(){
+    if(currentView === 'clientes') return openClienteForm(null);
+    if(currentView === 'inventario') return openProductoForm(null);
+    if(currentView === 'ventas') return ventasVista === 'pedidos' ? openPedidoForm(null) : openVentaWizard();
+    if(currentView === 'facturas') return openSinFacturaPicker();
+    if(currentView === 'gastos') return openGastoForm(null);
+  }
+
+  // ============================================================
+  // Events
+  // ============================================================
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentView = tab.getAttribute('data-view');
+      searchInput.value = '';
+      renderHeader();
+      renderList();
+    });
+  });
+
+  searchInput.addEventListener('input', renderList);
+  fabBtn.addEventListener('click', onFab);
+  gearBtn.addEventListener('click', openSettings);
+
+  // ---------- Init ----------
+  renderHeader();
+  renderList();
+})();
+</script>
+</body>
+</html>
