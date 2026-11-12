@@ -1,14 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#1E4FA0">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Cuentas">
-<meta name="mobile-web-app-capable" content="yes">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-<script>if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(()=>{});});}</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Cuentas</title>
@@ -106,7 +98,6 @@
   .search-row input::placeholder { color: var(--ink-soft); }
   .search-row input:focus { border-color: var(--accent); }
 
-  .summary-bar { display: flex; gap: 10px; margin: 14px 0 4px; }
   .summary-card { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; }
   .summary-card .label { font-size: 11px; color: var(--ink-soft); font-weight: 500; }
   .summary-card .value { font-family: var(--font-mono); font-size: 16px; margin-top: 4px; font-weight: 600; }
@@ -181,7 +172,6 @@
   .logo-row { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
   .logo-preview { width: 56px; height: 56px; border-radius: 10px; object-fit: cover; border: 1px solid var(--border); background: var(--surface-2); }
   .logo-preview-empty { width: 56px; height: 56px; border-radius: 10px; border: 1px dashed var(--border-strong); background: var(--surface-2); display: flex; align-items: center; justify-content: center; color: var(--ink-soft); font-size: 11px; text-align: center; }
-  .logo-actions { display: flex; flex-direction: column; gap: 6px; }
   .link-btn { background: none; border: none; color: var(--accent); font-size: 13.5px; font-weight: 600; padding: 0; cursor: pointer; text-align: left; }
   .link-btn.danger { color: var(--danger); }
 
@@ -250,7 +240,6 @@
   .invoice-doc .inv-parties .p-label { font-size: 10.5px; font-weight: 700; color: #8A93A3; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 3px; }
   .invoice-doc .inv-parties .p-name { font-size: 13.5px; font-weight: 700; }
   .invoice-doc .inv-parties .p-meta { font-size: 11.5px; color: #5B6472; line-height: 1.5; }
-  .invoice-doc .inv-parties .to-right { text-align: right; }
   table.inv-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
   table.inv-table thead th { background: var(--accent); color: #fff; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; padding: 8px 8px; text-align: left; }
   table.inv-table thead th.num { text-align: right; }
@@ -314,6 +303,97 @@
   nav.tabbar button { transition: color 0.15s ease; }
   nav.tabbar button.active .icon { transform: translateY(-1px); }
   nav.tabbar button .icon { transition: transform 0.15s ease; }
+  .invoice-doc { color: #111; }
+  .invoice-doc .inv-header { padding-bottom: 12px; border-bottom: 2px solid #111; }
+  .invoice-doc .inv-title-big { text-align: center; font-size: 26px; font-weight: 800; letter-spacing: .03em; margin: 18px 0 12px; }
+  .invoice-doc .inv-meta-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .invoice-doc .inv-num-big { text-align: right; font-size: 20px; font-weight: 700; color: var(--inv-color, #1E4FA0); }
+  .invoice-doc .inv-date { text-align: right; font-size: 13px; color: var(--inv-color, #1E4FA0); }
+  .invoice-doc .inv-table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13px; }
+  .invoice-doc .inv-table thead th { background: var(--inv-color, #1E4FA0); color: #fff; padding: 7px 8px; font-weight: 600; text-align: left; border: none; }
+  .invoice-doc .inv-table thead th.num { text-align: right; }
+  .invoice-doc .inv-table tbody td { padding: 8px; border-bottom: 1px solid #d0d5dd; vertical-align: top; }
+  .invoice-doc .inv-table td.num { text-align: right; white-space: nowrap; }
+  .invoice-doc .inv-item-name { font-weight: 700; }
+  .invoice-doc .inv-item-sub { font-size: 11.5px; color: #475467; margin-top: 2px; }
+  .invoice-doc .inv-bottom { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-top: 12px; }
+  .invoice-doc .inv-note-box { flex: 1 1 52%; min-width: 0; font-size: 12px; line-height: 1.5; border-top: 1px solid var(--inv-color, #1E4FA0); padding-top: 6px; }
+  .invoice-doc .inv-totals2 { flex: 0 0 44%; font-size: 13px; }
+  .invoice-doc .inv-totals2 .tr { display: flex; justify-content: space-between; gap: 8px; padding: 6px 8px; border-bottom: 1px solid #d0d5dd; }
+  .invoice-doc .inv-totals2 .tr.gran { background: var(--inv-color, #1E4FA0); color: #fff; font-weight: 700; border-bottom: none; }
+  .invoice-doc .inv-totals2 .tr.saldo { color: #b42318; font-weight: 700; }
+  .invoice-doc .inv-section-title { font-size: 11px; font-weight: 700; color: var(--inv-color, #1E4FA0); margin-bottom: 4px; }
+  .invoice-doc .inv-pagos { margin-top: 0; }
+  .invoice-doc .inv-sign { margin: 26px 0 0 auto; width: 42%; text-align: center; font-size: 12px; }
+  .invoice-doc .inv-sign-line { border-bottom: 1px solid #111; height: 44px; margin-bottom: 4px; }
+  .invoice-doc .inv-footer { text-align: center; font-size: 11.5px; color: #667085; margin-top: 18px; }
+  /* Ajuste para pantallas de celular: nada puede salirse del recuadro */
+  .invoice-doc { width: 100%; max-width: 100%; box-sizing: border-box; overflow: hidden; padding: 14px 12px; }
+  .invoice-doc .inv-header, .invoice-doc .inv-meta-row, .invoice-doc .inv-bottom { min-width: 0; }
+  .invoice-doc .inv-meta-row > div:first-child { flex: 1 1 auto; min-width: 0; }
+  .invoice-doc .inv-num-big { font-size: 17px; white-space: nowrap; }
+  .invoice-doc .inv-date { white-space: nowrap; }
+  .invoice-doc .inv-table { table-layout: fixed; font-size: 12px; }
+  .invoice-doc table.inv-table thead th, .invoice-doc table.inv-table tbody td { font-family: inherit; }
+  .invoice-doc .inv-table th { font-size: 11px; padding: 7px 3px; }
+  .invoice-doc .inv-table td { padding: 7px 3px; font-size: 11.5px; overflow-wrap: break-word; }
+  .invoice-doc .inv-table td.num { white-space: normal; }
+  .invoice-doc .inv-items thead th { text-transform: none; letter-spacing: 0; }
+  .invoice-doc .inv-items th:nth-child(1), .invoice-doc .inv-items td:nth-child(1) { width: 8%; }
+  .invoice-doc .inv-items th:nth-child(2), .invoice-doc .inv-items td:nth-child(2) { width: 20%; }
+  .invoice-doc .inv-items th:nth-child(3), .invoice-doc .inv-items td:nth-child(3) { width: 19%; }
+  .invoice-doc .inv-items th:nth-child(4), .invoice-doc .inv-items td:nth-child(4) { width: 26%; }
+  .invoice-doc .inv-items th:nth-child(5), .invoice-doc .inv-items td:nth-child(5) { width: 27%; }
+  .invoice-doc .nw { white-space: nowrap; }
+  .invoice-doc .inv-totals2 { font-size: 12px; margin-left: auto; }
+  .invoice-doc .inv-totals2 .tr { padding: 5px 6px; }
+  .invoice-doc .inv-totals2 .tr span:last-child { text-align: right; }
+  .invoice-doc .inv-pago { text-align: right; font-size: 12px; color: #475467; margin-top: 4px; }
+  .invoice-doc .inv-fotos { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; border: 1px solid #d0d5dd; border-radius: 6px; padding: 14px; margin-top: 16px; }
+  .invoice-doc .inv-fotos figure { margin: 0; text-align: center; }
+  .invoice-doc .inv-fotos img { display: block; max-width: 150px; max-height: 190px; object-fit: contain; border-radius: 4px; }
+  .invoice-doc .inv-fotos figcaption { font-size: 11px; color: #475467; margin-top: 4px; }
+  .inv-pdf .invoice-doc .inv-fotos { padding: 14px; margin-top: 16px; gap: 10px; }
+  .inv-pdf .invoice-doc .inv-fotos img { max-width: 120px; max-height: 120px; }
+  .inv-pdf .invoice-doc .inv-fotos figcaption { font-size: 14px; }
+  .invoice-doc .inv-firma-img { display: block; max-height: 56px; max-width: 70%; margin: 0 auto -6px; }
+  .invoice-doc .inv-left { flex: 1; min-width: 0; }
+  .invoice-doc .inv-signrow { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; }
+  .invoice-doc .inv-signrow .inv-sign { margin: 26px 0 0 auto; }
+  .invoice-doc .inv-signrow .inv-stamp { margin: 0 0 14px 0; }
+  .invoice-doc .inv-stamp { display: inline-block; margin: 14px 0 0; padding: 6px 16px; border: 3px solid #15803d; color: #15803d; font-weight: 800; letter-spacing: .12em; border-radius: 8px; transform: rotate(-4deg); font-size: 16px; }
+  /* Versión grande para el PDF (con más presencia, parecida al formato de referencia) */
+  .inv-pdf .invoice-doc { font-size: 15px; padding: 34px 40px; border: none; border-radius: 0; }
+  .inv-pdf .invoice-doc .inv-header { padding-bottom: 18px; border-bottom: 2px solid #111; }
+  .inv-pdf .invoice-doc .inv-biz { gap: 18px; align-items: center; }
+  .inv-pdf .invoice-doc .inv-logo, .inv-pdf .invoice-doc .inv-logo-placeholder { width: 96px; height: 96px; font-size: 30px; border-radius: 10px; }
+  .inv-pdf .invoice-doc .inv-biz-name { font-size: 24px; font-weight: 800; }
+  .inv-pdf .invoice-doc .inv-biz-meta { font-size: 14px; line-height: 1.6; }
+  .inv-pdf .invoice-doc .inv-title-big { font-size: 34px; margin: 22px 0 18px; letter-spacing: .02em; }
+  .inv-pdf .invoice-doc .inv-meta-row { align-items: flex-start; }
+  .inv-pdf .invoice-doc .p-label { font-size: 13px; }
+  .inv-pdf .invoice-doc .p-name { font-size: 18px; font-weight: 700; }
+  .inv-pdf .invoice-doc .p-meta { font-size: 14px; line-height: 1.6; }
+  .inv-pdf .invoice-doc .inv-num-big { font-size: 26px; }
+  .inv-pdf .invoice-doc .inv-date, .inv-pdf .invoice-doc .inv-pago { font-size: 15px; }
+  .inv-pdf .invoice-doc .inv-table { font-size: 15px; margin-top: 22px; }
+  .inv-pdf .invoice-doc .inv-table thead th { font-size: 14px; padding: 11px 10px; }
+  .inv-pdf .invoice-doc .inv-table tbody td { font-size: 15px; padding: 14px 10px; border-bottom: 1px solid #e3e7ee; }
+  .inv-pdf .invoice-doc .inv-item-name { font-size: 16px; }
+  .inv-pdf .invoice-doc .inv-item-sub { font-size: 14px; }
+  .inv-pdf .invoice-doc .inv-items img { width: 64px !important; height: 64px !important; }
+  .inv-pdf .invoice-doc .inv-bottom { margin-top: 18px; gap: 28px; }
+  .inv-pdf .invoice-doc .inv-note-box { font-size: 14.5px; line-height: 1.6; padding-top: 10px; }
+  .inv-pdf .invoice-doc .inv-section-title { font-size: 14px; }
+  .inv-pdf .invoice-doc .inv-totals2 { font-size: 16px; }
+  .inv-pdf .invoice-doc .inv-totals2 .tr { padding: 10px 12px; }
+  .inv-pdf .invoice-doc .inv-totals2 .tr.gran { font-size: 18px; }
+  .inv-pdf .invoice-doc .inv-sign { font-size: 15px; margin-top: 18px; }
+  .inv-pdf .invoice-doc .inv-sign-line { height: 50px; }
+  .inv-pdf .invoice-doc .inv-firma-img { max-height: 84px; }
+  .inv-pdf .invoice-doc .inv-stamp { font-size: 22px; padding: 8px 20px; }
+  .inv-pdf .invoice-doc .inv-footer { font-size: 14px; margin-top: 26px; }
+  .inv-pdf .invoice-doc .inv-pagos { font-size: 14px; }
   ::-webkit-scrollbar { width: 0; height: 0; }
 
   @media print {
@@ -323,6 +403,14 @@
     .invoice-doc { border: none; padding: 0; }
   }
 </style>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1E4FA0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Cuentas">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<script>if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(()=>{});});}</script>
 </head>
 <body>
 <div id="app">
@@ -381,9 +469,9 @@
   let ventasVista = 'ventas';
   let config = load('cuentas_config', {
     nombre: 'Mi negocio', moneda: '$', impuesto: 0, siguienteFolio: 1,
-    direccion: '', telefono: '', email: '', logo: '', notaFactura: ''
+    direccion: '', telefono: '', email: '', logo: ''
   });
-  const CONFIG_DEFAULTS = { impuesto: 0, siguienteFolio: 1, direccion: '', telefono: '', email: '', logo: '', fotoPerfil: '', notaFactura: '', margenDefault: '', stockMinimo: 3, facturaTitulo: 'FACTURA', facturaPie: 'Gracias por su compra', mostrarDireccion: true, mostrarTelefono: true, mostrarEmail: true };
+  const CONFIG_DEFAULTS = { impuesto: 0, siguienteFolio: 1, direccion: '', telefono: '', email: '', logo: '', fotoPerfil: '', margenDefault: '', stockMinimo: 3, facturaTitulo: 'FACTURA', facturaPie: 'Gracias por su compra', mostrarDireccion: true, mostrarTelefono: true, mostrarEmail: true, colorFactura: '#1E4FA0', mostrarTenga: true, mostrarPagos: true, mostrarFirma: true, mostrarPie: true, mostrarFotos: false, mostrarSello: true, firmaImg: '', tengaTexto: '' };
   Object.keys(CONFIG_DEFAULTS).forEach(k => {
     if(config[k] === undefined) config[k] = CONFIG_DEFAULTS[k];
   });
@@ -615,6 +703,46 @@
     }).join('')}</div>`;
   }
 
+  function umbralStock(p){
+    if(p.sinAlerta) return null;
+    const u = p.stockMinimo;
+    return (u === '' || u === undefined || u === null) ? (Number(config.stockMinimo) || 0) : Number(u);
+  }
+  function esPocoStock(p){
+    const st = (p.stock === '' || p.stock === null || p.stock === undefined) ? null : Number(p.stock);
+    const um = umbralStock(p);
+    return st !== null && um !== null && st <= um;
+  }
+  function bindPocoBanner(){
+    const b = listWrap.querySelector('#pocoBanner');
+    if(b) b.addEventListener('click', () => openPocoStock());
+  }
+  function openPocoStock(){
+    const lista = inventario.filter(esPocoStock).sort((a,b) => Number(a.stock) - Number(b.stock));
+    const sinAviso = inventario.filter(p => p.sinAlerta);
+    openOverlay(`
+      <div class="sheet-handle"></div>
+      <h2>Poco stock</h2>
+      <div class="step-note">Productos por debajo de su límite. Toca uno para cambiar su límite o quitarle el aviso.</div>
+      ${lista.length ? `<ul class="list">${lista.map(p => `
+        <li class="row" data-pid="${p.id}">
+          <div class="row-main">
+            <div class="row-title">${escapeHtml(p.nombre)}</div>
+            <div class="row-sub">Avisa desde ${umbralStock(p)} unid.</div>
+          </div>
+          <div class="row-value-wrap"><div class="row-value low">${p.stock} unid.</div></div>
+        </li>`).join('')}</ul>` : emptyState('Todo bien', 'Ningún producto está por debajo de su límite.')}
+      ${sinAviso.length ? `<div class="section-label" style="margin-top:14px;">Sin aviso de poco stock</div><ul class="list">${sinAviso.map(p => `
+        <li class="row" data-pid="${p.id}">
+          <div class="row-main"><div class="row-title">${escapeHtml(p.nombre)}</div><div class="row-sub">No te avisamos de este producto</div></div>
+        </li>`).join('')}</ul>` : ''}
+      <div class="sheet-actions" style="margin-top:16px;"><button class="btn btn-secondary" id="pocoCerrar">Cerrar</button></div>
+    `, (overlay) => {
+      overlay.querySelector('#pocoCerrar').addEventListener('click', () => overlay.remove());
+      overlay.querySelectorAll('[data-pid]').forEach(row => row.addEventListener('click', () => { overlay.remove(); openProductoForm(row.getAttribute('data-pid')); }));
+    });
+  }
+
   function renderStockHtml(){
     if(inventario.length === 0) return emptyState('Aún no tienes productos', 'Agrega productos en la pestaña Productos.');
     const enStock = (p) => (p.stock === '' || p.stock === null) ? null : Number(p.stock);
@@ -623,7 +751,7 @@
     const valorVenta = inventario.reduce((s,p) => s + (enStock(p) || 0) * (Number(p.precio) || 0), 0);
     const sinControl = inventario.filter(p => enStock(p) === null).length;
     const reservadasTot = inventario.reduce((s,p) => s + unidadesReservadas(p.id), 0);
-    const bajos = inventario.filter(p => enStock(p) !== null && enStock(p) <= config.stockMinimo).length;
+    const bajos = inventario.filter(esPocoStock).length;
     const detalle = inventario
       .map(p => ({ p, stock: enStock(p), valor: (enStock(p) || 0) * (Number(p.costo) || 0) }))
       .sort((a,b) => b.valor - a.valor);
@@ -660,9 +788,9 @@
     if(categoriaFiltro && !categorias.includes(categoriaFiltro)) categoriaFiltro = '';
     let items = inventario.filter(p => p.nombre.toLowerCase().includes(term));
     if(categoriaFiltro) items = items.filter(p => p.categoria === categoriaFiltro);
-    const lowStockItems = inventario.filter(p => p.stock !== '' && p.stock !== null && Number(p.stock) <= config.stockMinimo);
+    const lowStockItems = inventario.filter(esPocoStock);
     const lowStockBanner = lowStockItems.length > 0
-      ? `<div class="summary-card neg" style="margin-bottom:14px;"><div class="label">⚠ Poco stock (${lowStockItems.length})</div><div class="value" style="font-size:13px; font-weight:600;">${lowStockItems.map(p => escapeHtml(p.nombre)).join(', ')}</div></div>`
+      ? `<div class="summary-card neg" id="pocoBanner" style="margin-bottom:14px; cursor:pointer;"><div class="label">⚠ Poco stock (${lowStockItems.length}) · toca para revisar</div><div class="value" style="font-size:13px; font-weight:600;">${lowStockItems.map(p => escapeHtml(p.nombre)).join(', ')}</div></div>`
       : '';
     const chipRow = categorias.length > 0 ? `
       <div class="chip-row" id="catChipRow">
@@ -676,10 +804,11 @@
       );
       if(chipRow) bindCatChips();
       bindInvSub();
+      bindPocoBanner();
       return;
     }
     listWrap.innerHTML = subSeg + chipRow + lowStockBanner + '<ul class="list">' + items.map(p => {
-      const lowStock = p.stock !== '' && p.stock !== null && Number(p.stock) <= config.stockMinimo;
+      const lowStock = esPocoStock(p);
       const costo = Number(p.costo) || 0;
       const gananciaUnit = costo > 0 ? (p.precio - costo) : null;
       const margenPct = (costo > 0) ? Math.round((gananciaUnit / costo) * 100) : null;
@@ -687,6 +816,7 @@
       const stockLine = p.stock === '' || p.stock === null ? 'Sin control de stock' : 'Stock: ' + p.stock + ' unid.' + (reservadas > 0 ? ` · ${reservadas} reservadas · ${Math.max(0, p.stock - reservadas)} disponibles` : '');
       return `
       <li class="row" data-id="${p.id}">
+        ${p.foto ? `<img src="${p.foto}" alt="" style="width:48px;height:48px;border-radius:10px;object-fit:cover;margin-right:12px;flex:none;">` : ''}
         <div class="row-main">
           <div class="row-title">${escapeHtml(p.nombre)}</div>
           <div class="row-sub">${stockLine}${costo > 0 ? ' · Costo: ' + money(costo) : ''}</div>
@@ -701,6 +831,7 @@
     listWrap.querySelectorAll('.row').forEach(row => row.addEventListener('click', () => openProductoForm(row.getAttribute('data-id'))));
     if(chipRow) bindCatChips();
     bindInvSub();
+    bindPocoBanner();
   }
 
   function bindCatChips(){
@@ -715,12 +846,12 @@
   // ============================================================
   function unidadesReservadas(productoId){
     return pedidos
-      .filter(p => p.estado === 'pendiente')
+      .filter(p => p.estado === 'pendiente' && p.tipo !== 'encargo')
       .reduce((s,p) => s + p.items.filter(it => it.productoId === productoId).reduce((a,it) => a + (Number(it.cantidad) || 0), 0), 0);
   }
 
   function segVentas(){
-    return `<div class="inv-sub">${segHtml('ventasvista', [['ventas','Ventas'],['pedidos','Pedidos']], ventasVista)}</div>`;
+    return `<div class="inv-sub">${segHtml('ventasvista', [['ventas','Ventas'],['pedidos','Pendientes']], ventasVista)}</div>`;
   }
   function bindVentasSeg(){
     listWrap.querySelectorAll('[data-group="ventasvista"] button').forEach(b => b.addEventListener('click', () => { ventasVista = b.dataset.val; renderVentas(); }));
@@ -728,46 +859,108 @@
 
   function pedidoEstadoInfo(p){
     const hoy = todayStr();
+    if(!p.fechaEntrega) return { txt: 'Sin fecha', cls: '', hoy: false };
     if(p.fechaEntrega < hoy) return { txt: 'Vencido · ' + fmtDate(p.fechaEntrega), cls: 'low', hoy: false };
     if(p.fechaEntrega === hoy) return { txt: 'Hoy', cls: '', hoy: true };
     return { txt: fmtDate(p.fechaEntrega), cls: '', hoy: false };
   }
 
+  function openNuevoPendiente(){
+    openOverlay(`
+      <div class="sheet-handle"></div>
+      <h2>¿Qué quieres registrar?</h2>
+      <div class="step-note">Elige según el caso.</div>
+      <ul class="list">
+        <li class="row" data-tipo="pedido"><div class="row-main"><div class="row-title">Pedido</div><div class="row-sub">Productos que tienes en stock, con fecha de entrega.</div></div></li>
+        <li class="row" data-tipo="encargo"><div class="row-main"><div class="row-title">Encargo</div><div class="row-sub">Productos que todavía no tienes. Se entregan cuando llegan.</div></div></li>
+        <li class="row" data-tipo="apartado"><div class="row-main"><div class="row-title">Apartado</div><div class="row-sub">Productos del stock sin fecha, que se pagan por abonos.</div></div></li>
+      </ul>
+      <div class="sheet-actions" style="margin-top:12px;"><button class="btn btn-secondary" id="npCerrar">Cancelar</button></div>
+    `, (ov) => {
+      ov.querySelector('#npCerrar').addEventListener('click', () => ov.remove());
+      ov.querySelectorAll('[data-tipo]').forEach(r => r.addEventListener('click', () => { ov.remove(); openPedidoForm(null, r.getAttribute('data-tipo')); }));
+    });
+  }
+
   function renderPedidosHtml(){
     const term = searchInput.value.trim().toLowerCase();
-    const activos = pedidos
-      .filter(p => p.estado === 'pendiente' && p.clienteNombre.toLowerCase().includes(term))
-      .sort((a,b) => a.fechaEntrega.localeCompare(b.fechaEntrega) || (a.creadoTs||0) - (b.creadoTs||0));
+    const todos = pedidos.filter(p => p.estado === 'pendiente');
+    const activos = todos.filter(p => p.clienteNombre.toLowerCase().includes(term));
     if(activos.length === 0){
       return emptyState(
-        pedidos.some(p => p.estado === 'pendiente') ? 'Sin resultados' : 'Sin pedidos pendientes',
-        pedidos.some(p => p.estado === 'pendiente') ? 'Prueba con otro nombre de cliente.' : 'Toca + para agendar un pedido con su fecha de entrega.'
+        todos.length ? 'Sin resultados' : 'Sin pendientes',
+        todos.length ? 'Prueba con otro nombre de cliente.' : 'Toca + para registrar un pedido, un encargo o un apartado.'
       );
     }
     const hoy = todayStr();
-    const vencidos = activos.filter(p => p.fechaEntrega < hoy);
-    const paraHoy = activos.filter(p => p.fechaEntrega === hoy);
-    const proximos = activos.filter(p => p.fechaEntrega > hoy);
+    const porCreado = (a,b) => (a.creadoTs || 0) - (b.creadoTs || 0);
+    const porFecha = (a,b) => a.fechaEntrega.localeCompare(b.fechaEntrega) || porCreado(a,b);
+    const ped = activos.filter(p => (p.tipo || 'pedido') === 'pedido');
+    const enc = activos.filter(p => p.tipo === 'encargo');
+    const apa = activos.filter(p => p.tipo === 'apartado');
+    const conFechaP = ped.filter(p => p.fechaEntrega).sort(porFecha);
+    const pedVencidos = conFechaP.filter(p => p.fechaEntrega < hoy);
+    const pedHoy = conFechaP.filter(p => p.fechaEntrega === hoy);
+    const pedProx = conFechaP.filter(p => p.fechaEntrega > hoy);
+    const encConFecha = enc.filter(p => p.fechaEntrega).sort(porFecha);
+    const encSinFecha = enc.filter(p => !p.fechaEntrega).sort(porCreado);
+    const apaOrd = apa.slice().sort(porCreado);
     const fila = (p) => {
-      const info = pedidoEstadoInfo(p);
       const resumen = p.items.map(it => `${it.cantidad} × ${it.nombre}`).join(', ');
+      if(p.tipo === 'apartado'){
+        const total = apartadoTotal(p);
+        const abonado = apartadoAbonado(p);
+        const saldo = Math.max(0, total - abonado);
+        return `
+          <li class="row" data-pid="${p.id}">
+            <div class="row-main">
+              <div class="row-title">${escapeHtml(p.clienteNombre)}</div>
+              <div class="row-sub">${escapeHtml(resumen)}</div>
+              <div class="row-sub">Abonado ${money(abonado)} de ${money(total)}</div>
+            </div>
+            <div class="row-value-wrap"><div class="row-value" style="font-size:12.5px;">${saldo <= 0 ? 'Pagado' : 'Falta ' + money(saldo)}</div></div>
+          </li>`;
+      }
+      const info = pedidoEstadoInfo(p);
+      const subtotal = p.items.reduce((s,it) => s + (Number(it.precio) || 0) * (Number(it.cantidad) || 0), 0);
+      const anticipo = Number(p.anticipo) || 0;
       return `
         <li class="row" data-pid="${p.id}">
           <div class="row-main">
             <div class="row-title">${escapeHtml(p.clienteNombre)}</div>
             <div class="row-sub">${escapeHtml(resumen)}</div>
+            ${anticipo > 0 ? `<div class="row-sub">Abono ${money(anticipo)} · Resto ${money(Math.max(0, subtotal - anticipo))}</div>` : ''}
           </div>
           <div class="row-value-wrap">
             <div class="row-value ${info.cls}" style="font-size:12.5px;${info.hoy ? 'color:var(--accent-ink);' : ''}">${escapeHtml(info.txt)}</div>
           </div>
         </li>`;
     };
-    const grupo = (titulo, arr) => arr.length ? `<div class="section-label">${titulo}</div><ul class="list">${arr.map(fila).join('')}</ul>` : '';
-    return grupo('Vencidos', vencidos) + grupo('Para hoy', paraHoy) + grupo('Próximas entregas', proximos);
+    const subgrupo = (titulo, arr) => arr.length ? `<div class="section-label" style="margin-top:8px;">${titulo}</div><ul class="list">${arr.map(fila).join('')}</ul>` : '';
+    const lista = (arr) => arr.length ? `<ul class="list">${arr.map(fila).join('')}</ul>` : '';
+    const seccion = (titulo, n, contenido) => `
+      <details class="pend-sec" style="margin-top:12px;">
+        <summary style="list-style:none; cursor:pointer; display:flex; justify-content:space-between; align-items:center; padding:14px 16px; border:1px solid var(--border-strong, #d6dbe3); border-radius:14px; font-weight:700; font-size:15px;">
+          <span>${titulo}</span>
+          <span style="display:flex; align-items:center; gap:10px;">
+            <span style="background:var(--accent-soft, #E9F0FC); color:var(--accent-ink, #16386F); border-radius:999px; padding:2px 10px; font-size:13px;">${n}</span>
+            <span style="color:var(--ink-soft, #667);">▾</span>
+          </span>
+        </summary>
+        <div style="padding:4px 0 6px;">${n ? contenido : '<div class="step-note" style="margin:8px 0;">Sin registros.</div>'}</div>
+      </details>`;
+    return seccion('Pedidos', ped.length,
+        subgrupo('Vencidos', pedVencidos) + subgrupo('Para hoy', pedHoy) + subgrupo('Próximas entregas', pedProx))
+      + seccion('Encargos', enc.length,
+        subgrupo('Con llegada estimada', encConFecha) + subgrupo('Sin fecha estimada', encSinFecha))
+      + seccion('Apartados', apa.length, lista(apaOrd));
   }
 
-  function openPedidoForm(id){
+  function openPedidoForm(id, tipoNuevo){
     const record = id ? pedidos.find(p => p.id === id) : null;
+    const tipoP = record ? (record.tipo || 'pedido') : (tipoNuevo || 'pedido');
+    const esApartado = tipoP === 'apartado';
+    const esEncargo = tipoP === 'encargo';
     if(clientes.length === 0){
       alert('Primero registra un cliente en la pestaña Clientes.');
       return;
@@ -775,8 +968,8 @@
     let items = record ? record.items.map(it => ({ ...it })) : [];
     openOverlay(`
       <div class="sheet-handle"></div>
-      <h2>${record ? 'Editar' : 'Nuevo'} pedido</h2>
-      <div class="step-note">Agenda cuándo debe entregarse y qué lleva cada pedido.</div>
+      <h2>${record ? 'Editar' : 'Nuevo'} ${esApartado ? 'apartado' : esEncargo ? 'encargo' : 'pedido'}</h2>
+      <div class="step-note">${esApartado ? 'Aparta productos para alguien que paga por partes. Los abonos los registras cuando llegan.' : esEncargo ? 'Productos que no tienes todavía. Déjalo con su abono y entrégalo cuando llegue.' : 'Agenda cuándo debe entregarse y qué lleva cada pedido.'}</div>
       <div class="field"><label>Cliente</label>
         <select id="pd_cliente">${clientes.map(c => `<option value="${c.id}" ${record && record.clienteId === c.id ? 'selected' : ''}>${escapeHtml(c.nombre)}</option>`).join('')}</select>
       </div>
@@ -796,6 +989,7 @@
           <div class="field mono" style="margin-bottom:8px;"><label>Precio c/u (${config.moneda})</label><input type="number" inputmode="decimal" id="pd_precio" placeholder="0"></div>
         </div>
         <div class="field" style="margin-bottom:8px;"><label>Características</label><input type="text" id="pd_car" placeholder="Ej. talla M, color azul, sin azúcar"></div>
+        <div class="field mono" style="margin-bottom:8px;"><label>Costo c/u (opcional, para la ganancia)</label><input type="number" inputmode="decimal" id="pd_costo" placeholder="0"></div>
         <button class="btn btn-secondary" id="pd_add" style="width:100%;">Agregar al pedido</button>
       </div>
       <div class="field"><label>Notas generales (opcional)</label><textarea id="pd_notas" rows="2" placeholder="Ej. Entregar en la oficina, llamar antes">${escapeHtml(record ? (record.notas || '') : '')}</textarea></div>
@@ -804,6 +998,10 @@
         <button class="btn btn-primary" id="pd_save">Guardar pedido</button>
       </div>
     `, (overlay) => {
+      if(esEncargo){ const lbl = overlay.querySelector('#pd_fecha').previousElementSibling; if(lbl) lbl.textContent = 'Llegada estimada (opcional)'; }
+      if(esApartado){
+        ['#pd_fecha','#pd_anticipo','#pd_fechaAnt'].forEach(sel => { const el = overlay.querySelector(sel); if(el) el.parentElement.style.display = 'none'; });
+      }
       const itemsWrap = overlay.querySelector('#pdItems');
       const nombreInput = overlay.querySelector('#pd_nombre');
       const precioInput = overlay.querySelector('#pd_precio');
@@ -830,11 +1028,13 @@
           nombre: prod ? prod.nombre : nombre,
           cantidad: cant,
           precio: Number(precioInput.value) || 0,
-          caracteristicas: overlay.querySelector('#pd_car').value.trim(),
+          caracteristicas: overlay.querySelector('#pd_car').value.trim() || (prod && prod.descripcion) || '',
+          costo: Number(overlay.querySelector('#pd_costo').value) || 0,
         });
         nombreInput.value = '';
         precioInput.value = '';
         overlay.querySelector('#pd_car').value = '';
+        overlay.querySelector('#pd_costo').value = '';
         overlay.querySelector('#pd_cant').value = 1;
         renderItems();
       });
@@ -843,13 +1043,15 @@
         const cli = clientes.find(c => c.id === overlay.querySelector('#pd_cliente').value);
         const fecha = overlay.querySelector('#pd_fecha').value;
         if(!cli) return;
-        if(!fecha){ overlay.querySelector('#pd_fecha').focus(); return; }
+        if(!fecha && !esApartado && !esEncargo){ overlay.querySelector('#pd_fecha').focus(); return; }
         if(items.length === 0){ nombreInput.focus(); return; }
         const data = {
           id: record ? record.id : uid(),
           clienteId: cli.id,
           clienteNombre: cli.nombre,
-          fechaEntrega: fecha,
+          fechaEntrega: esApartado ? '' : fecha,
+          tipo: tipoP,
+          abonos: record && record.abonos ? record.abonos : [],
           anticipo: Number(overlay.querySelector('#pd_anticipo').value) || 0,
           fechaAnticipo: overlay.querySelector('#pd_fechaAnt').value || todayStr(),
           items,
@@ -864,6 +1066,25 @@
       });
       renderItems();
     });
+  }
+
+  function costoPedido(p){
+    return p.items.reduce((s,it) => {
+      const prod = inventario.find(x => x.id === it.productoId);
+      const c = prod ? (Number(prod.costo) || 0) : (Number(it.costo) || 0);
+      return s + c * (Number(it.cantidad) || 0);
+    }, 0);
+  }
+  function avisarPendienteWA(p, saldo){
+    const cli = clientes.find(c => c.id === p.clienteId);
+    if(!cli || !cli.telefono){ alert('Este cliente no tiene teléfono guardado. Agrégalo en Clientes.'); return; }
+    const sal = saldo > 0 ? ` Saldo pendiente: ${money(saldo)}.` : '';
+    const texto = p.tipo === 'apartado'
+      ? `Hola ${p.clienteNombre}, te escribimos de ${config.nombre} para recordarte el saldo de tu apartado.${sal} Cuando quieras lo completamos. ¡Gracias!`
+      : p.tipo === 'encargo'
+        ? `Hola ${p.clienteNombre}, te escribimos de ${config.nombre}: tu encargo ya llegó.${sal} ¿Cuándo te lo podemos entregar? ¡Gracias!`
+        : `Hola ${p.clienteNombre}, te recordamos tu pedido${p.fechaEntrega ? ' para el ' + fmtDate(p.fechaEntrega) : ''} en ${config.nombre}.${sal} ¡Gracias!`;
+    window.open(waUrl(cli.telefono, texto), '_blank');
   }
 
   function entregarPedido(p, opts){
@@ -881,10 +1102,7 @@
     const sumaItems = items.reduce((s,it) => s + it.precio * it.cantidad, 0);
     const impuesto = sumaItems * (Number(config.impuesto) || 0) / 100;
     const total = sumaItems + impuesto;
-    const costoTotal = items.reduce((s,it) => {
-      const prod = inventario.find(x => x.id === it.productoId);
-      return s + (prod ? (Number(prod.costo) || 0) : 0) * it.cantidad;
-    }, 0);
+    const costoTotal = costoPedido(p);
     const anticipo = Math.min(Number(p.anticipo) || 0, total);
     const saldo = total - anticipo;
     const hoy = todayStr();
@@ -894,10 +1112,12 @@
     const metodoSaldo = (opts && opts.metodo) || 'efectivo';
     const quedaCredito = saldo > 0 && !pagaAhora;
     const abonosVenta = [];
-    if(anticipo > 0) abonosVenta.push({ id: uid(), fecha: p.fechaAnticipo || hoy, monto: anticipo, metodo: 'efectivo', nota: 'Anticipo del pedido' });
+    if((p.abonos || []).length) (p.abonos).forEach(a => abonosVenta.push({ ...a, id: uid() }));
+    else if(anticipo > 0) abonosVenta.push({ id: uid(), fecha: p.fechaAnticipo || hoy, monto: anticipo, metodo: 'efectivo', nota: 'Anticipo del pedido' });
     if(pagaAhora) abonosVenta.push({ id: uid(), fecha: hoy, monto: saldo, metodo: metodoSaldo, nota: 'Pago al entregar' });
     let metodoVenta;
     if(quedaCredito) metodoVenta = 'credito';
+    else if(p.tipo === 'apartado') { const mets = [...new Set(abonosVenta.map(a => a.metodo))]; metodoVenta = mets.length > 1 ? 'mixto' : (mets[0] || 'efectivo'); }
     else if(pagaAhora && anticipo > 0 && metodoSaldo !== 'efectivo') metodoVenta = 'mixto';
     else metodoVenta = pagaAhora ? metodoSaldo : 'efectivo';
     const venta = {
@@ -927,6 +1147,42 @@
     alert('Pedido entregado y registrado como venta. Puedes generar su factura desde Ventas.');
   }
 
+  function comprobanteDeAbono(p){
+    const cli = clientes.find(c => c.id === p.clienteId) || {};
+    const items = p.items.map(it => ({ productoId: it.productoId, nombre: it.nombre, precio: Number(it.precio) || 0, cantidad: Number(it.cantidad) || 0, caracteristicas: it.caracteristicas || '' }));
+    const total = items.reduce((s, it) => s + it.precio * it.cantidad, 0);
+    const abonos = p.tipo === 'apartado'
+      ? (p.abonos || []).map(a => ({ fecha: a.fecha, monto: Number(a.monto) || 0, metodo: a.metodo }))
+      : ((Number(p.anticipo) || 0) > 0 ? [{ fecha: p.fechaAnticipo || todayStr(), monto: Number(p.anticipo) || 0, metodo: null }] : []);
+    const numero = config.siguienteComprobante || 1;
+    config.siguienteComprobante = numero + 1;
+    save('cuentas_config', config);
+    return { id: p.id, folio: numero, tituloDoc: 'COMPROBANTE DE ABONO', tipoDoc: 'Comprobante', fecha: todayStr(),
+      clienteId: p.clienteId, clienteNombre: p.clienteNombre,
+      clienteDireccion: cli.direccion || '', clienteTelefono: cli.telefono || '', clienteEmail: cli.email || '',
+      items, sumaItems: total, subtotal: total, descuentoPct: 0, descuentoMonto: 0, impuesto: 0, total,
+      fiado: true, abonos, metodoPago: '', notas: '' };
+  }
+
+  function openComprobante(pedidoId){
+    const p = pedidos.find(x => x.id === pedidoId);
+    if(!p) return;
+    const v = comprobanteDeAbono(p);
+    openOverlay(`
+      <div class="sheet-handle"></div>
+      <div id="printArea">${buildInvoiceHtml(v)}</div>
+      <div class="sheet-actions" style="margin-top:16px;">
+        <button class="btn btn-secondary" id="closeBtn">Cerrar</button>
+        <button class="btn btn-primary" id="printBtn">Guardar / Imprimir PDF</button>
+      </div>
+      <button class="btn btn-primary" id="pdfWaBtn" style="width:100%; margin-top:10px;">Compartir PDF por WhatsApp</button>
+    `, (overlay) => {
+      overlay.querySelector('#closeBtn').addEventListener('click', () => overlay.remove());
+      overlay.querySelector('#printBtn').addEventListener('click', () => window.print());
+      overlay.querySelector('#pdfWaBtn').addEventListener('click', () => compartirFacturaPDF(v, overlay));
+    });
+  }
+
   function openPedidoDetalle(id){
     const p = pedidos.find(x => x.id === id);
     if(!p) return;
@@ -936,7 +1192,7 @@
     openOverlay(`
       <div class="sheet-handle"></div>
       <h2>${escapeHtml(p.clienteNombre)}</h2>
-      <div class="step-note">Entrega: <strong>${fmtDate(p.fechaEntrega)}</strong> · ${escapeHtml(info.txt)}</div>
+      <div class="step-note">${p.tipo === 'encargo' ? 'Encargo' : 'Pedido'} · ${p.fechaEntrega ? 'Entrega: <strong>' + fmtDate(p.fechaEntrega) + '</strong> · ' + escapeHtml(info.txt) : 'Sin fecha estimada'}</div>
       <div class="rep-card">
         ${p.items.map(it => `
           <div class="rep-line">
@@ -946,10 +1202,13 @@
         <div class="rep-line strong"><span>Total estimado</span><span>${money(total)}</span></div>
         <div class="rep-line"><span>Anticipo${p.fechaAnticipo ? ' · ' + fmtDate(p.fechaAnticipo) : ''}</span><span>${money(anticipo)}</span></div>
         <div class="rep-line"><span>Saldo al entregar</span><span>${money(Math.max(0, total - anticipo))}</span></div>
+        <div class="rep-line"><span>Ganancia estimada</span><span class="${total - costoPedido(p) < 0 ? 'neg' : 'pos'}">${money(total - costoPedido(p))}</span></div>
       </div>
       ${p.notas ? `<div class="inv-notes" style="margin-top:12px;"><strong>Notas:</strong> ${escapeHtml(p.notas)}</div>` : ''}
+      ${anticipo > 0 ? '<button class="btn btn-secondary" id="pdComp" style="width:100%; margin-bottom:10px;">Generar comprobante de abono</button>' : ''}
       <div class="sheet-actions" style="margin-top:16px;">
         <button class="btn btn-secondary" id="pdEditar">Editar</button>
+        <button class="btn btn-secondary" id="pdWa">WhatsApp</button>
         <button class="btn btn-primary" id="pdEntregar">Marcar entregado</button>
       </div>
       <div id="pdConfirm"></div>
@@ -957,6 +1216,9 @@
     `, (overlay) => {
       const confirmBox = overlay.querySelector('#pdConfirm');
       overlay.querySelector('#pdEditar').addEventListener('click', () => { overlay.remove(); openPedidoForm(p.id); });
+      overlay.querySelector('#pdWa').addEventListener('click', () => avisarPendienteWA(p, Math.max(0, total - anticipo)));
+      const pdComp = overlay.querySelector('#pdComp');
+      if(pdComp) pdComp.addEventListener('click', () => { overlay.remove(); openComprobante(p.id); });
       overlay.querySelector('#pdEntregar').addEventListener('click', () => {
         const saldoPend = Math.max(0, total - anticipo);
         confirmBox.innerHTML = `
@@ -986,6 +1248,7 @@
         overlay.querySelector('#pdSi').addEventListener('click', () => entregarPedido(p, { pagaAhora: modo === 'pagado', metodo: met }));
       });
       overlay.querySelector('#pdCancelar').addEventListener('click', () => {
+        if((Number(p.anticipo) || 0) > 0){ alert('Este pedido ya tiene un anticipo registrado, así que no se puede cancelar desde la app. Entrégalo o devuelve el dinero aparte.'); return; }
         confirmBox.innerHTML = `
           <div class="rep-card" style="margin-top:12px; padding:14px;">
             <p style="font-size:14px; line-height:1.5; margin-bottom:12px;">¿Cancelar el pedido de ${escapeHtml(p.clienteNombre)? escapeHtml(p.clienteNombre) : ''}? Dejará de aparecer en la agenda.</p>
@@ -1005,11 +1268,139 @@
     });
   }
 
+  function apartadoTotal(p){
+    const sub = p.items.reduce((s,it) => s + (Number(it.precio) || 0) * (Number(it.cantidad) || 0), 0);
+    return sub * (1 + (Number(config.impuesto) || 0) / 100);
+  }
+  function apartadoAbonado(p){ return (p.abonos || []).reduce((s,a) => s + (Number(a.monto) || 0), 0); }
+
+  function renderApartadosHtml(){
+    const term = searchInput.value.trim().toLowerCase();
+    const todos = pedidos.filter(p => p.tipo === 'apartado' && p.estado === 'pendiente');
+    const lista = todos.filter(p => p.clienteNombre.toLowerCase().includes(term))
+      .sort((a,b) => (a.creadoTs || 0) - (b.creadoTs || 0));
+    if(lista.length === 0){
+      return emptyState(
+        todos.length ? 'Sin resultados' : 'Sin apartados',
+        todos.length ? 'Prueba con otro nombre de cliente.' : 'Toca + para apartar productos para alguien que paga por partes.'
+      );
+    }
+    return '<ul class="list">' + lista.map(p => {
+      const total = apartadoTotal(p);
+      const abonado = apartadoAbonado(p);
+      const saldo = Math.max(0, total - abonado);
+      const ultimo = (p.abonos || []).slice().sort((a,b) => a.fecha.localeCompare(b.fecha)).pop();
+      const resumen = p.items.map(it => `${it.cantidad} × ${it.nombre}`).join(', ');
+      return `
+        <li class="row" data-aid="${p.id}">
+          <div class="row-main">
+            <div class="row-title">${escapeHtml(p.clienteNombre)}</div>
+            <div class="row-sub">${escapeHtml(resumen)}</div>
+            <div class="row-sub">Abonado ${money(abonado)} de ${money(total)}${ultimo ? ' · último ' + fmtDate(ultimo.fecha) : ''}</div>
+          </div>
+          <div class="row-value-wrap">
+            <div class="row-value" style="font-size:12.5px;${saldo <= 0 ? 'color:var(--accent-ink);' : ''}">${saldo <= 0 ? 'Pagado' : 'Falta ' + money(saldo)}</div>
+          </div>
+        </li>`;
+    }).join('') + '</ul>';
+  }
+
+  function openApartadoDetalle(id){
+    const p = pedidos.find(x => x.id === id);
+    if(!p) return;
+    const total = apartadoTotal(p);
+    const abonado = apartadoAbonado(p);
+    const saldo = Math.max(0, total - abonado);
+    const abonosOrd = (p.abonos || []).slice().sort((a,b) => a.fecha.localeCompare(b.fecha));
+    const abonosHtml = abonosOrd.length
+      ? abonosOrd.map(a => `<div class="rep-line"><span>${fmtDate(a.fecha)} · ${metodoLabel(a.metodo)}</span><span class="pos">${money(a.monto)}</span></div>`).join('')
+      : '<div class="step-note" style="margin:0;">Aún no hay abonos.</div>';
+    openOverlay(`
+      <div class="sheet-handle"></div>
+      <h2>${escapeHtml(p.clienteNombre)}</h2>
+      <div class="step-note">Apartado · sin fecha fija de entrega</div>
+      <div class="rep-card">
+        ${p.items.map(it => `
+          <div class="rep-line">
+            <span style="min-width:0;"><span class="credit-title" style="display:block;">${it.cantidad} × ${escapeHtml(it.nombre)}</span><span class="credit-sub" style="display:block;">${it.caracteristicas ? escapeHtml(it.caracteristicas) : 'Sin características'}</span></span>
+            <span>${it.precio ? money(it.precio * it.cantidad) : '—'}</span>
+          </div>`).join('')}
+        <div class="rep-line strong"><span>Total</span><span>${money(total)}</span></div>
+        <div class="rep-line"><span>Abonado</span><span class="pos">${money(abonado)}</span></div>
+        <div class="rep-line strong"><span>Saldo pendiente</span><span>${money(saldo)}</span></div>
+      </div>
+      <div class="section-label" style="margin-top:14px;">Abonos</div>
+      <div class="rep-card">${abonosHtml}</div>
+      ${saldo > 0 ? `
+        <div class="rep-card" style="margin-top:12px; padding:14px;">
+          <div class="row2">
+            <div class="field mono"><label>Monto (${config.moneda})</label><input type="number" inputmode="decimal" id="ab_monto" placeholder="0"></div>
+            <div class="field"><label>Fecha del abono</label><input type="date" id="ab_fecha" value="${todayStr()}"></div>
+          </div>
+          ${segHtml('abmet', [['efectivo','Efectivo'],['tarjeta','Tarjeta']], 'efectivo')}
+          <div class="sheet-actions" style="margin-top:12px;"><button class="btn btn-primary" id="abSave">Registrar abono</button></div>
+        </div>` : ''}
+      ${abonado > 0 ? '<button class="btn btn-secondary" id="abComp" style="width:100%; margin-bottom:10px;">Generar comprobante de abono</button>' : ''}
+      <div class="sheet-actions" style="margin-top:14px;">
+        <button class="btn btn-secondary" id="abEditar">Editar</button>
+        <button class="btn btn-secondary" id="abWa">WhatsApp</button>
+        <button class="btn btn-primary" id="abEntregar" ${saldo > 0 ? 'disabled' : ''}>${saldo > 0 ? 'Falta pagar para entregar' : 'Entregar productos'}</button>
+      </div>
+      <button class="btn-danger-text" id="abCancelar">Cancelar apartado</button>
+    `, (overlay) => {
+      let met = 'efectivo';
+      overlay.querySelectorAll('[data-group="abmet"] button').forEach(b => b.addEventListener('click', () => {
+        met = b.dataset.val;
+        overlay.querySelectorAll('[data-group="abmet"] button').forEach(x => x.classList.toggle('on', x === b));
+      }));
+      const saveBtn = overlay.querySelector('#abSave');
+      if(saveBtn) saveBtn.addEventListener('click', () => {
+        const monto = Number(overlay.querySelector('#ab_monto').value) || 0;
+        const fecha = overlay.querySelector('#ab_fecha').value;
+        if(monto <= 0){ overlay.querySelector('#ab_monto').focus(); return; }
+        if(!fecha){ overlay.querySelector('#ab_fecha').focus(); return; }
+        if(monto > saldo){ alert(`El abono es mayor que el saldo (${money(saldo)}).`); return; }
+        const nuevos = [...(p.abonos || []), { id: uid(), fecha, monto, metodo: met, nota: 'Abono' }];
+        pedidos = pedidos.map(x => x.id === p.id ? { ...x, abonos: nuevos, anticipo: nuevos.reduce((s,a) => s + (Number(a.monto) || 0), 0) } : x);
+        save('cuentas_pedidos', pedidos);
+        overlay.remove();
+        renderList();
+        openApartadoDetalle(p.id);
+      });
+      overlay.querySelector('#abEditar').addEventListener('click', () => { overlay.remove(); openPedidoForm(p.id); });
+      overlay.querySelector('#abWa').addEventListener('click', () => avisarPendienteWA(p, saldo));
+      const abComp = overlay.querySelector('#abComp');
+      if(abComp) abComp.addEventListener('click', () => { overlay.remove(); openComprobante(p.id); });
+      overlay.querySelector('#abEntregar').addEventListener('click', () => {
+        if(saldo > 0) return;
+        overlay.remove();
+        entregarPedido(p);
+      });
+      overlay.querySelector('#abCancelar').addEventListener('click', () => {
+        if(apartadoAbonado(p) > 0){
+          alert('Este apartado ya tiene abonos registrados, así que no se puede cancelar desde la app. Termínalo cuando te paguen; si devuelves el dinero, hazlo aparte.');
+          return;
+        }
+        if(!confirm('¿Cancelar este apartado? Los productos vuelven a quedar disponibles.')) return;
+        pedidos = pedidos.map(x => x.id === p.id ? { ...x, estado: 'cancelado' } : x);
+        save('cuentas_pedidos', pedidos);
+        overlay.remove();
+        renderList();
+      });
+    });
+  }
+
   function renderVentas(){
+    if(ventasVista === 'apartados'){
+      listWrap.innerHTML = segVentas() + renderApartadosHtml();
+      bindVentasSeg();
+      listWrap.querySelectorAll('[data-aid]').forEach(row => row.addEventListener('click', () => openApartadoDetalle(row.getAttribute('data-aid'))));
+      return;
+    }
     if(ventasVista === 'pedidos'){
       listWrap.innerHTML = segVentas() + renderPedidosHtml();
       bindVentasSeg();
-      listWrap.querySelectorAll('[data-pid]').forEach(row => row.addEventListener('click', () => openPedidoDetalle(row.getAttribute('data-pid'))));
+      listWrap.querySelectorAll('[data-pid]').forEach(row => row.addEventListener('click', () => { const pp = pedidos.find(x => x.id === row.getAttribute('data-pid')); if(pp && pp.tipo === 'apartado') openApartadoDetalle(pp.id); else openPedidoDetalle(row.getAttribute('data-pid')); }));
       return;
     }
     renderVentasLista();
@@ -1085,16 +1476,27 @@
         efectivo += Number(x.total) || 0; // ventas anteriores a los medios de pago: se cuentan como efectivo
       }
     });
+    pedidos.forEach(p => {
+      if(p.estado !== 'pendiente') return;
+      const lstAb = (p.abonos && p.abonos.length) ? p.abonos : ((Number(p.anticipo) || 0) > 0 ? [{ fecha: p.fechaAnticipo || todayStr(), monto: p.anticipo, metodo: 'efectivo' }] : []);
+      lstAb.forEach(a => {
+        if(!enRango(a.fecha)) return;
+        const monto = Number(a.monto) || 0;
+        if(a.metodo === 'tarjeta') tarjeta += monto; else efectivo += monto;
+      });
+    });
     const ventasTot = ventas.filter(x => enRango(x.fecha)).reduce((s,x) => s + (Number(x.total)||0), 0);
     const creditoNuevo = ventas.filter(x => x.fiado && enRango(x.fecha)).reduce((s,x) => s + (Number(x.total)||0), 0);
     const gs = gastos.filter(g => enRango(g.fecha));
     const gastosTot = gs.reduce((s,g) => s + (Number(g.monto)||0), 0);
+    const gastosEf = gs.filter(g => (g.metodo || 'efectivo') === 'efectivo').reduce((s,g) => s + (Number(g.monto)||0), 0);
+    const gastosTj = gastosTot - gastosEf;
     const compras = gs.filter(g => g.tipo === 'compra').reduce((s,g) => s + (Number(g.monto)||0), 0);
     const ingresos = efectivo + tarjeta;
     return {
       efectivo, tarjeta, ingresos, abonosCred, ventasTot, creditoNuevo,
       gastosTot, compras, otros: gastosTot - compras,
-      neto: ingresos - gastosTot, efectivoCaja: efectivo - gastosTot,
+      neto: ingresos - gastosTot, efectivoCaja: efectivo - gastosEf, tarjetaCaja: tarjeta - gastosTj,
     };
   }
 
@@ -1164,10 +1566,11 @@
       <div class="section-label">Caja</div>
       <div class="rep-card">
         <div class="rep-line strong"><span>Efectivo que debe haber en caja</span><span class="${C.efectivoCaja < 0 ? 'neg' : 'pos'}">${money(C.efectivoCaja)}</span></div>
+        <div class="rep-line strong"><span>Tarjeta neta (después de gastos con tarjeta)</span><span class="${C.tarjetaCaja < 0 ? 'neg' : 'pos'}">${money(C.tarjetaCaja)}</span></div>
         <div class="rep-line"><span>Ventas del período</span><span>${money(C.ventasTot)}</span></div>
         <div class="rep-line"><span>Nuevas ventas a crédito (por cobrar)</span><span>${money(C.creditoNuevo)}</span></div>
       </div>
-      <div class="step-note">El efectivo en caja resta todos los gastos, porque aún no registras con qué medio se pagó cada uno. Las ventas anteriores a los medios de pago se cuentan como efectivo.</div>
+      <div class="step-note">Cada gasto se descuenta del medio con el que se pagó. Los gastos anteriores se cuentan como efectivo.</div>
 
       ${detalleDias}
     `;
@@ -1218,7 +1621,7 @@
       const stockNum = (p.stock === '' || p.stock === null) ? 0 : Number(p.stock);
       return s + stockNum * (Number(p.costo) || 0);
     }, 0);
-    const bajoStockCount = inventario.filter(p => p.stock !== '' && p.stock !== null && Number(p.stock) <= config.stockMinimo).length;
+    const bajoStockCount = inventario.filter(esPocoStock).length;
 
     const contadorProd = {};
     ventasP.forEach(v => (v.items||[]).forEach(it => { contadorProd[it.nombre] = (contadorProd[it.nombre] || 0) + it.cantidad; }));
@@ -1390,10 +1793,15 @@
       <div class="sheet-handle"></div>
       <h2>${record ? 'Editar' : 'Nuevo'} producto</h2>
       <div class="field"><label>Nombre del producto</label><input type="text" id="f_nombre" value="${escapeHtml(record ? record.nombre : '')}" placeholder="Nombre"></div>
+      ${imagePickerHtml('pfoto', 'Foto del producto (opcional)', record && record.foto ? record.foto : '', 'Sin foto')}
       <div class="field">
         <label>Categoría (opcional)</label>
         <input type="text" id="f_categoria" list="catList" value="${escapeHtml(record ? (record.categoria||'') : '')}" placeholder="Ej. Bebidas, Ropa, Accesorios">
         <datalist id="catList">${getCategorias().map(c => `<option value="${escapeHtml(c)}">`).join('')}</datalist>
+      </div>
+      <div class="field">
+        <label>Descripción para la factura (opcional)</label>
+        <textarea id="f_descripcion" rows="2" placeholder="Ej. Balines #4 en oro 18k, nacional, diamantado">${escapeHtml(record ? (record.descripcion||'') : '')}</textarea>
       </div>
       <div class="row2">
         <div class="field mono"><label>Costo (${config.moneda})</label><input type="number" inputmode="decimal" id="f_costo" value="${record && record.costo ? record.costo : ''}" placeholder="¿Cuánto te cuesta?"></div>
@@ -1404,6 +1812,11 @@
         <div class="field mono"><label>Stock (opcional)</label><input type="number" inputmode="numeric" id="f_stock" value="${record && record.stock !== '' ? record.stock : ''}" placeholder="—"></div>
       </div>
       <div class="step-note" id="gananciaPreview" style="margin-top:-6px;"></div>
+      <div class="row2">
+        <div class="field mono"><label>Avisar si baja de (unid.)</label><input type="number" inputmode="numeric" id="f_umbral" value="${record && record.stockMinimo !== undefined && record.stockMinimo !== '' && record.stockMinimo !== null ? record.stockMinimo : ''}" placeholder="${config.stockMinimo}"></div>
+      </div>
+      <div class="step-note" style="margin-top:-6px;">Déjalo vacío para usar el límite general (${config.stockMinimo} unid.).</div>
+      ${toggleRowHtml('f_sinAlerta', 'No avisar de poco stock para este producto', record && record.sinAlerta)}
       ${record ? `<div class="field" id="stockMotivoField" style="display:none;"><label>Motivo del ajuste de stock (opcional)</label><input type="text" id="f_stockMotivo" placeholder="Ej. producto dañado, conteo físico, devolución"></div>` : ''}
       ${record ? `<button class="link-btn" id="compraBtn" style="display:block; margin:4px 0 16px;">📦 Registrar compra (reabastecer stock)</button>` : ''}
       ${historialHtml}
@@ -1414,6 +1827,8 @@
       ${record ? '<button class="btn-danger-text" id="deleteBtn">Eliminar</button>' : ''}
       <div id="delConfirm"></div>
     `, (overlay) => {
+      let foto = record && record.foto ? record.foto : '';
+      wireImagePicker(overlay, 'pfoto', 'Sin foto', 300, (d) => { foto = d; });
       const costoInput = overlay.querySelector('#f_costo');
       const margenInput = overlay.querySelector('#f_margen');
       const precioInput = overlay.querySelector('#f_precio');
@@ -1470,10 +1885,14 @@
           id: record ? record.id : uid(),
           nombre,
           categoria: overlay.querySelector('#f_categoria').value.trim(),
+          descripcion: overlay.querySelector('#f_descripcion').value.trim(),
           costo: costoInput.value === '' ? 0 : Number(costoInput.value),
           margen: margenInput.value === '' ? 0 : Number(margenInput.value),
           precio: precioVal === '' ? 0 : Number(precioVal),
           stock: stockVal === '' ? '' : Number(stockVal),
+          foto,
+          stockMinimo: overlay.querySelector('#f_umbral').value === '' ? '' : Number(overlay.querySelector('#f_umbral').value),
+          sinAlerta: overlay.querySelector('#f_sinAlerta').checked,
         };
         if(record){
           const stockAnterior = stockOriginal === null ? 0 : stockOriginal;
@@ -1631,6 +2050,7 @@
     const record = id ? gastos.find(g => g.id === id) : null;
 
     // Editar un gasto existente: formulario simple, sin cambiar de tipo
+    let emet = record ? (record.metodo || 'efectivo') : 'efectivo';
     if(record){
       openOverlay(`
         <div class="sheet-handle"></div>
@@ -1642,12 +2062,20 @@
           <div class="field"><label>Fecha</label><input type="date" id="f_fecha" value="${record.fecha}"></div>
         </div>
         <div class="field"><label>Categoría (opcional)</label><input type="text" id="f_cat" value="${escapeHtml(record.categoria)}" placeholder="Ej. Renta, Insumos, Transporte"></div>
+        <div class="section-label" style="margin:8px 0 6px;">¿Con qué lo pagaste?</div>
+        ${segHtml('gmet', [['efectivo','Efectivo'],['tarjeta','Tarjeta']], emet)}
         <div class="sheet-actions">
           <button class="btn btn-secondary" id="cancelBtn">Cancelar</button>
           <button class="btn btn-primary" id="saveBtn">Guardar</button>
         </div>
         <button class="btn-danger-text" id="deleteBtn">Eliminar</button>
       `, (overlay) => {
+        overlay.addEventListener('click', (e) => {
+          const b = e.target.closest('[data-group="gmet"] button');
+          if(!b) return;
+          emet = b.dataset.val;
+          overlay.querySelectorAll('[data-group="gmet"] button').forEach(x => x.classList.toggle('on', x === b));
+        });
         overlay.querySelector('#cancelBtn').addEventListener('click', () => overlay.remove());
         overlay.querySelector('#saveBtn').addEventListener('click', () => {
           const descripcion = overlay.querySelector('#f_desc').value.trim();
@@ -1658,6 +2086,7 @@
             monto: Number(overlay.querySelector('#f_monto').value) || 0,
             fecha: overlay.querySelector('#f_fecha').value || todayStr(),
             categoria: overlay.querySelector('#f_cat').value.trim(),
+            metodo: emet,
           };
           gastos = gastos.map(g => g.id === record.id ? data : g);
           save('cuentas_gastos', gastos);
@@ -1679,6 +2108,7 @@
     let compraProducto = null;
     let compraEsNuevo = false;
     let compraNuevoNombre = '';
+    let gMetodo = 'efectivo';
 
     const overlay = openOverlay(bodyMain(), mountMain);
 
@@ -1706,6 +2136,8 @@
           <div class="field"><label>Fecha</label><input type="date" id="f_fecha" value="${todayStr()}"></div>
         </div>
         <div class="field"><label>Categoría (opcional)</label><input type="text" id="f_cat" placeholder="Ej. Renta, Insumos, Transporte"></div>
+        <div class="section-label" style="margin:8px 0 6px;">¿Con qué lo pagaste?</div>
+        ${segHtml('gmet', [['efectivo','Efectivo'],['tarjeta','Tarjeta']], gMetodo)}
       `;
     }
 
@@ -1714,6 +2146,8 @@
       const costoActual = compraProducto ? (Number(compraProducto.costo) || 0) : 0;
       const productoListo = compraEsNuevo ? compraNuevoNombre.trim().length > 0 : !!compraProducto;
       return `
+        <div class="section-label" style="margin:0 0 6px;">¿Con qué lo pagaste?</div>
+        ${segHtml('gmet', [['efectivo','Efectivo'],['tarjeta','Tarjeta']], gMetodo)}
         ${!compraEsNuevo ? `
           <div class="field"><label>Producto</label></div>
           ${compraProducto ? `
@@ -1841,6 +2275,12 @@
         sheet.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c === chip));
         renderGastoBody(sheet);
       }));
+      sheet.addEventListener('click', (e) => {
+        const b = e.target.closest('[data-group="gmet"] button');
+        if(!b) return;
+        gMetodo = b.dataset.val;
+        sheet.querySelectorAll('[data-group="gmet"] button').forEach(x => x.classList.toggle('on', x === b));
+      });
       sheet.querySelector('#cancelBtn').addEventListener('click', () => ov.remove());
       sheet.querySelector('#saveBtn').addEventListener('click', () => {
         if(tipo === 'general'){
@@ -1848,7 +2288,7 @@
           const descripcion = descInput.value.trim();
           if(!descripcion){ descInput.focus(); return; }
           gastos = [...gastos, {
-            id: uid(), tipo: 'general',
+            id: uid(), tipo: 'general', metodo: gMetodo,
             descripcion,
             monto: Number(sheet.querySelector('#f_monto').value) || 0,
             fecha: sheet.querySelector('#f_fecha').value || todayStr(),
@@ -1899,7 +2339,7 @@
         }
 
         gastos = [...gastos, {
-          id: uid(), tipo: 'compra', productoId, cantidad: cant,
+          id: uid(), tipo: 'compra', metodo: gMetodo, productoId, cantidad: cant,
           descripcion: `Compra de inventario: ${nombreProducto} x${cant}`,
           monto: cant * costoCompra,
           fecha,
@@ -1928,9 +2368,10 @@
     }
     const cart = [];
     let selectedCliente = null;
-    let notas = config.notaFactura || '';
+    let notas = '';
     let descuentoPct = 0;
     let metodoPago = 'efectivo';
+    let tipoOp = 'venta';
     let abonoIni = 0;
     let abonoMet = 'efectivo';
     let mixEf = 0;
@@ -1979,18 +2420,24 @@
         <div class="step-note">Paso 2 de 2 · cliente: ${escapeHtml(selectedCliente.nombre)}</div>
         <div class="add-item-row"><input type="text" id="prodSearch" placeholder="Buscar producto..."></div>
         <div class="pick-list" id="prodPickList" style="display:none;"></div>
+        <button class="link-btn" id="svcBtn" style="display:block; margin:8px 0 0;">+ Agregar servicio o producto libre</button>
+        <button class="link-btn" id="medidaBtn" style="display:block; margin:4px 0 0;">+ Prenda a medida (con materiales del stock)</button>
         <div id="cartWrap"></div>
         <div class="field" style="margin-top:14px;"><label>Notas para el cliente (opcional)</label><textarea id="f_notas" rows="2" placeholder="Ej. Forma de pago, garantía, condiciones de entrega">${escapeHtml(notas)}</textarea></div>
-        <div class="section-label" style="margin:14px 0 8px;">Forma de pago</div>
-        ${segHtml('pago', [['efectivo','Efectivo'],['tarjeta','Tarjeta'],['credito','A crédito'],['mixto','Mixto']], metodoPago)}
-        <div id="abonoWrap" style="margin-top:12px;"></div>
+        <div class="section-label" style="margin:14px 0 8px;">¿Qué estás registrando?</div>
+        ${segHtml('tipoop', [['venta','Venta'],['pedido','Pedido'],['encargo','Encargo'],['apartado','Apartado']], tipoOp)}
+        <div id="opWrap" style="margin-top:12px;"></div>
+        <div id="payBlock">
+          <div class="section-label" style="margin:14px 0 8px;">Forma de pago</div>
+          ${segHtml('pago', [['efectivo','Efectivo'],['tarjeta','Tarjeta'],['credito','A crédito'],['mixto','Mixto']], metodoPago)}
+          <div id="abonoWrap" style="margin-top:12px;"></div>
+        </div>
         <div class="totals-box" id="totalsBox"></div>
         <div id="gananciaWrap"></div>
         <div class="sheet-actions" style="margin-top:14px;">
           <button class="btn btn-secondary" id="backBtn">Atrás</button>
           <button class="btn btn-primary" id="saveVentaBtn">Registrar venta</button>
         </div>
-        <button class="link-btn" id="agendarBtn" style="display:block; margin:12px auto 0; text-align:center;">Agendar para entregar después</button>
       `;
     }
     function mountStep2(ov, sheet){
@@ -1999,47 +2446,77 @@
       const cartWrap = sheet.querySelector('#cartWrap');
       const totalsBox = sheet.querySelector('#totalsBox');
       const saveBtn = sheet.querySelector('#saveVentaBtn');
-      sheet.querySelector('#agendarBtn').addEventListener('click', () => {
-        if(cart.length === 0){ alert('Agrega productos a la venta primero.'); return; }
-        const excedido = cart.find(it => it.cantidad > stockMax(it.productoId));
-        if(excedido){ alert(sinStockMsg(excedido.nombre, stockMax(excedido.productoId))); return; }
-        openOverlay(`
-          <div class="sheet-handle"></div>
-          <h2>Agendar entrega</h2>
-          <div class="step-note">Los productos quedan reservados hasta la fecha de entrega. Después podrás entregarlos desde Ventas › Pedidos.</div>
+      let opMetodo = 'efectivo';
+      function renderOpWrap(){
+        const wrap = sheet.querySelector('#opWrap');
+        const pay = sheet.querySelector('#payBlock');
+        const btn = sheet.querySelector('#saveVentaBtn');
+        if(tipoOp === 'venta'){
+          wrap.innerHTML = '';
+          pay.style.display = '';
+          btn.textContent = 'Registrar venta';
+          return;
+        }
+        pay.style.display = 'none';
+        const esPedido = tipoOp === 'pedido', esEnc = tipoOp === 'encargo', esApa = tipoOp === 'apartado';
+        wrap.innerHTML = `
+          ${esApa ? '' : `<div class="row2"><div class="field"><label>${esEnc ? 'Llegada estimada (opcional)' : 'Fecha de entrega'}</label><input type="date" id="op_fecha" value="${esEnc ? '' : todayStr()}"></div></div>`}
           <div class="row2">
-            <div class="field"><label>Fecha de entrega</label><input type="date" id="ag_fecha" value="${todayStr()}"></div>
-            <div class="field mono"><label>Anticipo (${config.moneda})</label><input type="number" inputmode="decimal" id="ag_anticipo" placeholder="0"></div>
+            <div class="field mono"><label>${esApa ? 'Abono inicial' : 'Anticipo'} (${config.moneda})</label><input type="number" inputmode="decimal" id="op_anticipo" placeholder="0"></div>
+            <div class="field"><label>Fecha del abono</label><input type="date" id="op_fechaAnt" value="${todayStr()}"></div>
           </div>
-          <div class="field"><label>Fecha del anticipo</label><input type="date" id="ag_fechaAnt" value="${todayStr()}"></div>
-          <div class="sheet-actions">
-            <button class="btn btn-secondary" id="agVolver">Volver</button>
-            <button class="btn btn-primary" id="agSave">Agendar</button>
-          </div>
-        `, (agOv) => {
-          agOv.querySelector('#agVolver').addEventListener('click', () => agOv.remove());
-          agOv.querySelector('#agSave').addEventListener('click', () => {
-            const fecha = agOv.querySelector('#ag_fecha').value;
-            if(!fecha){ agOv.querySelector('#ag_fecha').focus(); return; }
-            pedidos = [...pedidos, {
-              id: uid(), clienteId: selectedCliente.id, clienteNombre: selectedCliente.nombre,
-              fechaEntrega: fecha,
-              anticipo: Number(agOv.querySelector('#ag_anticipo').value) || 0,
-              fechaAnticipo: agOv.querySelector('#ag_fechaAnt').value || todayStr(),
-              items: cart.map(it => ({ productoId: it.productoId, nombre: it.nombre, cantidad: it.cantidad, precio: it.precioUnit, caracteristicas: '' })),
-              notas: notas || '',
-              estado: 'pendiente',
-              creadoTs: Date.now(),
-            }];
-            save('cuentas_pedidos', pedidos);
-            agOv.remove();
-            ov.remove();
-            ventasVista = 'pedidos';
-            renderList();
-            alert('Pedido agendado. Los productos quedan reservados hasta la entrega.');
-          });
-        });
+          ${esApa ? segHtml('opmet', [['efectivo','Efectivo'],['tarjeta','Tarjeta']], opMetodo) : ''}
+          <div class="step-note">${esPedido ? 'Los productos quedan reservados hasta la fecha de entrega.' : esEnc ? 'No descuenta stock. Lo entregas cuando el producto llegue y lo registres en inventario.' : 'Los productos quedan reservados. Los abonos los registras cuando lleguen.'}</div>`;
+        btn.textContent = esPedido ? 'Agendar pedido' : esEnc ? 'Registrar encargo' : 'Crear apartado';
+      }
+      function guardarPendiente(){
+        if(cart.length === 0){ alert('Agrega productos primero.'); return; }
+        if(cart.some(it => (it.materiales || []).length)){ alert('Las prendas a medida solo se pueden registrar como venta.'); return; }
+        if(tipoOp !== 'encargo'){
+          const excedido = cart.find(it => it.cantidad > stockMax(it.productoId));
+          if(excedido){ alert(sinStockMsg(excedido.nombre, stockMax(excedido.productoId))); return; }
+        }
+        const fechaEl = sheet.querySelector('#op_fecha');
+        const fecha = fechaEl ? fechaEl.value : '';
+        if(tipoOp === 'pedido' && !fecha){ fechaEl.focus(); return; }
+        const anticipo = Number(sheet.querySelector('#op_anticipo').value) || 0;
+        const fechaAnt = sheet.querySelector('#op_fechaAnt').value || todayStr();
+        const abonos = (tipoOp === 'apartado' && anticipo > 0)
+          ? [{ id: uid(), fecha: fechaAnt, monto: anticipo, metodo: opMetodo, nota: 'Abono inicial' }]
+          : [];
+        const nuevo = {
+          id: uid(), clienteId: selectedCliente.id, clienteNombre: selectedCliente.nombre,
+          tipo: tipoOp,
+          fechaEntrega: tipoOp === 'apartado' ? '' : fecha,
+          anticipo: tipoOp === 'apartado' ? abonos.reduce((s,a) => s + a.monto, 0) : anticipo,
+          fechaAnticipo: fechaAnt,
+          abonos,
+          items: cart.map(it => ({ productoId: it.productoId, nombre: it.nombre, cantidad: it.cantidad, precio: it.precioUnit, caracteristicas: '', costo: Number(it.costo) || 0 })),
+          notas: notas || '',
+          estado: 'pendiente',
+          creadoTs: Date.now(),
+        };
+        pedidos = [...pedidos, nuevo];
+        save('cuentas_pedidos', pedidos);
+        ov.remove();
+        ventasVista = 'pedidos';
+        renderList();
+        alert(tipoOp === 'pedido' ? 'Pedido agendado. Los productos quedan reservados hasta la entrega.'
+          : tipoOp === 'encargo' ? 'Encargo registrado. Lo entregas cuando el producto llegue.'
+          : 'Apartado creado. Los productos quedan reservados hasta que se paguen.');
+      }
+      sheet.querySelectorAll('[data-group="tipoop"] button').forEach(b => b.addEventListener('click', () => {
+        tipoOp = b.dataset.val;
+        sheet.querySelectorAll('[data-group="tipoop"] button').forEach(x => x.classList.toggle('on', x === b));
+        renderOpWrap();
+      }));
+      sheet.querySelector('#opWrap').addEventListener('click', (e) => {
+        const b = e.target.closest('[data-group="opmet"] button');
+        if(!b) return;
+        opMetodo = b.dataset.val;
+        sheet.querySelectorAll('[data-group="opmet"] button').forEach(x => x.classList.toggle('on', x === b));
       });
+      renderOpWrap();
       const notasInput = sheet.querySelector('#f_notas');
       const gananciaWrap = sheet.querySelector('#gananciaWrap');
       let gananciaOpen = false;
@@ -2166,6 +2643,143 @@
       }
       prodSearch.addEventListener('input', renderProdPick);
 
+      sheet.querySelector('#svcBtn').addEventListener('click', () => {
+        openOverlay(`
+          <div class="sheet-handle"></div>
+          <h2>Servicio o producto libre</h2>
+          <div class="step-note">Para algo que no está en tu inventario, como una asesoría. No descuenta stock.</div>
+          <div class="field"><label>Nombre</label><input type="text" id="sv_nombre" placeholder="Ej. Asesoría, arreglo, envío"></div>
+          <div class="row2">
+            <div class="field mono"><label>Precio (${config.moneda})</label><input type="number" inputmode="decimal" id="sv_precio" placeholder="0"></div>
+            <div class="field mono"><label>Cantidad</label><input type="number" inputmode="numeric" id="sv_cant" value="1"></div>
+          </div>
+          <div class="field mono"><label>Costo (opcional, ${config.moneda})</label><input type="number" inputmode="decimal" id="sv_costo" placeholder="0"></div>
+          <div class="sheet-actions">
+            <button class="btn btn-secondary" id="svVolver">Volver</button>
+            <button class="btn btn-primary" id="svAgregar">Agregar</button>
+          </div>
+        `, (svOv) => {
+          svOv.querySelector('#svVolver').addEventListener('click', () => svOv.remove());
+          svOv.querySelector('#svAgregar').addEventListener('click', () => {
+            const nombre = svOv.querySelector('#sv_nombre').value.trim();
+            const precio = Number(svOv.querySelector('#sv_precio').value) || 0;
+            const cant = Number(svOv.querySelector('#sv_cant').value) || 0;
+            const costo = Number(svOv.querySelector('#sv_costo').value) || 0;
+            if(!nombre){ svOv.querySelector('#sv_nombre').focus(); return; }
+            if(cant <= 0){ svOv.querySelector('#sv_cant').focus(); return; }
+            cart.push({ productoId: null, nombre, precioCatalogo: precio, precioUnit: precio, costo, cantidad: cant, stockDisponible: '' });
+            svOv.remove();
+            renderCart();
+          });
+        });
+      });
+
+      sheet.querySelector('#medidaBtn').addEventListener('click', () => {
+        if(tipoOp !== 'venta'){ alert('Las prendas a medida se registran como venta. Cambia el tipo a Venta.'); return; }
+        let foto = '';
+        let mats = [{ productoId: '', cantidad: 1 }];
+        openOverlay(`
+          <div class="sheet-handle"></div>
+          <h2>Prenda a medida</h2>
+          <div class="step-note">Descuenta los materiales del stock. La prenda no se guarda como producto del inventario.</div>
+          ${imagePickerHtml('ma_foto', 'Foto de la prenda (opcional)', '', 'Sin foto')}
+          <div class="field"><label>Nombre</label><input type="text" id="ma_nombre" placeholder="Ej. Manilla roja y negra"></div>
+          <div class="field"><label>Características</label><textarea id="ma_car" rows="2" placeholder="Ej. Cierre ajustable, talla única"></textarea></div>
+          <div class="field mono"><label>Cantidad de prendas</label><input type="number" inputmode="numeric" id="ma_cant" value="1"></div>
+          <div class="section-label" style="margin:12px 0 6px;">Materiales que usa por prenda</div>
+          <div id="ma_lista"></div>
+          <button type="button" class="link-btn" id="ma_addMat" style="display:block; margin:6px 0 0;">+ Agregar material</button>
+          <div class="totals-box" id="ma_precio_box" style="margin-top:12px;"></div>
+          <div id="ma_err" style="color:#b42318; font-size:13px; margin-top:8px;"></div>
+          <div class="sheet-actions" style="margin-top:14px;">
+            <button class="btn btn-secondary" id="maVolver">Volver</button>
+            <button class="btn btn-primary" id="maAgregar">Agregar</button>
+          </div>
+        `, (maOv) => {
+          const lista = maOv.querySelector('#ma_lista');
+          const err = maOv.querySelector('#ma_err');
+          const precioPrenda = () => mats.reduce((s, m) => {
+            const pr = inventario.find(x => x.id === m.productoId);
+            return s + (pr ? (Number(pr.precio) || 0) * (Number(m.cantidad) || 0) : 0);
+          }, 0);
+          const pintarPrecio = () => {
+            maOv.querySelector('#ma_precio_box').innerHTML = `
+              <div class="tr"><span>Precio por prenda</span><strong>${money(precioPrenda())}</strong></div>
+              <div style="font-size:12px; color:var(--ink-soft); margin-top:4px;">Se calcula sumando el precio de cada material elegido.</div>`;
+          };
+          const pintar = () => {
+            lista.innerHTML = mats.map((m, i) => `
+              <div class="row2">
+                <div class="field"><label>Material ${i + 1}</label><select class="mat-prod" data-mat="${i}"><option value="">Elegir…</option>${inventario.map(x => `<option value="${x.id}" ${x.id === m.productoId ? 'selected' : ''}>${escapeHtml(x.nombre)} · ${money(x.precio)}</option>`).join('')}</select></div>
+                <div class="field mono"><label>Cantidad</label><input type="number" inputmode="numeric" class="mat-cant" data-mat="${i}" value="${m.cantidad}"></div>
+              </div>
+              <button type="button" class="link-btn danger mat-del" data-mat="${i}" style="margin:-4px 0 10px;">Quitar este material</button>`).join('');
+            pintarPrecio();
+          };
+          pintar();
+          wireImagePicker(maOv, 'ma_foto', 'Sin foto', 300, (d) => { foto = d; });
+          maOv.querySelector('#ma_addMat').addEventListener('click', () => { mats.push({ productoId: '', cantidad: 1 }); pintar(); });
+          lista.addEventListener('change', (e) => {
+            if(e.target.classList.contains('mat-prod')){ mats[Number(e.target.dataset.mat)].productoId = e.target.value; pintarPrecio(); }
+          });
+          lista.addEventListener('input', (e) => {
+            if(e.target.classList.contains('mat-cant')){ mats[Number(e.target.dataset.mat)].cantidad = Number(e.target.value) || 0; pintarPrecio(); }
+          });
+          lista.addEventListener('click', (e) => {
+            if(e.target.classList.contains('mat-del')){
+              mats.splice(Number(e.target.dataset.mat), 1);
+              if(!mats.length) mats.push({ productoId: '', cantidad: 1 });
+              pintar();
+            }
+          });
+          maOv.querySelector('#maVolver').addEventListener('click', () => maOv.remove());
+          maOv.querySelector('#maAgregar').addEventListener('click', () => {
+            const nombre = maOv.querySelector('#ma_nombre').value.trim();
+            const car = maOv.querySelector('#ma_car').value.trim();
+            const cant = Number(maOv.querySelector('#ma_cant').value) || 0;
+            const faltan = [];
+            if(!nombre) faltan.push('nombre de la prenda');
+            if(cant <= 0) faltan.push('cantidad de prendas (mayor que 0)');
+            mats.forEach((m, i) => {
+              if(!m.productoId) faltan.push(`elegir el material ${i + 1} (o quitarlo)`);
+              else if(!(m.cantidad > 0)) faltan.push(`cantidad del material ${i + 1} (mayor que 0)`);
+            });
+            if(!mats.some(m => m.productoId && m.cantidad > 0)) faltan.push('al menos un material del inventario');
+            if(faltan.length){
+              err.innerHTML = 'Falta: ' + faltan.join(' · ');
+              return;
+            }
+            const agrupados = mats.reduce((acc, m) => {
+              const ex = acc.find(x => x.productoId === m.productoId);
+              if(ex) ex.cantidad += m.cantidad; else acc.push({ productoId: m.productoId, cantidad: m.cantidad });
+              return acc;
+            }, []);
+            const materiales = agrupados.map(m => ({ productoId: m.productoId, nombre: (inventario.find(x => x.id === m.productoId) || {}).nombre || '', cantidad: m.cantidad }));
+            const costoMat = agrupados.reduce((sum, m) => { const pr = inventario.find(x => x.id === m.productoId); return sum + (pr ? (Number(pr.costo) || 0) * m.cantidad : 0); }, 0);
+            const precio = precioPrenda();
+            const msg = validarMateriales([{ productoId: null, cantidad: cant, materiales }, ...cart]);
+            if(msg){ err.innerHTML = msg; return; }
+            cart.push({ productoId: null, nombre, caracteristicas: car, foto, materiales, precioCatalogo: precio, precioUnit: precio, costo: costoMat, cantidad: cant, stockDisponible: '' });
+            maOv.remove();
+            renderCart();
+          });
+        });
+      });
+
+      function validarMateriales(items){
+        const need = {};
+        items.forEach(it => {
+          if(it.productoId) need[it.productoId] = (need[it.productoId] || 0) + it.cantidad;
+          (it.materiales || []).forEach(m => { need[m.productoId] = (need[m.productoId] || 0) + m.cantidad * it.cantidad; });
+        });
+        for(const id of Object.keys(need)){
+          const pr = inventario.find(x => x.id === id);
+          const max = stockMax(id);
+          if(pr && max !== Infinity && need[id] > max) return `No hay suficiente ${pr.nombre}. Disponibles: ${max}, necesitas: ${need[id]}.`;
+        }
+        return '';
+      }
+
       function renderCart(){
         if(cart.length === 0){
           cartWrap.innerHTML = `<div class="empty-state" style="margin-top:16px;"><p>Busca productos arriba y tócalos para agregarlos a la factura.</p></div>`;
@@ -2211,15 +2825,18 @@
       renderCart();
 
       saveBtn.addEventListener('click', () => {
+        if(tipoOp !== 'venta'){ guardarPendiente(); return; }
         if(cart.length === 0) return;
         const excedido = cart.find(it => it.cantidad > stockMax(it.productoId));
         if(excedido){ alert(sinStockMsg(excedido.nombre, stockMax(excedido.productoId))); return; }
+        const msgMat = validarMateriales(cart);
+        if(msgMat){ alert(msgMat); return; }
         const pg = calcPagos();
         const venta = {
           id: uid(), folio: null, creadoTs: Date.now(),
           clienteId: selectedCliente.id, clienteNombre: selectedCliente.nombre,
           clienteDireccion: selectedCliente.direccion || '', clienteTelefono: selectedCliente.telefono || '', clienteEmail: selectedCliente.email || '',
-          items: cart.map(it => ({ productoId: it.productoId, nombre: it.nombre, precio: it.precioUnit, cantidad: it.cantidad })),
+          items: cart.map(it => ({ productoId: it.productoId, nombre: it.nombre, precio: it.precioUnit, cantidad: it.cantidad, caracteristicas: it.caracteristicas || '', foto: it.foto || '', materiales: it.materiales || [] })),
           sumaItems: sumaItems(), descuentoPct, descuentoMonto: descuentoMonto(),
           subtotal: subtotal(), impuesto: impuestoMonto(), total: total(),
           costoTotal: costoTotal(), gananciaEstimada: gananciaEstimada(),
@@ -2229,9 +2846,13 @@
         };
         ventas.push(venta);
         inventario = inventario.map(p => {
+          let st = p.stock;
           const it = cart.find(c => c.productoId === p.id);
-          if(it && p.stock !== '' && p.stock !== null) return { ...p, stock: Math.max(0, Number(p.stock) - it.cantidad) };
-          return p;
+          if(it && st !== '' && st !== null) st = Math.max(0, Number(st) - it.cantidad);
+          cart.forEach(c => (c.materiales || []).forEach(m => {
+            if(m.productoId === p.id && st !== '' && st !== null) st = Math.max(0, Number(st) - m.cantidad * c.cantidad);
+          }));
+          return st === p.stock ? p : { ...p, stock: st };
         });
         save('cuentas_ventas', ventas);
         save('cuentas_inventario', inventario);
@@ -2348,17 +2969,39 @@
   }
 
   function buildInvoiceHtml(v){
+    const color = config.colorFactura || '#1E4FA0';
     const logoBlock = config.logo
       ? `<img class="inv-logo" src="${config.logo}" alt="">`
-      : `<div class="inv-logo-placeholder">${escapeHtml(initials(config.nombre))}</div>`;
+      : `<div class="inv-logo-placeholder" style="background:${color};">${escapeHtml(initials(config.nombre))}</div>`;
     const bizMetaLines = [
       config.mostrarDireccion !== false ? config.direccion : '',
       config.mostrarTelefono !== false ? config.telefono : '',
       config.mostrarEmail !== false ? config.email : '',
     ].filter(Boolean).map(escapeHtml).join('<br>');
     const clienteMetaLines = [v.clienteDireccion, v.clienteTelefono, v.clienteEmail].filter(Boolean).map(escapeHtml).join('<br>');
+    const medioNombre = { efectivo: 'Efectivo', tarjeta: 'Tarjeta', credito: 'A crédito', mixto: 'Mixto' };
+    const on = k => config[k] !== false;
+    const onOpt = k => config[k] === true;
+    const descItem = it => it.caracteristicas || ((inventario.find(x => x.id === it.productoId) || {}).descripcion) || '';
+    const fotosBox = (() => {
+      if(!onOpt('mostrarFotos')) return '';
+      const fs = v.items.map(it => { const pr = inventario.find(x => x.id === it.productoId); const src = it.foto || (pr && pr.foto); return src ? { src, nombre: it.nombre } : null; }).filter(Boolean);
+      if(!fs.length) return '';
+      return `<div class="inv-fotos">${fs.map(x => `<figure><img src="${x.src}" alt=""><figcaption>${escapeHtml(x.nombre)}</figcaption></figure>`).join('')}</div>`;
+    })();
+    const mNW = n => money(n).replace(/([\d.,]+)$/, '<span class="nw">$1</span>');
+    const saldo = v.fiado ? saldoVenta(v) : 0;
+    const pagada = saldo <= 0;
+    const abonos = (v.abonos || []).slice().sort((a,b) => (a.fecha || '').localeCompare(b.fecha || ''));
+    const sumaProd = v.sumaItems !== undefined ? v.sumaItems : v.subtotal;
+    const pagosHtml = abonos.length && on('mostrarPagos') ? `
+        <div class="inv-section-title">Pagos recibidos</div>
+        <table class="inv-table inv-pagos">
+          <thead><tr><th>Fecha</th><th>Medio</th><th class="num">Monto</th></tr></thead>
+          <tbody>${abonos.map(a => `<tr><td>${fmtDate(a.fecha)}</td><td>${medioNombre[a.metodo] || '—'}</td><td class="num">${mNW(a.monto)}</td></tr>`).join('')}</tbody>
+        </table>` : '';
     return `
-      <div class="invoice-doc">
+      <div class="invoice-doc" style="--inv-color:${color};">
         <div class="inv-header">
           <div class="inv-biz">
             ${logoBlock}
@@ -2367,31 +3010,55 @@
               <div class="inv-biz-meta">${bizMetaLines}</div>
             </div>
           </div>
-          <div class="inv-title">${escapeHtml(config.facturaTitulo || 'FACTURA')}<div class="inv-num">Nº ${String(v.folio).padStart(4,'0')}<br>${fmtDate(v.fecha)}</div></div>
         </div>
-        <div class="inv-parties">
-          <div>
+        <div class="inv-title-big">${escapeHtml(v.tituloDoc || config.facturaTitulo || 'FACTURA')}</div>
+        <div class="inv-meta-row">
+          <div class="inv-parties">
             <div class="p-label">Facturar a</div>
             <div class="p-name">${escapeHtml(v.clienteNombre)}</div>
             <div class="p-meta">${clienteMetaLines}</div>
           </div>
+          <div>
+            <div class="inv-num-big">Nº ${String(v.folio).padStart(4,'0')}</div>
+            <div class="inv-date">${fmtDate(v.fecha)}</div>
+            ${metodoLabel(v) ? `<div class="inv-pago">Forma de pago: ${metodoLabel(v)}</div>` : ''}
+          </div>
         </div>
-        <table class="inv-table">
-          <thead><tr><th>Producto</th><th class="num">Cant.</th><th class="num">Precio</th><th class="num">Importe</th></tr></thead>
+        <table class="inv-table inv-items">
+          <thead><tr><th>Nº</th><th>Producto</th><th class="num">Cantidad</th><th class="num">Tarifa</th><th class="num">Monto</th></tr></thead>
           <tbody>
-            ${v.items.map(it => `<tr><td>${escapeHtml(it.nombre)}</td><td class="num">${it.cantidad}</td><td class="num">${money(it.precio)}</td><td class="num">${money(it.precio*it.cantidad)}</td></tr>`).join('')}
+            ${v.items.map((it, i) => `<tr><td>${i + 1}</td><td><div class="inv-item-name">${escapeHtml(it.nombre)}</div>${descItem(it) ? `<div class="inv-item-sub">${escapeHtml(descItem(it))}</div>` : ''}</td><td class="num">${it.cantidad}</td><td class="num">${mNW(it.precio)}</td><td class="num">${mNW(it.precio * it.cantidad)}</td></tr>`).join('')}
           </tbody>
         </table>
-        ${v.notas ? `<div class="inv-notes"><strong>Notas:</strong> ${escapeHtml(v.notas)}</div>` : ''}
-        <div class="inv-totals">
-          <div class="t-row"><span>Suma de productos</span><span>${money(v.sumaItems !== undefined ? v.sumaItems : v.subtotal)}</span></div>
-          ${v.descuentoMonto > 0 ? `<div class="t-row"><span>Descuento (${v.descuentoPct}%)</span><span>-${money(v.descuentoMonto)}</span></div>` : ''}
-          ${v.impuesto > 0 ? `<div class="t-row"><span>Impuesto</span><span>${money(v.impuesto)}</span></div>` : ''}
-          <div class="t-row grand"><span>Total</span><span>${money(v.total)}</span></div>
-          ${v.fiado ? `<div class="t-row"><span>Abonado</span><span>-${money(abonadoVenta(v))}</span></div><div class="t-row grand"><span>Saldo pendiente</span><span>${money(saldoVenta(v))}</span></div>` : ''}
+        <div class="inv-bottom">
+          <div class="inv-left">
+          ${on('mostrarTenga') ? `<div class="inv-note-box">
+            <div class="inv-section-title">Tenga en cuenta</div>
+            ${config.tengaTexto ? `<div>${escapeHtml(config.tengaTexto).replace(/\n/g, '<br>')}</div>` : ''}
+            ${v.notas ? `<div>${escapeHtml(v.notas)}</div>` : ''}
+          </div>` : ''}
+          </div>
+          <div class="inv-totals2">
+            <div class="tr"><span>Suma de productos</span><span>${mNW(sumaProd)}</span></div>
+            ${v.descuentoMonto > 0 ? `<div class="tr"><span>Descuento (${v.descuentoPct}%)</span><span>-${mNW(v.descuentoMonto)}</span></div>` : ''}
+            ${v.impuesto > 0 ? `<div class="tr"><span>Impuesto</span><span>${mNW(v.impuesto)}</span></div>` : ''}
+            <div class="tr gran"><span>Gran total</span><span>${mNW(v.total)}</span></div>
+            ${abonos.length ? `<div class="tr"><span>Pagado</span><span>-${mNW(abonadoVenta(v))}</span></div>` : ''}
+            ${v.fiado ? `<div class="tr saldo"><span>Saldo</span><span>${mNW(saldo)}</span></div>` : ''}
+          </div>
         </div>
-        ${metodoLabel(v) ? `<div class="inv-notes"><strong>Forma de pago:</strong> ${metodoLabel(v)}</div>` : ''}
-        ${config.facturaPie ? `<div class="inv-footer">${escapeHtml(config.facturaPie)}</div>` : ''}
+        ${pagosHtml}
+        ${(on('mostrarFirma') || (on('mostrarSello') && pagada)) ? `<div class="inv-signrow">
+          ${on('mostrarSello') && pagada ? `<div class="inv-stamp">PAGADA</div>` : '<div></div>'}
+          ${on('mostrarFirma') ? `<div class="inv-sign">
+          ${config.firmaImg ? `<img class="inv-firma-img" src="${config.firmaImg}" alt="">` : ''}
+          <div class="inv-sign-line"></div>
+          <div>${escapeHtml(config.nombre)}</div>
+          <div><strong>Firma</strong></div>
+        </div>` : ''}
+        </div>` : ''}
+        ${on('mostrarPie') && config.facturaPie ? `<div class="inv-footer">${escapeHtml(config.facturaPie)}</div>` : ''}
+        ${fotosBox}
       </div>
     `;
   }
@@ -2455,35 +3122,87 @@
         <button class="btn btn-primary" id="printBtn">Guardar / Imprimir PDF</button>
       </div>
       <button class="btn btn-secondary" id="editFacBtn" style="width:100%; margin-top:10px;">Editar factura</button>
-      <button class="link-btn" id="shareBtn" style="display:block; margin:12px auto 0; text-align:center;">Compartir resumen</button>
-      <button class="link-btn" id="waFacBtn" style="display:block; margin:12px auto 0; text-align:center;">Enviar por WhatsApp</button>
+      <button class="btn btn-primary" id="pdfWaBtn" style="width:100%; margin-top:10px;">Compartir PDF por WhatsApp</button>
       <button class="btn-danger-text" id="deleteVentaBtn">Anular factura</button>
     `, (overlay) => {
       overlay.querySelector('#closeBtn').addEventListener('click', () => overlay.remove());
       overlay.querySelector('#printBtn').addEventListener('click', () => window.print());
       overlay.querySelector('#editFacBtn').addEventListener('click', () => { overlay.remove(); openFacturaEdit(v.id); });
-      overlay.querySelector('#shareBtn').addEventListener('click', async () => {
-        const resumen = `Factura F-${String(v.folio).padStart(4,'0')} — ${config.nombre}\nCliente: ${v.clienteNombre}\nFecha: ${fmtDate(v.fecha)}\n` +
-          v.items.map(it => `${it.cantidad} x ${it.nombre}: ${money(it.precio*it.cantidad)}`).join('\n') +
-          `\nTotal: ${money(v.total)}`;
-        if(navigator.share){
-          try { await navigator.share({ title: 'Factura F-' + String(v.folio).padStart(4,'0'), text: resumen }); }
-          catch(e){ /* cancelado */ }
-        } else {
-          try {
-            await navigator.clipboard.writeText(resumen);
-            alert('Resumen copiado. Pégalo en WhatsApp, correo o donde prefieras.');
-          } catch(e){
-            alert('No se pudo compartir automáticamente en este navegador. Usa "Guardar / Imprimir PDF" y comparte el archivo desde ahí.');
-          }
-        }
-      });
-      overlay.querySelector('#waFacBtn').addEventListener('click', () => {
-        const cli = clientes.find(c => c.id === v.clienteId);
-        window.open(waUrl(cli ? cli.telefono : v.clienteTelefono, textoFactura(v)), '_blank');
-      });
+      overlay.querySelector('#pdfWaBtn').addEventListener('click', () => compartirFacturaPDF(v, overlay));
       overlay.querySelector('#deleteVentaBtn').addEventListener('click', () => anularVenta(v.id));
     });
+  }
+
+  function cargarLibsPDF(){
+    if(window.jspdf && window.html2canvas) return Promise.resolve();
+    const añadir = (src) => new Promise((ok, fail) => {
+      const sc = document.createElement('script');
+      sc.src = src;
+      sc.onload = ok;
+      sc.onerror = () => fail(new Error('No se pudo cargar el generador de PDF. Revisa tu conexión.'));
+      document.head.appendChild(sc);
+    });
+    return añadir('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js')
+      .then(() => añadir('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'));
+  }
+  async function descargarArchivo(blob, nombre){
+    try{
+      const dl = window.claude && window.claude.use ? await window.claude.use('downloads') : null;
+      if(dl){ await dl.save({ filename: nombre, data: blob }); return; }
+    } catch(e){ /* sigue con el enlace normal */ }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = nombre;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+  }
+  async function compartirFacturaPDF(v, overlay){
+    const btn = overlay.querySelector('#pdfWaBtn');
+    const textoBoton = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Preparando PDF…';
+    const folio = String(v.folio).padStart(4,'0');
+    const nombreArchivo = `${v.tipoDoc || 'Factura'}-${folio}.pdf`;
+    try{
+      await cargarLibsPDF();
+      const nodo = document.createElement('div');
+      nodo.style.cssText = 'position:fixed; left:-10000px; top:0; width:760px; background:#ffffff; padding:24px; box-sizing:border-box;';
+      nodo.className = 'inv-pdf';
+      nodo.innerHTML = buildInvoiceHtml(v);
+      document.body.appendChild(nodo);
+      let canvas;
+      try { canvas = await window.html2canvas(nodo, { scale: 2, backgroundColor: '#ffffff' }); }
+      finally { nodo.remove(); }
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({ unit: 'mm', format: 'a4' });
+      const margen = 8, anchoPag = 210, altoPag = 297;
+      const imgW = anchoPag - margen * 2;
+      const imgH = canvas.height * imgW / canvas.width;
+      const altoUtil = altoPag - margen * 2;
+      const imgData = canvas.toDataURL('image/jpeg', 0.92);
+      for(let k = 0; k * altoUtil < imgH; k++){
+        if(k > 0) pdf.addPage();
+        pdf.addImage(imgData, 'JPEG', margen, margen - k * altoUtil, imgW, imgH);
+      }
+      const blob = pdf.output('blob');
+      const archivo = new File([blob], nombreArchivo, { type: 'application/pdf' });
+      const saldo = v.fiado ? saldoVenta(v) : 0;
+      const texto = `Factura ${folio} de ${config.nombre}. Total: ${money(v.total)}${saldo > 0 ? '. Saldo pendiente: ' + money(saldo) : ''}.`;
+      if(navigator.canShare && navigator.canShare({ files: [archivo] })){
+        await navigator.share({ files: [archivo], title: nombreArchivo, text: texto });
+        return;
+      }
+      await descargarArchivo(blob, nombreArchivo);
+      const cli = clientes.find(c => c.id === v.clienteId);
+      alert('Se descargó el PDF. Ábrelo y compártelo en WhatsApp. Ahora te abrimos el chat del cliente.');
+      window.open(waUrl(cli ? cli.telefono : v.clienteTelefono, texto), '_blank');
+    } catch(err){
+      if(err && err.name === 'AbortError') return;
+      alert('No pude preparar el PDF. ' + (err && err.message ? err.message : 'Intenta de nuevo.'));
+    } finally {
+      btn.disabled = false;
+      btn.textContent = textoBoton;
+    }
   }
 
   function openFacturaEdit(id){
@@ -2502,7 +3221,7 @@
       <div class="row2">
         <div class="field"><label>Fecha de la factura</label><input type="date" id="fe_fecha" value="${v.fecha}"></div>
       </div>
-      <div class="field"><label>Notas</label><textarea id="fe_notas" rows="3" placeholder="Ej. Forma de pago, garantía">${escapeHtml(v.notas || '')}</textarea></div>
+      <div class="field"><label>Tenga en cuenta (recomendaciones y notas)</label><textarea id="fe_notas" rows="3" placeholder="Ej. Cambios dentro de 8 días con factura, cuidados del producto">${escapeHtml(v.notas || '')}</textarea></div>
       <div class="sheet-actions">
         <button class="btn btn-secondary" id="feBack">Volver</button>
         <button class="btn btn-primary" id="feSave">Guardar cambios</button>
@@ -2603,12 +3322,6 @@
     if(d.length === 10 && d.startsWith('3')) d = '57' + d;
     return `https://wa.me/${d}?text=${encodeURIComponent(texto)}`;
   }
-  function textoFactura(v){
-    return `Factura F-${String(v.folio).padStart(4,'0')} — ${config.nombre}\nCliente: ${v.clienteNombre}\nFecha: ${fmtDate(v.fecha)}\n` +
-      (v.items||[]).map(it => `${it.cantidad} x ${it.nombre}: ${money(it.precio*it.cantidad)}`).join('\n') +
-      `\nTotal: ${money(v.total)}` + (v.fiado ? `\nSaldo pendiente: ${money(saldoVenta(v))}` : '');
-  }
-
   function anularVenta(id){
     const v = ventas.find(x => x.id === id);
     if(!v) return;
@@ -2627,6 +3340,13 @@
       ov.querySelector('#anSi').addEventListener('click', () => {
         (v.items||[]).forEach(it => {
           const cant = Number(it.cantidad) || 0;
+          (it.materiales || []).forEach(m => {
+            const mp = inventario.find(x => x.id === m.productoId);
+            if(!mp) return;
+            const dev = (Number(m.cantidad) || 0) * cant;
+            if(mp.stock !== '' && mp.stock !== null) inventario = inventario.map(x => x.id === mp.id ? { ...x, stock: Number(x.stock) + dev } : x);
+            movimientos = [...movimientos, { id: uid(), tipo: 'devolucion', ts: Date.now(), productoId: mp.id, productoNombre: mp.nombre, cantidad: dev, motivo: `Venta anulada · ${v.clienteNombre}`, fecha: todayStr() }];
+          });
           const p = inventario.find(x => x.id === it.productoId);
           if(!p) return;
           if(p.stock !== '' && p.stock !== null) inventario = inventario.map(x => x.id === p.id ? { ...x, stock: Number(x.stock) + cant } : x);
@@ -2835,7 +3555,7 @@
     const secciones = [
       { key:'usuario', icono:'◉', titulo:'Usuario', desc: (config.nombre || 'Mi negocio') + (config.fotoPerfil ? ' · con foto' : '') },
       { key:'creditos', icono:'◑', titulo:'Créditos', desc: totalPorCobrarAll() > 0 ? `Por cobrar ${money(totalPorCobrarAll())}` : 'Sin deudas pendientes' },
-      { key:'factura', icono:'▦', titulo:'Factura', desc: (config.facturaTitulo || 'FACTURA') + (config.notaFactura ? ' · con nota' : '') },
+      { key:'factura', icono:'▦', titulo:'Factura', desc: (config.facturaTitulo || 'FACTURA') },
       { key:'productos', icono:'▤', titulo:'Productos', desc: `Poco stock desde ${config.stockMinimo} unid.` + (config.margenDefault ? ` · Ganancia por defecto ${config.margenDefault}%` : '') },
       { key:'respaldo', icono:'⤓', titulo:'Respaldo', desc: 'Descargar o restaurar tus datos' },
       { key:'ventas', icono:'⧉', titulo:'Moneda e impuestos', desc: `${config.moneda} · Impuesto ${config.impuesto}%` },
@@ -2930,20 +3650,100 @@
   function openSettingsFactura(back){
     openOverlay(sectionShell('Factura', 'Cómo se ve tu factura y qué datos incluye.', `
       <div class="field"><label>Título del documento</label><input type="text" id="sf_titulo" value="${escapeHtml(config.facturaTitulo || '')}" placeholder="FACTURA"></div>
-      <div class="field"><label>Pie de página</label><input type="text" id="sf_pie" value="${escapeHtml(config.facturaPie || '')}" placeholder="Ej. Gracias por su compra"></div>
-      <div class="field"><label>Nota por defecto (opcional)</label><textarea id="sf_nota" rows="2" placeholder="Ej. Forma de pago, garantía">${escapeHtml(config.notaFactura || '')}</textarea></div>
+      ${toggleRowHtml('sf_pieOn', 'Mostrar pie de página', config.mostrarPie !== false)}
+      <div id="sf_pieWrap">
+        <div class="field"><label>Pie de página</label><input type="text" id="sf_pie" value="${escapeHtml(config.facturaPie || '')}" placeholder="Ej. Gracias por su compra"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Color de la factura</label><input type="color" id="sf_color" value="${config.colorFactura || '#1E4FA0'}" style="height:44px; padding:4px;"></div>
+      </div>
+      ${toggleRowHtml('sf_tenga', 'Mostrar Tenga en cuenta en la factura', config.mostrarTenga !== false)}
+      <div id="sf_tengaWrap">
+        <div class="field"><label>Texto en "Tenga en cuenta" (opcional)</label><textarea id="sf_tengaTxt" rows="2" placeholder="Ej. Cambios y devoluciones dentro de 8 días con factura">${escapeHtml(config.tengaTexto || '')}</textarea></div>
+      </div>
       <div class="section-label" style="margin:14px 0 4px;">Datos del negocio en el encabezado</div>
       ${toggleRowHtml('sf_dir', 'Mostrar dirección', config.mostrarDireccion !== false)}
       ${toggleRowHtml('sf_tel', 'Mostrar teléfono', config.mostrarTelefono !== false)}
       ${toggleRowHtml('sf_mail', 'Mostrar correo', config.mostrarEmail !== false)}
+      <div class="section-label" style="margin:14px 0 4px;">Secciones de la factura</div>
+      ${toggleRowHtml('sf_pagos', 'Tabla de pagos recibidos', config.mostrarPagos !== false)}
+      ${toggleRowHtml('sf_selloOn', 'Mostrar sello PAGADA', config.mostrarSello !== false)}
+      ${toggleRowHtml('sf_fotos', 'Foto de cada producto', config.mostrarFotos === true)}
+      <details id="sf_firmaDetalle" style="margin-top:14px; border:1px solid var(--border); border-radius:12px; padding:10px 12px; background:var(--surface);">
+        <summary style="cursor:pointer; font-weight:700; font-size:14px; padding:4px 0;">Firma para la factura</summary>
+        <div style="margin-top:10px;">
+          ${toggleRowHtml('sf_firma', 'Mostrar firma en la factura', config.mostrarFirma !== false)}
+          <canvas id="sf_firmaCanvas" style="display:block; width:100%; height:150px; margin-top:8px; border:1px dashed var(--border); border-radius:10px; background:#fff; touch-action:none;"></canvas>
+          <div class="sheet-actions" style="margin-top:8px;"><button class="btn btn-secondary" id="sf_firmaClear" type="button">Borrar firma</button></div>
+          <div class="step-note">Firma con el dedo o el mouse dentro del recuadro. Aparecerá encima de la línea de firma en la factura.</div>
+        </div>
+      </details>
     `), (overlay) => {
+      const atarMostrar = (toggleId, wrapId) => {
+        const t = overlay.querySelector('#' + toggleId);
+        const w = overlay.querySelector('#' + wrapId);
+        const sync = () => { w.style.display = t.checked ? '' : 'none'; };
+        t.addEventListener('change', sync);
+        sync();
+      };
+      atarMostrar('sf_pieOn', 'sf_pieWrap');
+      atarMostrar('sf_tenga', 'sf_tengaWrap');
+      const cv = overlay.querySelector('#sf_firmaCanvas');
+      const cx = cv.getContext('2d');
+      let firmaCambiada = false, firmaVacia = false, dibujando = false, cvListo = false;
+      const ratio = window.devicePixelRatio || 1;
+      const prepararCanvas = () => {
+        if (cvListo) return;
+        const rc = cv.getBoundingClientRect();
+        if (!rc.width) return;
+        cvListo = true;
+        cv.width = Math.round(rc.width * ratio); cv.height = Math.round(rc.height * ratio);
+        cx.setTransform(ratio, 0, 0, ratio, 0, 0);
+        cx.lineWidth = 2.4; cx.lineCap = 'round'; cx.lineJoin = 'round'; cx.strokeStyle = '#111';
+        if (config.firmaImg) {
+          const im = new Image();
+          im.onload = () => {
+            const sc = Math.min(rc.width / im.width, rc.height / im.height);
+            cx.drawImage(im, (rc.width - im.width * sc) / 2, (rc.height - im.height * sc) / 2, im.width * sc, im.height * sc);
+          };
+          im.src = config.firmaImg;
+        }
+      };
+      const detalleFirma = overlay.querySelector('#sf_firmaDetalle');
+      detalleFirma.addEventListener('toggle', () => { if (detalleFirma.open) prepararCanvas(); });
+      const posCv = (e) => { const r = cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
+      cv.addEventListener('pointerdown', (e) => {
+        prepararCanvas();
+        dibujando = true; firmaCambiada = true; firmaVacia = false;
+        cv.setPointerCapture(e.pointerId);
+        const q = posCv(e); cx.beginPath(); cx.moveTo(q.x, q.y);
+      });
+      cv.addEventListener('pointermove', (e) => {
+        if (!dibujando) return;
+        const q = posCv(e); cx.lineTo(q.x, q.y); cx.stroke();
+      });
+      const acabar = () => { dibujando = false; };
+      cv.addEventListener('pointerup', acabar);
+      cv.addEventListener('pointercancel', acabar);
+      overlay.querySelector('#sf_firmaClear').addEventListener('click', () => {
+        cx.save(); cx.setTransform(1, 0, 0, 1, 0, 0); cx.clearRect(0, 0, cv.width, cv.height); cx.restore();
+        firmaCambiada = true; firmaVacia = true;
+      });
       wireSection(overlay, back, () => {
+        config.tengaTexto = overlay.querySelector('#sf_tengaTxt').value.trim();
+        if (firmaCambiada) config.firmaImg = firmaVacia ? '' : cv.toDataURL('image/png');
         config.facturaTitulo = overlay.querySelector('#sf_titulo').value.trim() || 'FACTURA';
         config.facturaPie = overlay.querySelector('#sf_pie').value.trim();
-        config.notaFactura = overlay.querySelector('#sf_nota').value.trim();
+        config.colorFactura = overlay.querySelector('#sf_color').value || '#1E4FA0';
         config.mostrarDireccion = overlay.querySelector('#sf_dir').checked;
         config.mostrarTelefono = overlay.querySelector('#sf_tel').checked;
         config.mostrarEmail = overlay.querySelector('#sf_mail').checked;
+        config.mostrarTenga = overlay.querySelector('#sf_tenga').checked;
+        config.mostrarPagos = overlay.querySelector('#sf_pagos').checked;
+        config.mostrarFirma = overlay.querySelector('#sf_firma').checked;
+        config.mostrarPie = overlay.querySelector('#sf_pieOn').checked;
+        config.mostrarSello = overlay.querySelector('#sf_selloOn').checked;
+        config.mostrarFotos = overlay.querySelector('#sf_fotos').checked;
         save('cuentas_config', config);
       });
     });
@@ -2988,7 +3788,7 @@
   function onFab(){
     if(currentView === 'clientes') return openClienteForm(null);
     if(currentView === 'inventario') return openProductoForm(null);
-    if(currentView === 'ventas') return ventasVista === 'pedidos' ? openPedidoForm(null) : openVentaWizard();
+    if(currentView === 'ventas') return ventasVista === 'pedidos' ? openNuevoPendiente() : openVentaWizard();
     if(currentView === 'facturas') return openSinFacturaPicker();
     if(currentView === 'gastos') return openGastoForm(null);
   }
