@@ -504,7 +504,7 @@
   function initials(name){
     return (name||'?').trim().split(/\s+/).slice(0,2).map(w => w[0]).join('').toUpperCase();
   }
-  function todayStr(){ return new Date().toISOString().slice(0,10); }
+  function todayStr(){ const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
   function fmtDate(iso){
     const d = new Date(iso + 'T00:00:00');
     return d.toLocaleDateString('es', { day:'2-digit', month:'short', year:'numeric' });
@@ -847,8 +847,36 @@
   // ============================================================
   // PEDIDOS (agenda de entregas dentro de Ventas)
   // ============================================================
-  function unidadesReservadas(productoId){
+  function reservadoSinEncargos(productoId){
     return pedidos
+      .filter(p => p.estado === 'pendiente')
+      .reduce((s,p) => s + p.items.reduce((a,it) => {
+        let u = 0;
+        if(it.productoId === productoId && p.tipo !== 'encargo') u += Number(it.cantidad) || 0;
+        (it.materiales || []).forEach(m => { if(m.productoId === productoId) u += (Number(m.cantidad) || 0) * (Number(it.cantidad) || 0); });
+        return a + u;
+      }, 0), 0);
+  }
+  // Un encargo aparta sus unidades solo cuando el stock ya alcanza para completarlo.
+  function reservadoPorEncargos(productoId){
+    const prod = inventario.find(x => x.id === productoId);
+    if(!prod || prod.stock === '' || prod.stock === null || prod.stock === undefined) return 0;
+    let libre = (Number(prod.stock) || 0) - reservadoSinEncargos(productoId);
+    const encargos = pedidos
+      .filter(p => p.estado === 'pendiente' && p.tipo === 'encargo')
+      .sort((a,b) => (a.creadoTs || 0) - (b.creadoTs || 0));
+    let total = 0;
+    for(const p of encargos){
+      const q = p.items.reduce((s,it) => s + (it.productoId === productoId ? (Number(it.cantidad) || 0) : 0), 0);
+      if(q <= 0) continue;
+      if(q > libre) break;
+      total += q;
+      libre -= q;
+    }
+    return total;
+  }
+  function unidadesReservadas(productoId){
+    return reservadoPorEncargos(productoId) + pedidos
       .filter(p => p.estado === 'pendiente')
       .reduce((s,p) => s + p.items.reduce((a,it) => {
         let u = 0;
@@ -981,14 +1009,10 @@
       <div class="field"><label>Cliente</label>
         <select id="pd_cliente">${clientes.map(c => `<option value="${c.id}" ${record && record.clienteId === c.id ? 'selected' : ''}>${escapeHtml(c.nombre)}</option>`).join('')}</select>
       </div>
-      <div class="row2">
-        <div class="field"><label>Fecha de entrega</label><input type="date" id="pd_fecha" value="${record ? record.fechaEntrega : todayStr()}"></div>
-        <div class="field mono"><label>Anticipo (${config.moneda})</label><input type="number" inputmode="decimal" id="pd_anticipo" value="${record && record.anticipo ? record.anticipo : ''}" placeholder="0"></div>
-      </div>
-      <div class="field"><label>Fecha del anticipo</label><input type="date" id="pd_fechaAnt" value="${record && record.fechaAnticipo ? record.fechaAnticipo : todayStr()}"></div>
       <div class="section-label" style="margin-top:6px;">Productos del pedido</div>
-      <div id="pdItems"></div>
-      <div class="field" style="margin-top:12px; padding:12px; border:1px dashed var(--border-strong); border-radius:12px;">
+      <div id="pdItems" style="margin-top:0;"></div>
+      <button class="btn btn-secondary" id="pdAddToggle" type="button" style="width:100%; display:none; margin-bottom:8px;">+ Agregar otro producto</button>
+      <div class="field" id="pdAddPanel" style="margin-top:4px; padding:12px; border:1px dashed var(--border-strong); border-radius:12px;">
         <label>Agregar producto</label>
         <input type="text" id="pd_nombre" list="pdProdList" placeholder="Nombre del producto">
         <datalist id="pdProdList">${inventario.map(p => `<option value="${escapeHtml(p.nombre)}">`).join('')}</datalist>
@@ -1001,6 +1025,14 @@
         <button class="btn btn-secondary" id="pd_add" style="width:100%;">Agregar al pedido</button>
       </div>
       <div class="field"><label>Notas generales (opcional)</label><textarea id="pd_notas" rows="2" placeholder="Ej. Entregar en la oficina, llamar antes">${escapeHtml(record ? (record.notas || '') : '')}</textarea></div>
+      <div class="row2">
+        <div class="field"><label>Fecha de entrega</label><input type="date" id="pd_fecha" value="${record ? record.fechaEntrega : todayStr()}"></div>
+        <div class="field mono"><label>Anticipo (${config.moneda})</label><input type="number" inputmode="decimal" id="pd_anticipo" value="${record && record.anticipo ? record.anticipo : ''}" placeholder="0"></div>
+        <div class="field mono"><label>Descuento (%)</label><input type="number" inputmode="decimal" id="pd_desc" value="${record && record.descuentoPct ? record.descuentoPct : ''}" placeholder="0"></div>
+      </div>
+      <div class="field"><label>Fecha del anticipo</label><input type="date" id="pd_fechaAnt" value="${record && record.fechaAnticipo ? record.fechaAnticipo : todayStr()}"></div>
+      <div class="field" id="pdMetWrap"><label>Forma de pago del anticipo</label>${segHtml('pdmet', [['efectivo','Efectivo'],['tarjeta','Tarjeta']], record && record.anticipoMetodo ? record.anticipoMetodo : 'efectivo')}</div>
+      <div id="pdResumen" style="margin-top:12px;"></div>
       <div class="sheet-actions">
         <button class="btn btn-secondary" id="pd_cancel">Cancelar</button>
         <button class="btn btn-primary" id="pd_save">Guardar pedido</button>
@@ -1009,18 +1041,44 @@
       if(esEncargo){ const lbl = overlay.querySelector('#pd_fecha').previousElementSibling; if(lbl) lbl.textContent = 'Llegada estimada (opcional)'; }
       if(esApartado){
         ['#pd_fecha','#pd_anticipo','#pd_fechaAnt'].forEach(sel => { const el = overlay.querySelector(sel); if(el) el.parentElement.style.display = 'none'; });
+        overlay.querySelector('#pdMetWrap').style.display = 'none';
       }
+      overlay.querySelectorAll('[data-group="pdmet"] button').forEach(b => b.addEventListener('click', () => {
+        overlay.querySelectorAll('[data-group="pdmet"] button').forEach(x => x.classList.toggle('on', x === b));
+      }));
       const itemsWrap = overlay.querySelector('#pdItems');
       const nombreInput = overlay.querySelector('#pd_nombre');
       const precioInput = overlay.querySelector('#pd_precio');
+      let addOpen = items.length === 0;
       const renderItems = () => {
         itemsWrap.innerHTML = items.length ? `<div class="rep-card">${items.map((it, i) => `
           <div class="rep-line">
             <span style="min-width:0;"><span class="credit-title" style="display:block;">${it.cantidad} × ${escapeHtml(it.nombre)}</span><span class="credit-sub" style="display:block;">${it.caracteristicas ? escapeHtml(it.caracteristicas) : 'Sin características'}${it.precio ? ' · ' + money(it.precio) + ' c/u' : ''}</span></span>
             <button class="link-btn danger" data-rm="${i}">Quitar</button>
           </div>`).join('')}</div>` : `<div class="step-note">Aún no has agregado productos.</div>`;
+        const resEl = overlay.querySelector('#pdResumen');
+        if(items.length){
+          const r = resumenPedido();
+          resEl.innerHTML = `<div class="rep-card"><div class="rep-line"><span>Subtotal</span><span>${money(r.sub)}</span></div>${r.pct > 0 ? `<div class="rep-line"><span>Descuento (${r.pct}%)</span><span>−${money(r.desc)}</span></div>` : ''}<div class="rep-line strong"><span>Total del pedido</span><span>${money(r.total)}</span></div><div class="rep-line"><span>Anticipo</span><span>${money(r.ant)}</span></div><div class="rep-line strong"><span>Saldo por pagar</span><span>${money(r.saldo)}</span></div></div>`;
+        } else resEl.innerHTML = '';
+        const panel = overlay.querySelector('#pdAddPanel');
+        const tog = overlay.querySelector('#pdAddToggle');
+        const mostrarPanel = items.length === 0 || addOpen;
+        panel.style.display = mostrarPanel ? '' : 'none';
+        tog.style.display = (items.length > 0 && !addOpen) ? '' : 'none';
         itemsWrap.querySelectorAll('[data-rm]').forEach(b => b.addEventListener('click', () => { items.splice(Number(b.dataset.rm), 1); renderItems(); }));
       };
+      const resumenPedido = () => {
+        const sub = items.reduce((s,it) => s + (Number(it.precio) || 0) * (Number(it.cantidad) || 0), 0);
+        const pct = Math.min(100, Math.max(0, Number(overlay.querySelector('#pd_desc').value) || 0));
+        const desc = sub * pct / 100;
+        const base = sub - desc;
+        const total = base + base * (Number(config.impuesto) || 0) / 100;
+        const ant = Math.min(Number(overlay.querySelector('#pd_anticipo').value) || 0, total);
+        return { sub, pct, desc, total, ant, saldo: total - ant };
+      };
+      overlay.querySelector('#pd_anticipo').addEventListener('input', renderItems);
+      overlay.querySelector('#pd_desc').addEventListener('input', renderItems);
       nombreInput.addEventListener('input', () => {
         const prod = inventario.find(x => x.nombre.toLowerCase() === nombreInput.value.trim().toLowerCase());
         if(prod && !precioInput.value) precioInput.value = prod.precio || '';
@@ -1044,24 +1102,32 @@
         overlay.querySelector('#pd_car').value = '';
         overlay.querySelector('#pd_costo').value = '';
         overlay.querySelector('#pd_cant').value = 1;
+        addOpen = false;
         renderItems();
       });
       overlay.querySelector('#pd_cancel').addEventListener('click', () => overlay.remove());
+      overlay.querySelector('#pdAddToggle').addEventListener('click', () => { addOpen = true; renderItems(); nombreInput.focus(); });
       overlay.querySelector('#pd_save').addEventListener('click', () => {
         const cli = clientes.find(c => c.id === overlay.querySelector('#pd_cliente').value);
         const fecha = overlay.querySelector('#pd_fecha').value;
         if(!cli) return;
         if(!fecha && !esApartado && !esEncargo){ overlay.querySelector('#pd_fecha').focus(); return; }
         if(items.length === 0){ nombreInput.focus(); return; }
+        const antVal = Number(overlay.querySelector('#pd_anticipo').value) || 0;
+        const metAnt = overlay.querySelector('[data-group="pdmet"] button.on')?.dataset.val || 'efectivo';
+        const fechaAntVal = overlay.querySelector('#pd_fechaAnt').value || todayStr();
+        const abonosPed = (record && record.abonos && record.abonos.length) ? record.abonos : (antVal > 0 ? [{ id: uid(), fecha: fechaAntVal, monto: antVal, metodo: metAnt, nota: tipoP === 'apartado' ? 'Abono inicial' : 'Anticipo' }] : []);
         const data = {
           id: record ? record.id : uid(),
           clienteId: cli.id,
           clienteNombre: cli.nombre,
           fechaEntrega: esApartado ? '' : fecha,
           tipo: tipoP,
-          abonos: record && record.abonos ? record.abonos : [],
-          anticipo: Number(overlay.querySelector('#pd_anticipo').value) || 0,
-          fechaAnticipo: overlay.querySelector('#pd_fechaAnt').value || todayStr(),
+          abonos: abonosPed,
+          anticipo: antVal,
+          anticipoMetodo: metAnt,
+          descuentoPct: Math.min(100, Math.max(0, Number(overlay.querySelector('#pd_desc').value) || 0)),
+          fechaAnticipo: fechaAntVal,
           items,
           notas: overlay.querySelector('#pd_notas').value.trim(),
           estado: 'pendiente',
@@ -1111,8 +1177,11 @@
     }
     const items = p.items.map(it => ({ productoId: it.productoId, nombre: it.nombre, precio: Number(it.precio) || 0, cantidad: Number(it.cantidad) || 0, caracteristicas: it.caracteristicas || '', foto: it.foto || '', materiales: it.materiales || [] }));
     const sumaItems = items.reduce((s,it) => s + it.precio * it.cantidad, 0);
-    const impuesto = sumaItems * (Number(config.impuesto) || 0) / 100;
-    const total = sumaItems + impuesto;
+    const descPct = Math.min(100, Math.max(0, Number(p.descuentoPct) || 0));
+    const descMonto = sumaItems * descPct / 100;
+    const baseVenta = sumaItems - descMonto;
+    const impuesto = baseVenta * (Number(config.impuesto) || 0) / 100;
+    const total = baseVenta + impuesto;
     const costoTotal = costoPedido(p);
     const anticipo = Math.min(Number(p.anticipo) || 0, total);
     const saldo = total - anticipo;
@@ -1135,8 +1204,8 @@
       id: uid(), folio: null, creadoTs: Date.now(),
       clienteId: p.clienteId, clienteNombre: p.clienteNombre,
       clienteDireccion: cli.direccion || '', clienteTelefono: cli.telefono || '', clienteEmail: cli.email || '',
-      items, sumaItems, descuentoPct: 0, descuentoMonto: 0, subtotal: sumaItems,
-      impuesto, total, costoTotal, gananciaEstimada: sumaItems - costoTotal,
+      items, sumaItems, descuentoTipo: 'pct', descuentoPct: descPct, descuentoMonto: descMonto, subtotal: sumaItems,
+      impuesto, total, costoTotal, gananciaEstimada: baseVenta - costoTotal,
       notas: [p.notas, ...detalles].filter(Boolean).join(' · '),
       fecha: hoy,
       metodoPago: metodoVenta,
@@ -1581,6 +1650,34 @@
       ? fmtDate(cajaFecha)
       : new Date(cajaMes + '-01T12:00:00').toLocaleDateString('es-CO', { month: 'long', year: 'numeric' });
 
+    let movHtml = '';
+    if(esDia){
+      const movs = [];
+      ventas.forEach(x => {
+        const ref = x.folio ? ` · F-${String(x.folio).padStart(4,'0')}` : '';
+        (x.abonos || []).forEach(a => {
+          if(a.fecha !== cajaFecha) return;
+          movs.push({ ingreso: true, titulo: `${x.fiado ? 'Abono de crédito' : 'Venta'} · ${x.clienteNombre || ''}${ref}`, metodo: a.metodo, monto: Number(a.monto) || 0 });
+        });
+        if(x.fecha === cajaFecha && !x.fiado && !(x.abonos && x.abonos.length)) movs.push({ ingreso: true, titulo: `Venta anterior · ${x.clienteNombre || ''}${ref}`, metodo: 'efectivo', monto: Number(x.total) || 0 });
+      });
+      pedidos.forEach(p => {
+        if(p.estado !== 'pendiente' && p.estado !== 'cancelado') return;
+        const tipoTxt = p.tipo === 'apartado' ? 'apartado' : p.tipo === 'encargo' ? 'encargo' : 'pedido';
+        const estadoTxt = p.estado === 'cancelado' ? ' (cancelado)' : '';
+        const lst = (p.abonos && p.abonos.length) ? p.abonos : ((Number(p.anticipo) || 0) > 0 ? [{ fecha: p.fechaAnticipo || todayStr(), monto: p.anticipo, metodo: 'efectivo' }] : []);
+        lst.forEach(a => { if(a.fecha !== cajaFecha) return; movs.push({ ingreso: true, titulo: `Abono de ${tipoTxt} · ${p.clienteNombre || ''}${estadoTxt}`, metodo: a.metodo, monto: Number(a.monto) || 0 }); });
+      });
+      gastos.forEach(g => { if(g.fecha !== cajaFecha) return; movs.push({ ingreso: false, titulo: `${g.categoria ? g.categoria + ' · ' : ''}${g.descripcion || 'Gasto'}`, metodo: g.metodo || 'efectivo', monto: Number(g.monto) || 0 }); });
+      const linea = m => `
+        <div class="rep-line"><span><span class="credit-title" style="display:block;">${escapeHtml(m.titulo)}</span><span class="credit-sub" style="display:block;">${m.metodo === 'tarjeta' ? 'Tarjeta' : 'Efectivo'}</span></span><span class="${m.ingreso ? 'pos' : 'neg'}">${m.ingreso ? '' : '−'}${money(m.monto)}</span></div>`;
+      movHtml = `
+        <details class="rep-card" style="margin-top:12px;">
+          <summary style="padding:14px 16px; cursor:pointer; font-weight:600;">Ver movimientos del día (${movs.length})</summary>
+          ${movs.length ? movs.map(linea).join('') : '<div class="step-note" style="padding:0 16px 14px;">No hay movimientos este día.</div>'}
+        </details>`;
+    }
+
     let detalleDias = '';
     if(!esDia){
       const dias = new Set();
@@ -1636,15 +1733,8 @@
         <div class="rep-line strong"><span>Total egresos</span><span>${money(C.gastosTot)}</span></div>
       </div>
 
-      <div class="section-label">Caja</div>
-      <div class="rep-card">
-        <div class="rep-line strong"><span>Efectivo que debe haber en caja</span><span class="${C.efectivoCaja < 0 ? 'neg' : 'pos'}">${money(C.efectivoCaja)}</span></div>
-        <div class="rep-line strong"><span>Tarjeta neta (después de gastos con tarjeta)</span><span class="${C.tarjetaCaja < 0 ? 'neg' : 'pos'}">${money(C.tarjetaCaja)}</span></div>
-        <div class="rep-line"><span>Ventas del período</span><span>${money(C.ventasTot)}</span></div>
-        <div class="rep-line"><span>Nuevas ventas a crédito (por cobrar)</span><span>${money(C.creditoNuevo)}</span></div>
-      </div>
-      <div class="step-note">Cada gasto se descuenta del medio con el que se pagó. Los gastos anteriores se cuentan como efectivo.</div>
 
+      ${movHtml}
       ${detalleDias}
     `;
   }
@@ -1831,6 +1921,9 @@
   // ============================================================
   // CLIENTES form
   // ============================================================
+  function puedeContactos(){
+    return typeof navigator !== 'undefined' && !!navigator.contacts && typeof navigator.contacts.select === 'function';
+  }
   function openClienteForm(id){
     const record = id ? clientes.find(c => c.id === id) : null;
     const fiadosCli = record ? ventas.filter(v => v.clienteId === record.id && v.fiado).sort((a,b) => b.fecha.localeCompare(a.fecha)) : [];
@@ -1850,6 +1943,7 @@
       <div class="sheet-handle"></div>
       <h2>${record ? 'Editar' : 'Nuevo'} cliente</h2>
       <div class="field"><label>Nombre</label><input type="text" id="f_nombre" value="${escapeHtml(record ? record.nombre : '')}" placeholder="Nombre del cliente"></div>
+      ${puedeContactos() ? '<button class="link-btn" id="contactoBtn" type="button" style="display:block; margin:-4px 0 12px;">Importar de contactos</button>' : ''}
       <div class="field"><label>Teléfono</label><input type="tel" id="f_telefono" value="${escapeHtml(record ? record.telefono : '')}" placeholder="Opcional"></div>
       <div class="field"><label>Correo</label><input type="email" id="f_email" value="${escapeHtml(record ? record.email : '')}" placeholder="Opcional"></div>
       <div class="field"><label>Dirección de facturación</label><textarea id="f_direccion" rows="2" placeholder="Opcional">${escapeHtml(record ? record.direccion : '')}</textarea></div>
@@ -1861,6 +1955,16 @@
       ${record ? '<button class="btn-danger-text" id="deleteBtn">Eliminar</button>' : ''}
     `, (overlay) => {
       overlay.querySelector('#cancelBtn').addEventListener('click', () => overlay.remove());
+      const contactoBtn = overlay.querySelector('#contactoBtn');
+      if(contactoBtn) contactoBtn.addEventListener('click', async () => {
+        try {
+          const [c] = await navigator.contacts.select(['name', 'tel', 'email'], { multiple: false });
+          if(!c) return;
+          if(c.name && c.name[0]) overlay.querySelector('#f_nombre').value = c.name[0];
+          if(c.tel && c.tel[0]) overlay.querySelector('#f_telefono').value = c.tel[0];
+          if(c.email && c.email[0]) overlay.querySelector('#f_email').value = c.email[0];
+        } catch(err){ /* el usuario canceló o el navegador no lo permite */ }
+      });
       overlay.querySelector('#saveBtn').addEventListener('click', () => {
         const nombre = overlay.querySelector('#f_nombre').value.trim();
         if(!nombre){ overlay.querySelector('#f_nombre').focus(); return; }
@@ -2824,11 +2928,14 @@
       prodSearch.addEventListener('input', renderProdPick);
 
       sheet.querySelector('#svcBtn').addEventListener('click', () => {
+        let foto = '';
         openOverlay(`
           <div class="sheet-handle"></div>
           <h2>Servicio o producto libre</h2>
-          <div class="step-note">Para algo que no está en tu inventario, como una asesoría. No descuenta stock.</div>
-          <div class="field"><label>Nombre</label><input type="text" id="sv_nombre" placeholder="Ej. Asesoría, arreglo, envío"></div>
+          <div class="step-note">Para algo que no está en tu inventario, como una asesoría o un mantenimiento. No descuenta stock.</div>
+          ${imagePickerHtml('sv_foto', 'Foto de la pieza (opcional)', '', 'Sin foto')}
+          <div class="field"><label>Nombre</label><input type="text" id="sv_nombre" placeholder="Ej. Asesoría, mantenimiento, envío"></div>
+          <div class="field"><label>Trabajo a realizar (opcional)</label><textarea id="sv_car" rows="2" placeholder="Ej. Cambiar cierre y ajustar eslabones"></textarea></div>
           <div class="row2">
             <div class="field mono"><label>Precio (${config.moneda})</label><input type="number" inputmode="decimal" id="sv_precio" placeholder="0"></div>
             <div class="field mono"><label>Cantidad</label><input type="number" inputmode="numeric" id="sv_cant" value="1"></div>
@@ -2840,14 +2947,16 @@
           </div>
         `, (svOv) => {
           svOv.querySelector('#svVolver').addEventListener('click', () => svOv.remove());
+          wireImagePicker(svOv, 'sv_foto', 'Sin foto', 300, (d) => { foto = d; });
           svOv.querySelector('#svAgregar').addEventListener('click', () => {
             const nombre = svOv.querySelector('#sv_nombre').value.trim();
+            const car = svOv.querySelector('#sv_car').value.trim();
             const precio = Number(svOv.querySelector('#sv_precio').value) || 0;
             const cant = Number(svOv.querySelector('#sv_cant').value) || 0;
             const costo = Number(svOv.querySelector('#sv_costo').value) || 0;
             if(!nombre){ svOv.querySelector('#sv_nombre').focus(); return; }
             if(cant <= 0){ svOv.querySelector('#sv_cant').focus(); return; }
-            cart.push({ productoId: null, nombre, precioCatalogo: precio, precioUnit: precio, costo, cantidad: cant, stockDisponible: '' });
+            cart.push({ productoId: null, nombre, caracteristicas: car, foto, precioCatalogo: precio, precioUnit: precio, costo, cantidad: cant, stockDisponible: '' });
             svOv.remove();
             renderCart();
           });
