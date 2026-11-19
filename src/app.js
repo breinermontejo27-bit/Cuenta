@@ -2,10 +2,12 @@
 // Para agregar un módulo: crear su carpeta en features/ e incluirlo en MODULOS (Etapa 2, §3.5).
 
 import { eventos, EVENTOS } from './core/events.js';
-import { iniciarCapturaErrores, registrarError } from './core/errors.js';
+import { iniciarCapturaErrores, registrarError, informarError, ErrorDeAlmacenamiento } from './core/errors.js';
 import { iniciarNavegacion } from './core/navigation.js';
 import { iniciarMarco } from './ui/layouts/app-shell.js';
 import { notificar } from './ui/notifications/toast.js';
+import { cargarEnMemoria, pedirPersistencia, transaccion } from './data/database.js';
+import { importarLegado } from './data/legacy-import.js';
 
 import clientes from './features/clients/index.js';
 import inventario from './features/inventory/index.js';
@@ -17,16 +19,37 @@ import ajustes from './features/settings/settings-menu.js';
 
 const MODULOS = [clientes, inventario, ventas, facturas, gastos, reportes, ajustes];
 
-function iniciar() {
+async function iniciar() {
   iniciarCapturaErrores(window);
   eventos.escuchar(EVENTOS.ERROR, ({ mensaje, grave }) => notificar(mensaje, { tipo: grave ? 'grave' : 'normal' }));
   eventos.escuchar(EVENTOS.ACTUALIZACION, ({ activar }) => notificar('Hay una versión nueva de Orisma.', {
     duracion: 15000, accion: { texto: 'Actualizar', alPulsar: activar },
   }));
-  // Etapa 5: aquí se cargarán los datos y ajustes guardados antes de pintar.
+  await cargarDatos();
   iniciarMarco(document.getElementById('app'), MODULOS);
   iniciarNavegacion({ modulos: MODULOS, inicial: 'clientes' });
   registrarServiceWorker();
+}
+
+/**
+ * Carga los datos guardados. La primera vez trae los datos de la versión anterior (localStorage) sin borrarlos.
+ * Si algo falla, la app arranca vacía y lo avisa: nunca se pierde lo que estaba guardado.
+ */
+async function cargarDatos() {
+  try {
+    const importacion = await importarLegado();
+    if (importacion.estado === 'importado') {
+      const c = importacion.conteos;
+      notificar(`Se trajeron tus datos de la versión anterior: ${c.clientes} clientes, ${c.inventario} productos, ${c.ventas} ventas y ${c.gastos} gastos. Los originales no se borraron.`, { tipo: 'exito', duracion: 9000 });
+    } else if (importacion.estado === 'error') {
+      registrarError(new Error(importacion.errores.join(' | ')), 'importar datos anteriores');
+      notificar('No se pudieron traer los datos de la versión anterior. Siguen intactos donde estaban; no se cambió nada.', { tipo: 'grave' });
+    }
+    await cargarEnMemoria();
+    pedirPersistencia().then((ok) => transaccion(['meta'], 'readwrite', (a) => a('meta').put({ k: 'persistente', v: ok }))).catch(() => {});
+  } catch (e) {
+    informarError(e instanceof ErrorDeAlmacenamiento ? e : new ErrorDeAlmacenamiento(String(e && e.message), e), 'cargar datos');
+  }
 }
 
 /**
@@ -53,4 +76,4 @@ function registrarServiceWorker() {
   }).catch((e) => registrarError(e, 'service-worker')); // la app funciona igual; solo no habrá modo sin conexión
 }
 
-iniciar();
+iniciar().catch((e) => informarError(e, 'arranque'));

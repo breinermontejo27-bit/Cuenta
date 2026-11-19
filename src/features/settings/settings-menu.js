@@ -1,11 +1,12 @@
 // Ajustes: menú de secciones (no es pestaña; se abre desde el encabezado o el pie de la barra lateral).
-// Etapa 4: el menú y sus resúmenes funcionan; cada sección se construye en la Etapa 7.
+// Etapa 4: el menú y sus resúmenes funcionan. Etapa 5: Respaldo funciona. Las demás secciones, en la Etapa 7.
 
 import { obtenerAjustes } from '../../core/state.js';
 import { VERSION_APP } from '../../core/config.js';
 import { html, icono, montar } from '../../ui/html.js';
 import { estadoVacio } from '../../ui/components/list.js';
 import { abrirHoja } from '../../ui/overlays/sheet.js';
+import { abrirRespaldo } from './backup-section.js';
 
 function secciones(aj) {
   return [
@@ -41,6 +42,7 @@ export default {
       </ul>
       <p class="pie-version">Orisma ${VERSION_APP}</p>`);
     contenedor.querySelectorAll('[data-seccion]').forEach((b) => b.addEventListener('click', () => {
+      if (b.dataset.seccion === 'respaldo') { abrirRespaldo(); return; }
       const s = lista.find((x) => x.id === b.dataset.seccion);
       const capa = abrirHoja({
         titulo: s.titulo,

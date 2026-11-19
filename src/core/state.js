@@ -9,6 +9,7 @@ import { eventos, EVENTOS } from './events.js';
 const datos = Object.fromEntries(COLECCIONES.map((c) => [c, []]));
 let ajustes = completarAjustes();
 const interfaz = new Map();
+const archivos = new Map(); // id de imagen → dirección para mostrarla (blob: o data:)
 
 /** Lista de una colección. No modificarla: para cambiar datos se usa una operación. */
 export function coleccion(nombre) {
@@ -49,6 +50,17 @@ export function leerInterfaz(clave, porDefecto) {
 /** Estado de la interfaz: guarda un valor (no se persiste). */
 export function escribirInterfaz(clave, valor) {
   interfaz.set(clave, valor);
+}
+
+/** Registra la dirección con la que se muestra una imagen guardada (la llama data/ al cargar o guardar). */
+export function registrarArchivo(id, url) {
+  archivos.set(id, url);
+}
+
+/** Dirección para mostrar una referencia "archivo:<id>"; vacía si no existe. */
+export function urlArchivo(referencia) {
+  const id = String(referencia || '').replace(/^archivo:/, '');
+  return archivos.get(id) || '';
 }
 
 ajustes = Object.freeze(ajustes);
