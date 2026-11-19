@@ -141,3 +141,50 @@ button.fila { width: 100%; text-align: left; border: 0; border-bottom: 1px solid
 .etiqueta-campo { font-size: var(--t-sm); font-weight: var(--peso-semi); color: var(--texto-2); }
 .lista-problemas { margin: var(--e-2) 0 0; padding-left: var(--e-5); }
 .seccion-titulo { margin-top: 0; }
+
+/* ---------- Etapa 7: piezas de los módulos ---------- */
+.fila-valor { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.fila-insignias { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+img.miniatura { object-fit: cover; }
+.banner-boton { width: 100%; text-align: left; border: 0; font: inherit; cursor: pointer; }
+.selector-imagen { display: flex; gap: var(--e-3); align-items: center; margin-bottom: var(--e-4); }
+.vista-imagen { width: 72px; height: 72px; flex: none; border-radius: var(--r-md); background: var(--superficie-2); display: grid; place-items: center; overflow: hidden; color: var(--texto-3); font-size: var(--t-xs); text-align: center; }
+.vista-imagen img { width: 100%; height: 100%; object-fit: cover; }
+.datos-imagen { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.datos-imagen .control { padding: 8px; font-size: var(--t-sm); }
+.lienzo-firma { display: block; width: 100%; height: 150px; margin-top: var(--e-2); border: 1px dashed var(--borde-campo); border-radius: var(--r-md); background: #fff; touch-action: none; }
+.campo .mensaje[hidden] { display: none; }
+.hoja-cuerpo > .btn-texto { padding-left: 0; }
+.tarjeta + .tarjeta, .tarjeta + .lista, .lista + .nota { margin-top: var(--e-3); }
+.destacada + .lista, .destacada + .vacio { margin-top: var(--e-4); }
+.linea-titulo { display: block; font-weight: var(--peso-semi); color: var(--texto); }
+.linea-sub { display: block; font-size: var(--t-sm); color: var(--texto-2); }
+.num-fuerte { font-weight: var(--peso-negrita); white-space: nowrap; }
+.linea dt { min-width: 0; }
+.producto-elegido { display: flex; justify-content: space-between; align-items: center; gap: var(--e-3); padding: var(--e-2) var(--e-3); border: 1px solid var(--borde); border-radius: var(--r-sm); }
+
+/* ---------- Venta: carrito y totales ---------- */
+.item-carrito { display: grid; grid-template-columns: 1fr auto; gap: 6px var(--e-3); align-items: center; padding: var(--e-3) 0; border-bottom: 1px solid var(--borde); }
+.item-carrito .total-item { grid-column: 1 / -1; text-align: right; font-weight: var(--peso-semi); }
+.item-carrito .nombre { font-weight: var(--peso-semi); }
+.cantidad { justify-self: start; display: inline-flex; align-items: center; border: 1px solid var(--borde-campo); border-radius: var(--r-pill); height: 36px; }
+.cantidad button { width: 36px; height: 34px; border: 0; background: none; color: var(--marca); font-size: 18px; cursor: pointer; }
+.cantidad span { min-width: 28px; text-align: center; font-weight: var(--peso-semi); font-variant-numeric: tabular-nums; }
+.precio-unit { width: 120px; height: 36px; padding: 0 10px; text-align: right; border: 1px solid var(--borde-campo); border-radius: var(--r-sm); background: var(--superficie); font-variant-numeric: tabular-nums; }
+.precio-unit.rebajado { color: var(--aviso); border-color: var(--aviso); }
+.totales { background: var(--superficie-2); border-radius: var(--r-md); padding: var(--e-2) var(--e-4); margin-top: var(--e-4); }
+.totales .linea { border-color: var(--borde-fuerte); }
+.ganancia { display: flex; justify-content: space-between; align-items: center; margin-top: var(--e-3); padding: var(--e-3) var(--e-4); border: 1px dashed var(--borde-fuerte); border-radius: var(--r-md); font-size: var(--t-sm); }
+
+
+.ganancia { width: 100%; border-left: 0; border-right: 0; background: none; color: inherit; font: inherit; cursor: pointer; }
+.cliente-elegido { align-items: center; }
+.cliente-elegido > div { flex: 1; }
+.acciones-texto { display: flex; flex-wrap: wrap; gap: 0 var(--e-4); margin: -4px 0 var(--e-2); }
+.acciones-texto .btn-texto { padding-left: 0; }
+.panel-agregar { margin-bottom: var(--e-4); border-style: dashed; }
+.botones-detalle { display: grid; grid-template-columns: 1fr 1fr; gap: var(--e-2); margin: var(--e-4) 0; }
+.foto-item { display: block; width: 56px; height: 56px; object-fit: cover; border-radius: var(--r-sm); margin-top: 6px; }
+details.plegable .etiqueta-grupo { margin: var(--e-3) var(--e-4) var(--e-2); }
+details.plegable > .nota { padding: 0 var(--e-4) var(--e-3); }
+.contenido-plegable { padding: 0 var(--e-4) var(--e-4); }

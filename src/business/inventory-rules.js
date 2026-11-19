@@ -312,3 +312,38 @@ export function variacionHistorial(e) {
   if (e.tipo === 'alta') return { texto: (e.stockNuevo !== undefined && e.stockNuevo !== '') ? `Stock ${e.stockNuevo}` : '', signo: '' };
   return { texto: '', signo: 'neg' };
 }
+
+// ---------------- Sincronización precio ↔ ganancia en formularios (texto tal como se muestra) ----------------
+
+/**
+ * Formulario de producto (recalc, L2077–2087). `fuente`: 'costo' | 'margen' | 'precio' (lo último que se escribió).
+ * Devuelve los textos de precio y ganancia que deben quedar en los campos.
+ */
+export function recalcularProducto(fuente, costoTexto, margenTexto, precioTexto) {
+  const costo = num(costoTexto);
+  if (fuente === 'costo' || fuente === 'margen') {
+    const margen = num(margenTexto);
+    return { precio: costo > 0 && margen !== 0 ? (costo * (1 + margen / 100)).toFixed(2) : precioTexto, margen: margenTexto };
+  }
+  return { precio: precioTexto, margen: costo > 0 ? String(Math.round(((num(precioTexto) - costo) / costo) * 100)) : margenTexto };
+}
+
+/** Vista previa del formulario de producto (L2066–2075): null si falta costo o precio. */
+export function vistaPreviaProducto(costoTexto, precioTexto) {
+  const costo = num(costoTexto), precio = num(precioTexto);
+  if (!(costo > 0 && precio > 0)) return null;
+  return { ganancia: precio - costo, porcentaje: Math.round(((precio - costo) / costo) * 100) };
+}
+
+/**
+ * Formularios de compra (syncPrecioNuevo, L2223–2241 y L2475–2490): con el nuevo costo promedio, recalcula el precio
+ * (si lo último fue la ganancia) o la ganancia (si fue el precio). Devuelve textos y la ganancia por unidad o null.
+ */
+export function sincronizarCompra(ultimo, stockActual, costoActual, cantidadTexto, costoCompraTexto, precioTexto, margenTexto) {
+  const nuevoCosto = costoPromedio(stockActual, costoActual, num(cantidadTexto), num(costoCompraTexto));
+  let precio = precioTexto, margen = margenTexto;
+  if (ultimo === 'margen') { if (nuevoCosto > 0) precio = (nuevoCosto * (1 + num(margenTexto) / 100)).toFixed(2); }
+  else if (nuevoCosto > 0) margen = String(Math.round(((num(precioTexto) - nuevoCosto) / nuevoCosto) * 100));
+  const precioFinal = num(precio);
+  return { precio, margen, nuevoCosto, gananciaUnidad: nuevoCosto > 0 && precioFinal > 0 ? precioFinal - nuevoCosto : null };
+}

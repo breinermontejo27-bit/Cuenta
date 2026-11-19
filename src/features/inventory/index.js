@@ -1,9 +1,52 @@
-// Módulo Inventario: descripción para el registro de módulos (Etapa 2, §3.5).
-// Etapa 4: solo registra la pestaña, las subvistas y la acción principal. La pantalla real se construye en la Etapa 7.
+// Módulo Inventario: Productos, Stock e Historial (L785–845).
 
+import { coleccion, obtenerAjustes, leerInterfaz, escribirInterfaz } from '../../core/state.js';
 import { html, montar } from '../../ui/html.js';
-import { estadoVacio } from '../../ui/components/list.js';
-import { abrirHoja } from '../../ui/overlays/sheet.js';
+import { dinero } from '../../ui/format.js';
+import { estadoVacio, fila, lista, insignia, alTocarFila } from '../../ui/components/list.js';
+import { chips } from '../../ui/components/segmented.js';
+import { banner } from '../../ui/components/cards.js';
+import { categorias, esPocoStock, gananciaUnitaria, unidadesReservadas, tieneControlStock } from '../../business/inventory-rules.js';
+import { abrirFormularioProducto } from './product-form.js';
+import { abrirPocoStock } from './low-stock.js';
+import { dibujarStock } from './stock-view.js';
+import { dibujarHistorial } from './history-view.js';
+
+function dibujarProductos(contenedor, busqueda) {
+  const inv = coleccion('inventario'), pedidos = coleccion('pedidos'), aj = obtenerAjustes();
+  const cats = categorias(inv);
+  let cat = leerInterfaz('inventario:categoria', '');
+  if (cat && !cats.includes(cat)) { cat = ''; escribirInterfaz('inventario:categoria', ''); }
+  const termino = String(busqueda || '').trim().toLowerCase();
+  let items = inv.filter((p) => p.nombre.toLowerCase().includes(termino));
+  if (cat) items = items.filter((p) => p.categoria === cat);
+  const bajos = inv.filter((p) => esPocoStock(p, aj));
+  const filas = items.map((p) => {
+    const g = gananciaUnitaria(p);
+    const res = unidadesReservadas(pedidos, inv, p.id);
+    const stock = tieneControlStock(p) ? `${p.stock} unid.${res > 0 ? ` · ${res} reservadas · ${Math.max(0, p.stock - res)} disponibles` : ''}` : 'Sin control de stock';
+    const costo = Number(p.costo) || 0;
+    return fila({
+      datos: { id: p.id }, foto: p.foto, iniciales: p.foto ? undefined : p.nombre,
+      titulo: p.nombre, sub: `${stock}${costo > 0 ? ' · Costo: ' + dinero(costo) : ''}`, sub2: p.categoria || '',
+      valor: dinero(p.precio), valorClase: esPocoStock(p, aj) ? 'neg' : '',
+      extra: [esPocoStock(p, aj) ? insignia('aviso', 'Poco stock') : '', g ? insignia(g.porcentaje < 0 ? 'deuda' : 'pagado', `${g.porcentaje >= 0 ? '+' : ''}${g.porcentaje}% · ${dinero(g.ganancia)}`) : ''].filter(Boolean),
+    });
+  });
+  montar(contenedor, html`
+    ${cats.length ? chips('categoria', [['', 'Todas'], ...cats.map((c) => [c, c])], cat) : ''}
+    ${bajos.length ? banner('aviso', `Poco stock (${bajos.length}) · toca para revisar`, bajos.map((p) => p.nombre).join(', '), 'poco-stock') : ''}
+    ${items.length ? lista(filas) : estadoVacio(inv.length
+      ? { icono: 'buscar', titulo: 'Sin resultados', texto: 'Prueba con otro nombre o categoría.' }
+      : { icono: 'inventario', titulo: 'Aún no tienes productos', texto: 'Toca "Nuevo producto" para agregar el primero.' })}`);
+  alTocarFila(contenedor, 'id', abrirFormularioProducto);
+  contenedor.querySelectorAll('[data-grupo="categoria"] .chip').forEach((b) => b.addEventListener('click', () => {
+    escribirInterfaz('inventario:categoria', b.dataset.valor);
+    dibujarProductos(contenedor, busqueda);
+  }));
+  const ban = contenedor.querySelector('[data-accion="poco-stock"]');
+  if (ban) ban.addEventListener('click', abrirPocoStock);
+}
 
 export default {
   id: 'inventario',
@@ -13,22 +56,10 @@ export default {
   buscador: 'Buscar producto',
   subvistas: [{ id: 'productos', titulo: 'Productos' }, { id: 'stock', titulo: 'Stock' }, { id: 'historial', titulo: 'Historial' }],
   usa: ['inventario', 'pedidos', 'ventas', 'gastos', 'movimientos'],
-  accionPrincipal: { texto: 'Nuevo producto', subvistas: ['productos'], ejecutar: ({ sub }) => abrirPendiente(sub) },
-  dibujar(contenedor) {
-    montar(contenedor, estadoVacio({
-      icono: 'inventario',
-      titulo: 'Se reconstruye en la Etapa 7',
-      texto: 'Productos, poco stock, reservas, compras, resumen de stock e historial.',
-    }));
+  accionPrincipal: { texto: 'Nuevo producto', subvistas: ['productos'], ejecutar: () => abrirFormularioProducto(null) },
+  dibujar(contenedor, { sub, busqueda }) {
+    if (sub === 'stock') dibujarStock(contenedor);
+    else if (sub === 'historial') dibujarHistorial(contenedor, busqueda);
+    else dibujarProductos(contenedor, busqueda);
   },
 };
-
-function abrirPendiente(sub) {
-  const capa = abrirHoja({
-    titulo: 'Inventario',
-    paso: sub ? `Vista: ${sub}` : '',
-    cuerpo: estadoVacio({ icono: 'inventario', titulo: 'Formulario en construcción', texto: 'Este formulario se construye en la Etapa 7. La hoja ya funciona: se cierra con la X, tocando fuera, con Escape o con el botón atrás del teléfono.' }),
-    pie: html`<div class="acciones"><button type="button" class="btn btn-secundario" data-accion="entendido">Entendido</button></div>`,
-  });
-  capa.elemento.querySelector('[data-accion="entendido"]').addEventListener('click', capa.cerrar);
-}

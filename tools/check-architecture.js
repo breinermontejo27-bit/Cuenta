@@ -34,6 +34,13 @@ export function revisar() {
     const capa = capaDe(rel);
     if (!PERMITIDO[capa]) { problemas.push(`${rel}: carpeta desconocida "${capa}"`); continue; }
     if (/\bwindow\.(?:cuentas|ORISMA)\b|\bglobalThis\.\w+\s*=/.test(texto)) problemas.push(`${rel}: crea variables globales`);
+    // Importaciones sin usar (código muerto)
+    const sinImports = texto.replace(/^\s*import\s[\s\S]*?from\s+['"][^'"]+['"];?$/gm, '').replace(/\bvoid\s+\w+;/g, '');
+    for (const m of texto.matchAll(/^\s*import\s+(?:(\w+)|\{([^}]*)\})\s+from/gm)) {
+      const nombres = m[1] ? [m[1]] : m[2].split(',').map((x) => x.trim().split(/\s+as\s+/).pop()).filter(Boolean);
+      for (const n of nombres) if (!new RegExp(`\\b${n}\\b`).test(sinImports)) problemas.push(`${rel}: importa "${n}" y no lo usa`);
+    }
+    if (/\bvoid\s+\w+;/.test(texto)) problemas.push(`${rel}: usa "void" para silenciar una importación sin uso`);
     for (const m of texto.matchAll(/^\s*import\s[^'"]*?['"]([^'"]+)['"]/gm)) {
       const destino = m[1];
       if (!destino.startsWith('.')) { problemas.push(`${rel}: importa un paquete externo "${destino}"`); continue; }

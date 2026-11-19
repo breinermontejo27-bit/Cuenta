@@ -1,9 +1,12 @@
-// Módulo Clientes: descripción para el registro de módulos (Etapa 2, §3.5).
-// Etapa 4: solo registra la pestaña y la acción principal. La pantalla real se construye en la Etapa 7.
+// Módulo Clientes: lista con deuda por cliente (L624–643).
 
-import { html, montar } from '../../ui/html.js';
-import { estadoVacio } from '../../ui/components/list.js';
-import { abrirHoja } from '../../ui/overlays/sheet.js';
+import { coleccion } from '../../core/state.js';
+import { montar } from '../../ui/html.js';
+import { dinero } from '../../ui/format.js';
+import { estadoVacio, fila, lista, insignia, alTocarFila } from '../../ui/components/list.js';
+import { filtrarClientes } from '../../business/clients-rules.js';
+import { deudaCliente } from '../../business/payments.js';
+import { abrirFormularioCliente } from './client-form.js';
 
 export default {
   id: 'clientes',
@@ -13,22 +16,21 @@ export default {
   buscador: 'Buscar cliente',
   subvistas: [],
   usa: ['clientes', 'ventas'],
-  accionPrincipal: { texto: 'Nuevo cliente', ejecutar: ({ sub }) => abrirPendiente(sub) },
-  dibujar(contenedor) {
-    montar(contenedor, estadoVacio({
-      icono: 'clientes',
-      titulo: 'Se reconstruye en la Etapa 7',
-      texto: 'Lista de clientes, deudas, formulario e importación de contactos.',
-    }));
+  accionPrincipal: { texto: 'Nuevo cliente', ejecutar: () => abrirFormularioCliente(null) },
+  dibujar(contenedor, { busqueda }) {
+    const todos = coleccion('clientes');
+    const ventas = coleccion('ventas');
+    const items = filtrarClientes(todos, busqueda);
+    if (!items.length) {
+      montar(contenedor, estadoVacio(todos.length
+        ? { icono: 'buscar', titulo: 'Sin resultados', texto: 'Prueba con otro nombre.' }
+        : { icono: 'clientes', titulo: 'Aún no tienes clientes', texto: 'Toca "Nuevo cliente" para registrar el primero.' }));
+      return;
+    }
+    montar(contenedor, lista(items.map((c) => {
+      const deuda = deudaCliente(ventas, c.id);
+      return fila({ datos: { id: c.id }, iniciales: c.nombre, titulo: c.nombre, sub: c.telefono || c.email || 'Sin datos de contacto', insignias: deuda > 0 ? [insignia('deuda', 'Debe ' + dinero(deuda))] : [] });
+    })));
+    alTocarFila(contenedor, 'id', abrirFormularioCliente);
   },
 };
-
-function abrirPendiente(sub) {
-  const capa = abrirHoja({
-    titulo: 'Clientes',
-    paso: sub ? `Vista: ${sub}` : '',
-    cuerpo: estadoVacio({ icono: 'clientes', titulo: 'Formulario en construcción', texto: 'Este formulario se construye en la Etapa 7. La hoja ya funciona: se cierra con la X, tocando fuera, con Escape o con el botón atrás del teléfono.' }),
-    pie: html`<div class="acciones"><button type="button" class="btn btn-secundario" data-accion="entendido">Entendido</button></div>`,
-  });
-  capa.elemento.querySelector('[data-accion="entendido"]').addEventListener('click', capa.cerrar);
-}

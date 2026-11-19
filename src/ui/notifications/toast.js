@@ -19,7 +19,7 @@ function contenedor() {
 /**
  * Muestra un aviso.
  * @param {string} texto
- * @param {{ tipo?: 'normal'|'exito'|'grave', accion?: { texto: string, alPulsar: Function }, duracion?: number }} opciones
+ * @param {{ tipo?: 'normal'|'exito'|'error'|'grave', accion?: { texto: string, alPulsar: Function }, duracion?: number }} opciones
  * @returns {Function} cierra el aviso
  */
 export function notificar(texto, { tipo = 'normal', accion = null, duracion = DURACION } = {}) {
@@ -28,7 +28,7 @@ export function notificar(texto, { tipo = 'normal', accion = null, duracion = DU
   el.className = 'toast' + (grave ? ' grave' : '');
   el.setAttribute('role', grave ? 'alert' : 'status');
   montar(el, html`
-    ${icono(grave ? 'alerta' : 'ok', 'sm')}
+    ${icono(grave || tipo === 'error' ? 'alerta' : 'ok', 'sm')}
     <span class="toast-texto">${texto}</span>
     ${accion ? html`<button type="button" class="accion" data-accion="principal">${accion.texto}</button>` : ''}
     ${grave ? html`<button type="button" class="accion" data-accion="cerrar" aria-label="Cerrar aviso">${icono('cerrar', 'sm')}</button>` : ''}`);

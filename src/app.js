@@ -3,7 +3,7 @@
 
 import { eventos, EVENTOS } from './core/events.js';
 import { iniciarCapturaErrores, registrarError, informarError, ErrorDeAlmacenamiento } from './core/errors.js';
-import { iniciarNavegacion } from './core/navigation.js';
+import { iniciarNavegacion, registrarHoja } from './core/navigation.js';
 import { iniciarMarco } from './ui/layouts/app-shell.js';
 import { notificar } from './ui/notifications/toast.js';
 import { cargarEnMemoria, pedirPersistencia, transaccion } from './data/database.js';
@@ -16,16 +16,20 @@ import facturas from './features/invoices/index.js';
 import gastos from './features/expenses/index.js';
 import reportes from './features/reports/index.js';
 import ajustes from './features/settings/settings-menu.js';
+import creditos from './features/credits/index.js';
 
 const MODULOS = [clientes, inventario, ventas, facturas, gastos, reportes, ajustes];
+// Módulos sin pestaña propia que solo aportan hojas (se abren desde otros módulos).
+const MODULOS_DE_HOJAS = [creditos];
 
 async function iniciar() {
   iniciarCapturaErrores(window);
-  eventos.escuchar(EVENTOS.ERROR, ({ mensaje, grave }) => notificar(mensaje, { tipo: grave ? 'grave' : 'normal' }));
+  eventos.escuchar(EVENTOS.ERROR, ({ mensaje, grave }) => notificar(mensaje, { tipo: grave ? 'grave' : 'error' }));
   eventos.escuchar(EVENTOS.ACTUALIZACION, ({ activar }) => notificar('Hay una versión nueva de Orisma.', {
     duracion: 15000, accion: { texto: 'Actualizar', alPulsar: activar },
   }));
   await cargarDatos();
+  for (const m of [...MODULOS, ...MODULOS_DE_HOJAS]) for (const [nombre, abrir] of Object.entries(m.hojas || {})) registrarHoja(nombre, abrir);
   iniciarMarco(document.getElementById('app'), MODULOS);
   iniciarNavegacion({ modulos: MODULOS, inicial: 'clientes' });
   registrarServiceWorker();

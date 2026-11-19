@@ -267,3 +267,8 @@ export async function pedirPersistencia() {
 export async function espacio() {
   try { const e = await navigator.storage.estimate(); return { usado: e.usage || 0, cuota: e.quota || 0 }; } catch (_) { return null; }
 }
+
+/** RG-01 · Identificador nuevo: marca de tiempo en base 36 + 5 caracteres al azar (mismo formato que uid, L493). */
+export function nuevoId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}

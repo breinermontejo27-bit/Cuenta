@@ -1,9 +1,11 @@
-// Módulo Gastos: descripción para el registro de módulos (Etapa 2, §3.5).
-// Etapa 4: solo registra la pestaña y la acción principal. La pantalla real se construye en la Etapa 7.
+// Módulo Gastos: lista con búsqueda (renderGastos, L1576–1598).
 
-import { html, montar } from '../../ui/html.js';
-import { estadoVacio } from '../../ui/components/list.js';
-import { abrirHoja } from '../../ui/overlays/sheet.js';
+import { coleccion } from '../../core/state.js';
+import { montar } from '../../ui/html.js';
+import { dinero, fecha, etiquetaMedio } from '../../ui/format.js';
+import { estadoVacio, fila, lista, alTocarFila } from '../../ui/components/list.js';
+import { filtrarGastos } from '../../business/expenses-rules.js';
+import { abrirNuevoGasto, abrirEditarGasto } from './expense-form.js';
 
 export default {
   id: 'gastos',
@@ -13,22 +15,21 @@ export default {
   buscador: 'Buscar gasto o categoría',
   subvistas: [],
   usa: ['gastos'],
-  accionPrincipal: { texto: 'Nuevo gasto', ejecutar: ({ sub }) => abrirPendiente(sub) },
-  dibujar(contenedor) {
-    montar(contenedor, estadoVacio({
-      icono: 'gastos',
-      titulo: 'Se reconstruye en la Etapa 7',
-      texto: 'Gastos generales y compras de inventario.',
-    }));
+  accionPrincipal: { texto: 'Nuevo gasto', ejecutar: () => abrirNuevoGasto() },
+  dibujar(contenedor, { busqueda }) {
+    const todos = coleccion('gastos');
+    const items = filtrarGastos(todos, busqueda);
+    if (!items.length) {
+      montar(contenedor, estadoVacio(todos.length
+        ? { icono: 'buscar', titulo: 'Sin resultados', texto: 'Prueba con otro término.' }
+        : { icono: 'gastos', titulo: 'Aún no tienes gastos registrados', texto: 'Toca "Nuevo gasto" para registrar el primero.' }));
+      return;
+    }
+    montar(contenedor, lista(items.map((g) => fila({
+      datos: { id: g.id }, icono: g.tipo === 'compra' ? 'inventario' : 'gastos', titulo: g.descripcion,
+      sub: `${g.categoria || 'General'} · ${fecha(g.fecha)}${etiquetaMedio(g.metodo || 'efectivo') ? ' · ' + etiquetaMedio(g.metodo || 'efectivo') : ''}`,
+      valor: '-' + dinero(g.monto), valorClase: 'neg',
+    }))));
+    alTocarFila(contenedor, 'id', abrirEditarGasto);
   },
 };
-
-function abrirPendiente(sub) {
-  const capa = abrirHoja({
-    titulo: 'Gastos',
-    paso: sub ? `Vista: ${sub}` : '',
-    cuerpo: estadoVacio({ icono: 'gastos', titulo: 'Formulario en construcción', texto: 'Este formulario se construye en la Etapa 7. La hoja ya funciona: se cierra con la X, tocando fuera, con Escape o con el botón atrás del teléfono.' }),
-    pie: html`<div class="acciones"><button type="button" class="btn btn-secundario" data-accion="entendido">Entendido</button></div>`,
-  });
-  capa.elemento.querySelector('[data-accion="entendido"]').addEventListener('click', capa.cerrar);
-}
