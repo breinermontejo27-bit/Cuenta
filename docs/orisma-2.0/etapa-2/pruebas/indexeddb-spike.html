@@ -1,0 +1,25 @@
+<!doctype html><meta charset="utf-8"><script type="module">
+const out = {};
+const open = () => new Promise((ok, ko) => { const r = indexedDB.open('spike', 1); r.onupgradeneeded = () => { const db = r.result; db.createObjectStore('ventas', { keyPath: 'id' }); db.createObjectStore('inventario', { keyPath: 'id' }); db.createObjectStore('archivos', { keyPath: 'id' }); }; r.onsuccess = () => ok(r.result); r.onerror = () => ko(r.error); });
+const db = await open();
+const tx = (stores, mode, fn) => new Promise((ok, ko) => { const t = db.transaction(stores, mode); const res = fn(t); t.oncomplete = () => ok(res); t.onabort = () => ko(t.error || new Error('abortada')); t.onerror = e => {}; });
+// 1. estado inicial
+await tx(['inventario'], 'readwrite', t => t.objectStore('inventario').put({ id: 'p1', stock: 10 }));
+// 2. transacción que escribe venta + stock y luego falla -> debe deshacer ambas
+try { await tx(['ventas', 'inventario'], 'readwrite', t => { t.objectStore('ventas').put({ id: 'v1', total: 100 }); t.objectStore('inventario').put({ id: 'p1', stock: 9 }); t.abort(); }); } catch (e) { out.abortError = String(e.message || e); }
+const get = (s, k) => new Promise(ok => { const r = db.transaction(s).objectStore(s).get(k); r.onsuccess = () => ok(r.result); });
+out.ventaTrasAbort = await get('ventas', 'v1'); out.stockTrasAbort = (await get('inventario', 'p1')).stock;
+// 3. blobs de imagen
+const blob = new Blob([new Uint8Array(30000)], { type: 'image/jpeg' });
+await tx(['archivos'], 'readwrite', t => t.objectStore('archivos').put({ id: 'img1', blob }));
+const b = await get('archivos', 'img1'); out.blobGuardado = b.blob instanceof Blob && b.blob.size === 30000;
+// 4. espacio
+const est = await navigator.storage.estimate(); out.cuotaMB = Math.round(est.quota / 1e6);
+out.persistAPI = typeof navigator.storage.persist === 'function';
+// 5. escribir 50 MB en lotes
+const big = new Uint8Array(1e6); let n = 0; try { for (; n < 50; n++) await tx(['archivos'], 'readwrite', t => t.objectStore('archivos').put({ id: 'b' + n, blob: new Blob([big]) })); } catch (e) { out.errorEscritura = e.name; }
+out.megasEscritos = n;
+// 6. localStorage convive y no se toca
+out.localStorageIntacto = localStorage.getItem('cuentas_clientes');
+window.__out = out;
+</script>
