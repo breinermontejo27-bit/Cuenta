@@ -1,0 +1,122 @@
+[
+ {
+  "id": "T1",
+  "titulo": "La compra registrada desde el producto no queda marcada como compra",
+  "confirmado": true,
+  "detalle": "gasto guardado: {\"monto\":300}; Reportes \"Otros gastos\" = 300,00; historial del producto: \"sin compras\""
+ },
+ {
+  "id": "T2",
+  "titulo": "Apartado con descuento: el detalle ignora el descuento y exige pagar el total sin descuento",
+  "confirmado": true,
+  "detalle": "formulario: \"Subtotal $ 100,00 Descuento (10%) −$ 10,00 Total del pedido $ 90,00 Anticipo $ 0,00 Saldo por pagar $ 90,00\" | detalle: Total Total $ 100,00 | tras abonar 90: botón entregar deshabilitado=true, \"Saldo pendiente $ 10,00\""
+ },
+ {
+  "id": "T3",
+  "titulo": "El descuento del asistente se pierde al guardar un pedido/encargo/apartado",
+  "confirmado": true,
+  "detalle": "total mostrado en el asistente: 80; pedido guardado: descuentoPct=undefined, items=[100]"
+ },
+ {
+  "id": "T4",
+  "titulo": "El detalle del apartado no muestra el medio de pago de cada abono",
+  "confirmado": true,
+  "detalle": "línea del abono: \"19 nov 2026 · $ 30,00\" (el abono se hizo con tarjeta)"
+ },
+ {
+  "id": "T5",
+  "titulo": "Eliminar un cliente con deuda: sin confirmación y el crédito queda huérfano",
+  "confirmado": true,
+  "detalle": "pidió confirmación=false; menú Ajustes: \"Por cobrar $ 100,00\"; pantalla Créditos: \"Total por cobrar $ 0,00\""
+ },
+ {
+  "id": "T6",
+  "titulo": "Editar el anticipo de un pedido con abonos deja anticipo y abonos descuadrados",
+  "confirmado": true,
+  "detalle": "anticipo=80, suma de abonos=30; detalle: \"Saldo al entregar $ 20,00\"; caja del día: \"Total ingresos $ 30,00\""
+ },
+ {
+  "id": "T7",
+  "titulo": "Con el almacenamiento lleno, los datos se pierden en silencio",
+  "confirmado": true,
+  "detalle": "cliente visible tras guardar=true; avisos al usuario=0; cliente presente tras recargar=false"
+ },
+ {
+  "id": "T8",
+  "titulo": "Cada vez que se abre un comprobante de abono se consume un número nuevo",
+  "confirmado": true,
+  "detalle": "números obtenidos al abrir 3 veces el mismo comprobante: 0001, 0002, 0003"
+ },
+ {
+  "id": "T9",
+  "titulo": "La ganancia de Reportes incluye el impuesto cobrado; la de la venta no",
+  "confirmado": true,
+  "detalle": "venta: total=119, impuesto=19, costo=60, gananciaEstimada=40; Reportes \"Ganancia de este mes\" = 59,00"
+ },
+ {
+  "id": "T10",
+  "titulo": "Un respaldo manipulado puede ejecutar código al restaurarse",
+  "confirmado": true,
+  "detalle": "window.__xss tras restaurar = true"
+ },
+ {
+  "id": "T11",
+  "titulo": "Anular una venta borra de la caja el dinero ya recibido, sin registrar devolución",
+  "confirmado": true,
+  "detalle": "caja del día antes: \"Total ingresos $ 40,00\", después: \"Total ingresos $ 0,00\"; gastos de devolución=0; estado del pedido=entregado"
+ },
+ {
+  "id": "T12",
+  "titulo": "La reserva de pedidos bloquea la venta de unidades reservadas (regla confirmada, no error)",
+  "confirmado": true,
+  "detalle": "mensaje: \"Camisa no tiene stock disponible (puede estar reservado para pedidos).\""
+ },
+ {
+  "id": "T13",
+  "titulo": "Gastos: acepta montos negativos y se eliminan sin confirmación",
+  "confirmado": true,
+  "detalle": "monto guardado=-500; gastos tras tocar Eliminar=0"
+ },
+ {
+  "id": "T14",
+  "titulo": "Restaurar un respaldo mezcla la configuración en vez de reemplazarla",
+  "confirmado": true,
+  "detalle": "tras restaurar: nombre=\"Otro negocio\", tengaTexto=\"Texto viejo\", firma conservada=true"
+ },
+ {
+  "id": "T15",
+  "titulo": "Sin conexión: la app abre; el PDF depende de librerías externas",
+  "confirmado": true,
+  "detalle": "la app abre sin conexión=true; al compartir PDF sin conexión: \"No pude preparar el PDF. window.html2canvas is not a function\""
+ },
+ {
+  "id": "R1",
+  "titulo": "Crédito: abono inicial, abono posterior y liquidación",
+  "confirmado": true,
+  "detalle": "total=200, stock 10→8, abonos tras abono de 70: 50+70; tras liquidar con tarjeta: 50/efectivo, 70/efectivo, 80/tarjeta (saldo 0)"
+ },
+ {
+  "id": "R2",
+  "titulo": "Pago mixto que no cubre el total deja el resto como crédito",
+  "confirmado": true,
+  "detalle": "total=100, fiado=true, metodoPago=mixto, abonos=30/efectivo, 50/tarjeta"
+ },
+ {
+  "id": "R3",
+  "titulo": "Generar factura asigna el siguiente folio y no lo vuelve a cambiar",
+  "confirmado": true,
+  "detalle": "folio=7, siguienteFolio=8"
+ },
+ {
+  "id": "R4",
+  "titulo": "Cancelar un pedido con abonos registra la devolución como gasto, separado por medio",
+  "confirmado": true,
+  "detalle": "estado=cancelado; gastos=20/efectivo/Devolución, 30/tarjeta/Devolución"
+ },
+ {
+  "id": "R5",
+  "titulo": "Compra desde Gastos: costo promedio ponderado, stock y gasto tipo compra",
+  "confirmado": true,
+  "detalle": "stock 10→20; costo 60→70 ((10×60+10×80)/20); precio=100, margen=43; gasto={\"tipo\":\"compra\",\"monto\":800,\"cantidad\":10,\"productoId\":\"p1\"}"
+ }
+]
