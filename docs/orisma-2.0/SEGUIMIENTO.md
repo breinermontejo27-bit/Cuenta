@@ -7,8 +7,8 @@ el dueño autorizó usar esta versión). Se conserva intacta en el historial de 
 | Etapa | Nombre | Estado | Entregable |
 |---|---|---|---|
 | 1 | Auditoría funcional y técnica | Aprobada (2026-11-19) | `etapa-1/` |
-| 2 | Diseño de arquitectura | **Terminada — esperando aprobación** | `etapa-2/` |
-| 3 | Diseño de interfaz y experiencia de uso | Pendiente | — |
+| 2 | Diseño de arquitectura | Aprobada (2026-11-19) | `etapa-2/` |
+| 3 | Diseño de interfaz y experiencia de uso | **Terminada — esperando aprobación** | `etapa-3/` |
 | 4 | Construcción del núcleo | Pendiente | — |
 | 5 | Sistema de datos y almacenamiento | Pendiente | — |
 | 6 | Motor de reglas comerciales | Pendiente | — |
@@ -22,6 +22,14 @@ el dueño autorizó usar esta versión). Se conserva intacta en el historial de 
 Las nueve preguntas de `etapa-1/02-reglas-comerciales.md` §15. Hasta que se respondan, Orisma 2.0 conserva el
 comportamiento actual en todos esos puntos.
 
+## Datos confirmados por el dueño
+
+- La app se publica en `breinermontejo27-bit.github.io/Cuenta`. Orisma 2.0 se publicará en el mismo dominio, así que la migración podrá leer los datos actuales de `localStorage` directamente.
+
+## Decisiones visuales pendientes
+
+V1–V4 en `etapa-3/01-sistema-de-diseno.md` §11.
+
 ## Trabajo previo a este plan
 
 Antes de recibir el documento maestro se hizo una división del `index.html` en módulos (`css/`, `js/`,
@@ -34,3 +42,4 @@ Decisión de la Etapa 2 (A9): no se usa como base; se reemplaza en la Etapa 4 y 
 |---|---|---|
 | 2026-11-19 | 1 | Auditoría completa: 4 documentos, 20 pruebas de ejecución, recorrido de 53 pantallas, medición de rendimiento. |
 | 2026-11-19 | 2 | Arquitectura: documento maestro, estructura definitiva (87 archivos en `src/`), trazabilidad 98/98 funciones y 92/92 reglas, prueba de viabilidad de IndexedDB. |
+| 2026-11-19 | 3 | Sistema de diseño, 16 pantallas prototipadas, 25 capturas; contraste 38/38 AA, sin errores ni desbordes. |
