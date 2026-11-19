@@ -1,40 +1,42 @@
-const CACHE = "cuentas-v4";
-const FILES = [
-  "./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png",
-  "./css/styles.css",
-  "./js/ajustes.js",
-  "./js/app.js",
-  "./js/clientes.js",
-  "./js/creditos.js",
-  "./js/dom.js",
-  "./js/facturas.js",
-  "./js/gastos.js",
-  "./js/inventario.js",
-  "./js/main.js",
-  "./js/pedidos.js",
-  "./js/reportes.js",
-  "./js/respaldo.js",
-  "./js/state.js",
-  "./js/ui.js",
-  "./js/utils.js",
-  "./js/venta-wizard.js",
-  "./js/ventas.js",
-];
-self.addEventListener("install", e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
+// Service worker de Orisma: funcionamiento sin conexión y actualizaciones (Etapa 2, §12).
+// La lista de archivos y la versión salen de src/precache-list.js (generado por tools/precache.js).
+// - Navegación: la página guardada (index.html); si no está, la red.
+// - Archivos de la app: primero la copia guardada, luego la red.
+// - Nunca se responde con index.html a algo que no sea una navegación (corrige D4-12).
+// - La versión nueva espera hasta que el usuario acepta "Actualizar".
+
+importScripts('./src/precache-list.js');
+const { version, archivos } = self.ORISMA_PRECACHE;
+const CACHE = 'orisma-' + version;
+
+self.addEventListener('install', (e) => {
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(archivos)));
 });
-self.addEventListener("activate", e => {
-  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim()));
+
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys()
+      .then((claves) => Promise.all(claves.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+      .then(() => self.clients.claim()),
+  );
 });
-// Primero intenta la versión de internet (así llegan las actualizaciones);
-// si no hay conexión, usa la copia guardada en el teléfono.
-self.addEventListener("fetch", e => {
-  if (e.request.method !== "GET") return;
+
+self.addEventListener('message', (e) => {
+  if (e.data === 'ACTIVAR') self.skipWaiting();
+});
+
+self.addEventListener('fetch', (e) => {
+  const req = e.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  if (url.origin !== self.location.origin) return;
+  if (req.mode === 'navigate') {
+    e.respondWith(
+      caches.match('./index.html', { cacheName: CACHE }).then((guardada) => guardada || fetch(req)),
+    );
+    return;
+  }
   e.respondWith(
-    fetch(e.request).then(res => {
-      const copy = res.clone();
-      caches.open(CACHE).then(c => c.put(e.request, copy)).catch(() => {});
-      return res;
-    }).catch(() => caches.match(e.request).then(hit => hit || caches.match("./index.html")))
+    caches.match(req, { cacheName: CACHE, ignoreSearch: true }).then((guardada) => guardada || fetch(req)),
   );
 });

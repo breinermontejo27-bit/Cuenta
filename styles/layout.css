@@ -1,0 +1,27 @@
+/* Orisma 2.0 · Marco de la app
+   Barra superior, pestañas, botón principal y barra lateral (teléfono primero). */
+.app { min-height: 100dvh; display: flex; flex-direction: column; }
+.barra-sup { position: sticky; top: 0; z-index: 20; background: var(--fondo); padding: var(--e-3) var(--e-4) var(--e-2); }
+.barra-sup .fila { display: flex; align-items: center; gap: var(--e-3); }
+.negocio { display: flex; align-items: center; gap: var(--e-2); min-width: 0; flex: 1; }
+.avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--marca); color: var(--sobre-marca); display: grid; place-items: center; font-weight: var(--peso-negrita); font-size: var(--t-sm); flex: none; }
+.negocio-nombre { font-size: var(--t-sm); font-weight: var(--peso-semi); color: var(--texto-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.boton-icono { width: var(--toque); height: var(--toque); display: grid; place-items: center; border: 0; background: transparent; border-radius: var(--r-pill); color: var(--texto-2); cursor: pointer; }
+.boton-icono:hover { background: var(--superficie-2); }
+.titulo-pantalla { font-size: var(--t-xl); font-weight: var(--peso-negrita); letter-spacing: -.01em; margin: var(--e-2) 0 var(--e-3); }
+.buscador { display: flex; align-items: center; gap: var(--e-2); height: var(--toque); padding: 0 var(--e-3); background: var(--superficie); border: 1px solid var(--borde-campo); border-radius: var(--r-pill); color: var(--texto-3); }
+.buscador input { border: 0; outline: 0; background: transparent; flex: 1; min-width: 0; align-self: stretch; height: auto; color: var(--texto); }
+.buscador:focus-within { outline: 3px solid var(--marca); outline-offset: 2px; }
+.contenido { flex: 1; padding: var(--e-2) var(--e-4) calc(var(--barra-inferior) + 96px); width: 100%; max-width: var(--contenido-max); margin: 0 auto; }
+
+.pestanas { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: flex; background: var(--superficie); border-top: 1px solid var(--borde); padding-bottom: env(safe-area-inset-bottom); }
+.pestana { flex: 1; min-width: 0; height: var(--barra-inferior); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; border: 0; background: none; color: var(--texto-3); font-size: 11px; font-weight: var(--peso-semi); cursor: pointer; text-decoration: none; }
+.pestana .icono { width: 23px; height: 23px; }
+.pestana[aria-current="page"] { color: var(--marca); }
+.pestana[aria-current="page"] .icono-fondo { background: var(--marca-suave); }
+.icono-fondo { padding: 3px 16px; border-radius: var(--r-pill); display: grid; place-items: center; }
+
+.accion-principal { position: fixed; right: var(--e-4); bottom: calc(var(--barra-inferior) + var(--e-4) + env(safe-area-inset-bottom)); z-index: 25; display: inline-flex; align-items: center; gap: var(--e-2); height: 52px; padding: 0 var(--e-5) 0 var(--e-4); border: 0; border-radius: var(--r-pill); background: var(--marca); color: var(--sobre-marca); font-weight: var(--peso-semi); box-shadow: var(--sombra-2); cursor: pointer; }
+
+.lateral { display: none; }
+@media (max-width: 1023px) { .solo-escritorio { display: none !important; } }

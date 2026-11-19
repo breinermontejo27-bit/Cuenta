@@ -1,0 +1,13 @@
+{
+  "name": "orisma",
+  "version": "2.0.0-etapa4",
+  "private": true,
+  "description": "Orisma 2.0: administración del negocio (ventas, facturas, inventario, clientes y gastos)",
+  "type": "module",
+  "scripts": {
+    "test": "node --test \"tests/**/*.test.js\"",
+    "test:e2e": "node tests/e2e/nucleo.e2e.cjs",
+    "verificar": "node tools/check-architecture.js && node tools/precache.js --comprobar",
+    "precache": "node tools/precache.js"
+  }
+}

@@ -1,58 +1,48 @@
-# Cuentas
+# Orisma 2.0
 
-App web instalable (PWA) para llevar las cuentas de un negocio: clientes, inventario,
-ventas, pedidos/apartados, facturas, gastos, créditos y reportes. Funciona sin conexión
-y guarda los datos en el propio teléfono (`localStorage`).
+Reconstrucción de la app de administración del negocio (antes "Cuentas"): clientes, inventario, ventas,
+pedidos/apartados, facturas, gastos, créditos y reportes. Funciona sin conexión y guarda los datos en el
+propio dispositivo.
 
-No necesita compilación: se publica tal cual (por ejemplo en GitHub Pages).
+> **Estado:** en construcción por etapas. Ver [`docs/orisma-2.0/SEGUIMIENTO.md`](docs/orisma-2.0/SEGUIMIENTO.md).
+> La app que se usa hoy sigue en la rama `main` (commit `9300dfa`) y no se modifica hasta la Etapa 10.
+
+No necesita compilación: se publica tal cual (GitHub Pages).
 
 ## Estructura
 
 ```
-index.html          Estructura de la página (encabezado, lista, botón +, pestañas)
-manifest.json       Datos de la app instalable
-sw.js               Service worker: funciona sin internet (cachea los archivos de abajo)
-css/styles.css      Todos los estilos
-js/
-  main.js           Punto de entrada: pestañas, botón +, arranque
-  state.js          Datos guardados (db), configuración (config) y estado de vistas (ui)
-  dom.js            Referencias a los elementos fijos de la página
-  utils.js          Utilidades: ids, formato de dinero y fechas, escapeHtml, WhatsApp
-  ui.js             Piezas de interfaz reutilizables: hojas (overlay), segmentos, imágenes
-  app.js            Encabezado y elección de la vista activa
-  clientes.js       Lista y formulario de clientes
-  inventario.js     Productos, stock, historial, poco stock y compras
-  ventas.js         Lista de ventas, sub-vistas y anulación
-  venta-wizard.js   Asistente para registrar una venta
-  pedidos.js        Pedidos, encargos y apartados
-  creditos.js       Ventas a crédito, abonos y cartera por cliente
-  facturas.js       Lista, detalle, PDF y edición de facturas
-  gastos.js         Gastos y compras de mercancía
-  reportes.js       Reportes, caja diaria/mensual y flujo de dinero
-  ajustes.js        Menú y secciones de ajustes
-  respaldo.js       Exportar / importar respaldo
+index.html        marco de la página y política de seguridad
+manifest.json     app instalable
+sw.js             funcionamiento sin conexión
+assets/icons/     íconos de la app
+styles/           variables de diseño, base, marco, componentes, computador, impresión
+src/
+  app.js          arranque y lista de módulos
+  core/           configuración, estado, eventos, navegación, errores, reloj
+  ui/             plantillas con escape, formato, hojas, diálogos, avisos, marco
+  features/       un módulo por sección (se completan en la Etapa 7)
+  (data/, business/, operations/, services/ llegan en las Etapas 5–7)
+tests/            pruebas de núcleo (node --test) y de extremo a extremo (Playwright)
+tools/            verificación de arquitectura y lista de precarga
+docs/orisma-2.0/  documentos de cada etapa
 ```
 
-### Estado compartido
+Arquitectura completa: [`docs/orisma-2.0/etapa-2/01-arquitectura.md`](docs/orisma-2.0/etapa-2/01-arquitectura.md).
 
-- `db.clientes`, `db.inventario`, `db.ventas`, `db.gastos`, `db.movimientos`, `db.pedidos`:
-  colecciones guardadas. Se reemplazan al editar (`db.ventas = [...]`) y se guardan con
-  `save('cuentas_ventas', db.ventas)`.
-- `config`: ajustes del negocio (`cuentas_config`).
-- `ui`: estado de navegación que no se guarda (pestaña actual, sub-vista, filtros).
+## Trabajar en local
 
-Las claves de `localStorage` no cambiaron, así que los datos existentes se siguen leyendo.
-
-## Probar en local
-
-Los módulos de JavaScript no cargan abriendo el archivo con doble clic (`file://`);
-hay que servir la carpeta, por ejemplo:
+Los módulos de JavaScript no cargan con doble clic (`file://`); hay que servir la carpeta:
 
 ```
-python3 -m http.server 8000
+python3 -m http.server 8000      # y abrir http://localhost:8000
 ```
 
-y abrir <http://localhost:8000>.
+## Antes de publicar un cambio
 
-Si cambias o agregas archivos, actualiza la lista `FILES` de `sw.js` y sube el número
-de `CACHE` para que los teléfonos descarguen la versión nueva.
+```
+node tools/precache.js           # actualiza la lista de archivos sin conexión (y la versión)
+npm test                         # pruebas del núcleo + arquitectura
+npm run verificar                # reglas de dependencia + lista de precarga al día
+npm run test:e2e                 # navegador real (requiere Playwright)
+```

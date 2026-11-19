@@ -1,0 +1,40 @@
+// GENERADO por tools/precache.js — no editar a mano.
+// Archivos que el service worker guarda para funcionar sin conexión.
+self.ORISMA_PRECACHE = {
+  "version": "d3716c00c8ea",
+  "archivos": [
+    "./",
+    "./assets/icons/apple-touch-icon.png",
+    "./assets/icons/icon-192.png",
+    "./assets/icons/icon-512.png",
+    "./index.html",
+    "./manifest.json",
+    "./src/app.js",
+    "./src/core/clock.js",
+    "./src/core/config.js",
+    "./src/core/errors.js",
+    "./src/core/events.js",
+    "./src/core/navigation.js",
+    "./src/core/state.js",
+    "./src/features/clients/index.js",
+    "./src/features/expenses/index.js",
+    "./src/features/inventory/index.js",
+    "./src/features/invoices/index.js",
+    "./src/features/reports/index.js",
+    "./src/features/sales/index.js",
+    "./src/features/settings/settings-menu.js",
+    "./src/ui/components/list.js",
+    "./src/ui/format.js",
+    "./src/ui/html.js",
+    "./src/ui/layouts/app-shell.js",
+    "./src/ui/notifications/toast.js",
+    "./src/ui/overlays/dialog.js",
+    "./src/ui/overlays/sheet.js",
+    "./styles/base.css",
+    "./styles/components.css",
+    "./styles/layout.css",
+    "./styles/print.css",
+    "./styles/responsive.css",
+    "./styles/variables.css"
+  ]
+};

@@ -8,8 +8,8 @@ el dueño autorizó usar esta versión). Se conserva intacta en el historial de 
 |---|---|---|---|
 | 1 | Auditoría funcional y técnica | Aprobada (2026-11-19) | `etapa-1/` |
 | 2 | Diseño de arquitectura | Aprobada (2026-11-19) | `etapa-2/` |
-| 3 | Diseño de interfaz y experiencia de uso | **Terminada — esperando aprobación** | `etapa-3/` |
-| 4 | Construcción del núcleo | Pendiente | — |
+| 3 | Diseño de interfaz y experiencia de uso | Aprobada (2026-11-19) | `etapa-3/` |
+| 4 | Construcción del núcleo | **Terminada — esperando aprobación** | `etapa-4/` + código en la raíz |
 | 5 | Sistema de datos y almacenamiento | Pendiente | — |
 | 6 | Motor de reglas comerciales | Pendiente | — |
 | 7 | Reconstrucción de módulos | Pendiente | — |
@@ -28,7 +28,7 @@ comportamiento actual en todos esos puntos.
 
 ## Decisiones visuales pendientes
 
-V1–V4 en `etapa-3/01-sistema-de-diseno.md` §11.
+V1–V4 en `etapa-3/01-sistema-de-diseno.md` §11. Mientras no se respondan, la app instalada conserva el nombre "Cuentas" y los íconos actuales.
 
 ## Trabajo previo a este plan
 
@@ -43,3 +43,4 @@ Decisión de la Etapa 2 (A9): no se usa como base; se reemplaza en la Etapa 4 y 
 | 2026-11-19 | 1 | Auditoría completa: 4 documentos, 20 pruebas de ejecución, recorrido de 53 pantallas, medición de rendimiento. |
 | 2026-11-19 | 2 | Arquitectura: documento maestro, estructura definitiva (87 archivos en `src/`), trazabilidad 98/98 funciones y 92/92 reglas, prueba de viabilidad de IndexedDB. |
 | 2026-11-19 | 3 | Sistema de diseño, 16 pantallas prototipadas, 25 capturas; contraste 38/38 AA, sin errores ni desbordes. |
+| 2026-11-19 | 4 | Núcleo: app base navegable en teléfono y computador, sin conexión y con actualización controlada; 29/29 pruebas de núcleo y 25/25 de extremo a extremo. Se eliminan `css/` y `js/` (A9). |
