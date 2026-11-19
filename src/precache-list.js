@@ -1,7 +1,7 @@
 // GENERADO por tools/precache.js — no editar a mano.
 // Archivos que el service worker guarda para funcionar sin conexión.
 self.ORISMA_PRECACHE = {
-  "version": "064c24771f48",
+  "version": "b0e93a57fd7f",
   "archivos": [
     "./",
     "./assets/icons/apple-touch-icon.png",

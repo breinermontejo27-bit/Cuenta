@@ -105,7 +105,9 @@ const ESCENARIOS = [
       await p.waitForSelector(`${ULT} #f_nombre`); await n.fila(p, 'venta', 'v2'); await p.waitForSelector(`${ULT} #ab_monto`); await n.llenar(p, 'ab_monto', 999999); await n.accion(p, 'guardar');
       await p.waitForSelector(`${ULT} #f_nombre`); await n.accion(p, 'cancelar'); await n.sinHojas(p);
       await n.ir(p, 'ajustes'); await p.click('[data-seccion="creditos"]'); await n.fila(p, 'cliente', 'c1'); await p.waitForSelector(`${ULT} [data-accion="liquidar"]`);
-      await n.accion(p, 'liquidar'); await n.accion(p, 'liquidar'); await p.click('#capas [data-accion="si"]'); await n.sinHojas(p);
+      await n.accion(p, 'liquidar'); await n.accion(p, 'liquidar'); await p.click('#capas [data-accion="si"]');
+      // Igual que la original: tras liquidar vuelve a la lista de créditos.
+      await p.waitForFunction(() => { const h = document.querySelectorAll('#capas .velo'); return h.length === 1 && h[0].textContent.includes('Total por cobrar'); }, null, { timeout: 5000 });
     },
   },
   {
@@ -119,7 +121,7 @@ const ESCENARIOS = [
     },
     nuevo: async (p) => {
       await n.ir(p, 'inventario/productos'); await n.mas(p);
-      await n.llenar(p, 'f_nombre', 'Aretes'); await n.llenar(p, 'f_categoria', 'Joyería'); await p.type(`${ULT} #f_costo`, '100000'); await p.type(`${ULT} #f_margen`, '40'); await n.llenar(p, 'f_stock', 3); await n.llenar(p, 'f_umbral', 1); await n.accion(p, 'guardar'); await n.sinHojas(p);
+      await n.llenar(p, 'f_nombre', 'Aretes'); await n.llenar(p, 'f_categoria', 'Joyería'); await n.llenar(p, 'f_costo', 100000); await n.llenar(p, 'f_margen', 40); await n.llenar(p, 'f_stock', 3); await n.llenar(p, 'f_umbral', 1); await n.accion(p, 'guardar'); await n.sinHojas(p);
       await p.click('#contenido .fila[data-id="p2"]'); await n.llenar(p, 'f_stock', 4); await p.dispatchEvent(`${ULT} #f_stock`, 'input'); await n.llenar(p, 'f_stockMotivo', 'Conteo'); await p.check(`${ULT} #f_sinAlerta`); await n.accion(p, 'guardar'); await n.sinHojas(p);
       await p.click('#contenido .fila[data-id="p1"]'); await n.accion(p, 'compra'); await p.waitForSelector(`${ULT} #c_cantidad`); await p.type(`${ULT} #c_cantidad`, '10'); await n.llenar(p, 'c_costo', ''); await p.type(`${ULT} #c_costo`, '36000'); await n.accion(p, 'guardar'); await n.sinHojas(p);
       await p.click('#contenido .fila[data-id="p4"]'); await n.accion(p, 'eliminar'); await p.click('#capas [data-accion="si"]'); await n.sinHojas(p);

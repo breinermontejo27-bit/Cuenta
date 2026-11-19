@@ -133,7 +133,7 @@ async function ir(page, selector, hashEsperado, tituloEsperado) {
       if (forma === 'x') await p.click('#capas [data-accion="cerrar"]');
       if (forma === 'escape') await p.keyboard.press('Escape');
       if (forma === 'fuera') await p.mouse.click(195, 30);
-      if (forma === 'boton') await p.click('#capas [data-accion="entendido"]');
+      if (forma === 'boton') await p.click('#capas [data-accion="cancelar"]');
       await p.waitForFunction(() => !document.querySelector('#capas .velo'), null, { timeout: 3000 });
     }
     await p.goBack();
@@ -174,7 +174,7 @@ async function ir(page, selector, hashEsperado, tituloEsperado) {
     afirmar(texto.includes('$ · Impuesto 0%') && texto.includes('Poco stock desde 3 unid.'), 'resúmenes');
     await p.click('[data-seccion="moneda"]');
     afirmar(await hojas(p) === 1, 'no abrió la sección');
-    await p.click('#capas [data-accion="atras"]');
+    await p.click('#capas [data-accion="volver"]');
     await p.waitForFunction(() => !document.querySelector('#capas .velo'));
   });
   await caso('los cambios de ajustes se reflejan en el encabezado', async () => {

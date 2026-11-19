@@ -11,8 +11,8 @@ el dueño autorizó usar esta versión). Se conserva intacta en el historial de 
 | 3 | Diseño de interfaz y experiencia de uso | Aprobada (2026-11-19) | `etapa-3/` |
 | 4 | Construcción del núcleo | Aprobada (2026-11-19) | `etapa-4/` + código en la raíz |
 | 5 | Sistema de datos y almacenamiento | Aprobada (2026-11-19) | `etapa-5/` + `src/data/` |
-| 6 | Motor de reglas comerciales | **Terminada — esperando aprobación** | `etapa-6/` + `src/business/` |
-| 7 | Reconstrucción de módulos | Pendiente | — |
+| 6 | Motor de reglas comerciales | Aprobada (2026-11-19) | `etapa-6/` + `src/business/` |
+| 7 | Reconstrucción de módulos | **Terminada — esperando aprobación** | `etapa-7/` + `src/features/`, `src/operations/`, `src/services/` |
 | 8 | Integración y seguridad | Pendiente | — |
 | 9 | Optimización y migración | Pendiente | — |
 | 10 | Pruebas integrales y estabilización | Pendiente | — |
@@ -46,3 +46,4 @@ Decisión de la Etapa 2 (A9): no se usa como base; se reemplaza en la Etapa 4 y 
 | 2026-11-19 | 4 | Núcleo: app base navegable en teléfono y computador, sin conexión y con actualización controlada; 29/29 pruebas de núcleo y 25/25 de extremo a extremo. Se eliminan `css/` y `js/` (A9). |
 | 2026-11-19 | 5 | Datos: IndexedDB con transacciones, imágenes aparte, importación verificada registro por registro sin tocar localStorage, respaldos compatibles en ambos sentidos con la app original; 43/43 pruebas, 17/17 de datos y 25/25 de núcleo en navegador. |
 | 2026-11-19 | 6 | Motor de reglas: 101 funciones puras; iguales a la versión original en 400+400 conjuntos aleatorios (oráculo literal) y 46 operaciones reales en la app original; 14/14 mutaciones detectadas; 69/69 pruebas. |
+| 2026-11-19 | 7 | Módulos reconstruidos (55 archivos nuevos): 9/9 escenarios con datos idénticos a la versión original operando ambas apps; 69/69, 25/25, 17/17 y 46/46 pruebas; recorrido sin errores en teléfono y computador. |
