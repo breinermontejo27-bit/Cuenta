@@ -43,15 +43,15 @@ aprobación del dueño.**
 ## 6. Pruebas ejecutadas (todas ejecutadas; resultados de 3 rondas completas seguidas)
 | Prueba | Casos | Ronda 1 | Ronda 2 | Ronda 3 |
 |---|---|---|---|---|
-| Unitarias (`npm test`) | 77 | RONDA1_U | RONDA2_U | RONDA3_U |
-| Núcleo | 25 | RONDA1_nucleo | RONDA2_nucleo | RONDA3_nucleo |
-| Datos (con la original) | 17 | RONDA1_datos | RONDA2_datos | RONDA3_datos |
-| Reglas (46 operaciones en las dos apps) | 46 | RONDA1_reglas | RONDA2_reglas | RONDA3_reglas |
-| Módulos (9 escenarios en las dos apps) | 9 | RONDA1_modulos | RONDA2_modulos | RONDA3_modulos |
-| Seguridad | 31 | RONDA1_seguridad | RONDA2_seguridad | RONDA3_seguridad |
-| Migración (incluida la copia de prueba) | 17 | RONDA1_migracion | RONDA2_migracion | RONDA3_migracion |
-| **Integral (pantalla contra pantalla)** | 19 | RONDA1_integral | RONDA2_integral | RONDA3_integral |
-| **Funciones y estrés** | 16 | RONDA1_funciones | RONDA2_funciones | RONDA3_funciones |
+| Unitarias (`npm test`) | 77 | 77/77 | 77/77 | 77/77 |
+| Núcleo | 25 | 25/25 | 25/25 | 25/25 |
+| Datos (con la original) | 17 | 17/17 | 17/17 | 17/17 |
+| Reglas (46 operaciones en las dos apps) | 46 | 46/46 | 46/46 | 46/46 |
+| Módulos (9 escenarios en las dos apps) | 9 | 9/9 | 9/9 | 9/9 |
+| Seguridad | 31 | 31/31 | 31/31 | 31/31 |
+| Migración (incluida la copia de prueba) | 17 | 17/17 | 17/17 | 17/17 |
+| **Integral (pantalla contra pantalla)** | 19 | 19/19 | 19/19 | 19/19 |
+| **Funciones y estrés** | 16 | 16/16 | 16/16 | 16/16 |
 
 Lo más importante de las pruebas nuevas:
 - **Reportes:** con 12 conjuntos de datos al azar, Resumen (este mes, mes anterior y todo), Caja (día y mes) y
