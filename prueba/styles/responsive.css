@@ -1,0 +1,33 @@
+/* Orisma 2.0 · Adaptación a computador
+   Todo lo que cambia desde 1024 px de ancho. Tableta (720–1023 px) usa la disposición de teléfono. */
+@media (min-width: 1024px) {
+  .app { flex-direction: row; }
+  .lateral { display: flex; flex-direction: column; position: sticky; top: 0; height: 100dvh; width: var(--barra-lateral); flex: none; background: var(--superficie); border-right: 1px solid var(--borde); padding: var(--e-4) var(--e-3); }
+  .lateral .negocio { padding: var(--e-2) var(--e-2) var(--e-5); flex: none; }
+  .lateral .negocio-nombre { font-size: var(--t-base); color: var(--texto); }
+  .lateral nav { display: flex; flex-direction: column; gap: 2px; }
+  .enlace-lateral { display: flex; align-items: center; gap: var(--e-3); height: 42px; padding: 0 var(--e-3); border-radius: var(--r-sm); color: var(--texto-2); text-decoration: none; font-weight: var(--peso-medio); }
+  .enlace-lateral:hover { background: var(--superficie-2); }
+  .enlace-lateral[aria-current="page"] { background: var(--marca-suave); color: var(--marca); font-weight: var(--peso-semi); }
+  .lateral .pie { margin-top: auto; }
+  .principal { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .pestanas, .barra-sup .negocio, .barra-sup .boton-icono.ajustes, .accion-principal { display: none; }
+  .barra-sup { padding: var(--e-6) var(--e-8) var(--e-3); display: flex; align-items: center; gap: var(--e-4); }
+  .barra-sup .fila { display: contents; }
+  .titulo-pantalla { margin: 0; flex: 1; }
+  .barra-sup .buscador { width: 320px; }
+  .solo-escritorio { display: revert; }
+  .solo-movil { display: none !important; }
+  .contenido { padding: var(--e-2) var(--e-8) var(--e-10); }
+  .selector-vista { max-width: 440px; }
+}
+
+@media (min-width: 1024px) {
+  .velo { justify-content: flex-end; align-items: stretch; }
+  .velo.centrado { justify-content: center; align-items: center; }
+  .hoja { max-width: var(--panel-ancho); max-height: none; height: 100dvh; border-radius: 0; }
+  .hoja-cabecera::before { display: none; }
+  .velo.centrado .hoja { height: auto; border-radius: var(--r-lg); max-width: 440px; }
+}
+
+@media (min-width: 1024px) { .notificaciones { left: auto; right: var(--e-6); transform: none; bottom: var(--e-6); } }
