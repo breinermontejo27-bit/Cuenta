@@ -1,0 +1,788 @@
+<title>Orisma 2.0 · Propuesta visual</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Concepto: Orisma tal cual (azul #1E4FA0, fuentes del sistema), con más jerarquía:
+   un panel de inicio, 5 destinos en la barra, filas de una sola estructura y facturas como hoja real. */
+:root {
+  --marca: #1E4FA0; --marca-fuerte: #173F82; --marca-suave: #E8EFFA; --sobre-marca: #FFFFFF;
+  --fondo: #F3F5F8; --superficie: #FFFFFF; --superficie-2: #EEF1F5; --borde: #E1E5EB; --borde-fuerte: #C9CFD8;
+  --texto: #131821; --texto-2: #4A5261; --texto-3: #667080;
+  --positivo: #12733F; --positivo-suave: #E4F3EA; --negativo: #B42318; --negativo-suave: #FCEBE9; --aviso: #8A5600; --aviso-suave: #FFF3D6;
+  --demo: #5B3FA6; --demo-suave: #EFEAFB;
+  --papel: #FFFFFF; --tinta: #111827; --tinta-2: #4B5563; --linea-papel: #D5DAE1;
+  --fuente: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --r-sm: 10px; --r-md: 14px; --r-lg: 20px; --sombra: 0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.05); --sombra-2: 0 10px 30px rgba(16,24,40,.16);
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --marca: #86ABEF; --marca-fuerte: #A9C4F5; --marca-suave: #19284A; --sobre-marca: #0A1830;
+  --fondo: #0C0F14; --superficie: #151A21; --superficie-2: #1C222B; --borde: #262D38; --borde-fuerte: #3A4250;
+  --texto: #E8EBF1; --texto-2: #AAB2BF; --texto-3: #8D96A5;
+  --positivo: #55C690; --positivo-suave: #10281C; --negativo: #F27B6F; --negativo-suave: #3A1714; --aviso: #E7B74E; --aviso-suave: #322406;
+  --demo: #B9A4F2; --demo-suave: #251C3D; --sombra: none; --sombra-2: 0 10px 30px rgba(0,0,0,.5); color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --marca: #86ABEF; --marca-fuerte: #A9C4F5; --marca-suave: #19284A; --sobre-marca: #0A1830;
+  --fondo: #0C0F14; --superficie: #151A21; --superficie-2: #1C222B; --borde: #262D38; --borde-fuerte: #3A4250;
+  --texto: #E8EBF1; --texto-2: #AAB2BF; --texto-3: #8D96A5;
+  --positivo: #55C690; --positivo-suave: #10281C; --negativo: #F27B6F; --negativo-suave: #3A1714; --aviso: #E7B74E; --aviso-suave: #322406;
+  --demo: #B9A4F2; --demo-suave: #251C3D; --sombra: none; --sombra-2: 0 10px 30px rgba(0,0,0,.5); color-scheme: dark; }
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--fondo); color: var(--texto); font: 15px/1.45 var(--fuente); -webkit-font-smoothing: antialiased; }
+button { font: inherit; color: inherit; cursor: pointer; }
+a { color: inherit; }
+.num { font-variant-numeric: tabular-nums; }
+:focus-visible { outline: 3px solid var(--marca); outline-offset: 2px; border-radius: 6px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+/* ---------- Franja de demostración ---------- */
+.demo-banda { display: flex; align-items: center; gap: 10px; background: var(--demo-suave); color: var(--demo); font-size: 13px; padding-block: 8px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.demo-banda strong { font-weight: 700; }
+.demo-banda span { flex: 1; min-width: 0; color: var(--texto-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.demo-banda button { border: 1px solid var(--demo); background: transparent; color: var(--demo); border-radius: 999px; padding: 5px 12px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+
+/* ---------- Marco de la app ---------- */
+.marco { display: flex; min-height: calc(100% - 37px); }
+.lateral { display: none; }
+.principal { flex: 1; min-width: 0; padding-bottom: 96px; }
+.cabecera { padding-block: 18px 6px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.cabecera-fila { display: flex; align-items: flex-start; gap: 12px; }
+.cabecera h1 { margin: 0; font-size: 28px; line-height: 1.15; letter-spacing: -.01em; font-weight: 700; text-wrap: balance; }
+.cabecera p { margin: 4px 0 0; color: var(--texto-3); font-size: 14px; }
+.cabecera .atras { width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--borde); background: var(--superficie); display: grid; place-items: center; flex: none; }
+.cabecera-titulo { flex: 1; min-width: 0; }
+.avatar-negocio { width: 40px; height: 40px; border-radius: 12px; background: var(--marca); color: var(--sobre-marca); display: grid; place-items: center; font-weight: 700; font-size: 14px; flex: none; }
+.contenido { display: grid; gap: 14px; padding-block: 10px 24px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+/* Barra inferior: 5 destinos */
+.barra { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: grid; grid-template-columns: repeat(5, 1fr); background: var(--superficie); border-top: 1px solid var(--borde); padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
+.barra a { display: grid; justify-items: center; gap: 3px; padding: 8px 2px 9px; font-size: 11.5px; font-weight: 600; color: var(--texto-3); text-decoration: none; }
+.barra a .ico { width: 44px; height: 28px; border-radius: 999px; display: grid; place-items: center; }
+.barra a[aria-current="page"] { color: var(--marca); }
+.barra a[aria-current="page"] .ico { background: var(--marca-suave); }
+.fab { position: fixed; z-index: 31; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(76px + env(safe-area-inset-bottom, 0px)); display: inline-flex; align-items: center; gap: 8px; height: 52px; padding: 0 20px 0 16px; border: 0; border-radius: 16px; background: var(--marca); color: var(--sobre-marca); font-weight: 650; box-shadow: var(--sombra-2); }
+.fab[hidden] { display: none; }
+
+svg.i { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+svg.i.s { width: 18px; height: 18px; }
+
+/* ---------- Piezas ---------- */
+.buscador { display: flex; align-items: center; gap: 8px; height: 46px; padding: 0 14px; background: var(--superficie); border: 1px solid var(--borde); border-radius: 14px; color: var(--texto-3); }
+.buscador input { flex: 1; min-width: 0; border: 0; background: transparent; font: inherit; color: var(--texto); outline: none; }
+.segmentos { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; background: var(--superficie-2); border-radius: 12px; padding: 3px; gap: 3px; }
+.segmentos button { border: 0; background: transparent; border-radius: 9px; padding: 8px 4px; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; color: var(--texto-2); }
+.segmentos button[aria-pressed="true"] { background: var(--superficie); color: var(--texto); box-shadow: var(--sombra); }
+.chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+.chip { border: 1px solid var(--borde-fuerte); background: var(--superficie); border-radius: 999px; padding: 6px 13px; font-size: 13.5px; font-weight: 600; white-space: nowrap; color: var(--texto-2); }
+.chip[aria-pressed="true"] { background: var(--texto); border-color: var(--texto); color: var(--fondo); }
+
+.tarjeta { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-md); }
+.tarjeta.p { padding: 16px; }
+.seccion-titulo { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin: 6px 2px -4px; }
+.seccion-titulo h2 { margin: 0; font-size: 17px; font-weight: 700; }
+.seccion-titulo a, .enlace { color: var(--marca); font-size: 14px; font-weight: 600; text-decoration: none; background: none; border: 0; padding: 0; }
+.etiqueta { font-size: 12px; font-weight: 650; letter-spacing: .04em; text-transform: uppercase; color: var(--texto-3); }
+
+/* Filas: una sola estructura para todas las listas */
+.lista { list-style: none; margin: 0; padding: 0; }
+.lista > li + li { border-top: 1px solid var(--borde); }
+.fila { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; width: 100%; padding: 12px 14px; background: none; border: 0; text-align: left; text-decoration: none; }
+.fila-med { min-width: 0; }
+.fila-t { display: block; font-weight: 650; font-size: 15.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fila-s { display: block; font-size: 13.5px; color: var(--texto-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
+.fila-d { display: grid; justify-items: end; gap: 4px; text-align: right; }
+.fila-v { font-weight: 700; font-size: 15.5px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.mini { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; font-weight: 700; font-size: 14px; background: var(--superficie-2); color: var(--texto-2); flex: none; overflow: hidden; }
+.mini.marca { background: var(--marca-suave); color: var(--marca); }
+.mini.neg { background: var(--negativo-suave); color: var(--negativo); }
+.mini.pos { background: var(--positivo-suave); color: var(--positivo); }
+.mini.av { background: var(--aviso-suave); color: var(--aviso); }
+.mini.foto { background: linear-gradient(135deg, var(--marca-suave), var(--superficie-2)); color: var(--marca); }
+.pill { display: inline-flex; align-items: center; gap: 4px; border-radius: 999px; padding: 2px 9px; font-size: 12.5px; font-weight: 650; white-space: nowrap; }
+.pill.neg { background: var(--negativo-suave); color: var(--negativo); }
+.pill.pos { background: var(--positivo-suave); color: var(--positivo); }
+.pill.av { background: var(--aviso-suave); color: var(--aviso); }
+.pill.neu { background: var(--superficie-2); color: var(--texto-2); }
+.pill.mar { background: var(--marca-suave); color: var(--marca); }
+.grupo { display: flex; justify-content: space-between; align-items: baseline; padding: 6px 4px 6px; }
+.grupo .etiqueta + span { font-size: 13px; color: var(--texto-3); }
+
+/* Cifras */
+.destacada { background: var(--marca); color: var(--sobre-marca); border-radius: var(--r-lg); padding: 18px; display: grid; gap: 14px; }
+.destacada .etq { font-size: 13.5px; opacity: .85; }
+.destacada .cifra { font-size: 32px; font-weight: 750; letter-spacing: -.01em; line-height: 1.1; }
+.destacada .pie { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.destacada .pie div { background: rgba(255,255,255,.12); border-radius: 12px; padding: 10px 12px; }
+:root[data-theme="dark"] .destacada .pie div { background: rgba(0,0,0,.12); }
+.destacada .pie b { display: block; font-size: 16px; font-variant-numeric: tabular-nums; }
+.destacada .pie small { font-size: 12.5px; opacity: .85; }
+.kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.kpi { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-md); padding: 14px; display: grid; gap: 6px; text-decoration: none; }
+.kpi .t { font-size: 13px; color: var(--texto-3); display: flex; align-items: center; gap: 6px; }
+.kpi .v { font-size: clamp(16px, 4.4vw, 20px); font-weight: 750; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.kpi .s { font-size: 12.5px; color: var(--texto-3); }
+.neg-t { color: var(--negativo); } .pos-t { color: var(--positivo); } .av-t { color: var(--aviso); }
+.accesos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.acceso { display: grid; justify-items: center; gap: 6px; padding: 12px 4px; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-md); font-size: 12.5px; font-weight: 600; color: var(--texto-2); text-align: center; text-decoration: none; }
+.acceso .ico { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--marca-suave); color: var(--marca); }
+.lineas { display: grid; }
+.linea { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid var(--borde); font-size: 14.5px; }
+.linea:first-child { border-top: 0; }
+.linea dt { color: var(--texto-2); } .linea dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
+.linea.total dt, .linea.total dd { color: var(--texto); font-weight: 750; font-size: 16px; }
+.barras { display: grid; grid-template-columns: repeat(6, 1fr); align-items: end; gap: 10px; height: 130px; padding-top: 8px; }
+.barras div { display: grid; gap: 6px; justify-items: center; height: 100%; align-content: end; }
+.barras i { display: block; width: 100%; max-width: 34px; border-radius: 7px 7px 3px 3px; background: var(--marca-suave); }
+.barras div:last-child i { background: var(--marca); }
+.barras small { font-size: 11.5px; color: var(--texto-3); }
+.aviso-caja { display: flex; gap: 10px; align-items: flex-start; background: var(--aviso-suave); color: var(--aviso); border-radius: var(--r-md); padding: 12px 14px; font-size: 14px; }
+.aviso-caja b { color: inherit; }
+.nota { font-size: 13px; color: var(--texto-3); margin: 0; }
+.acciones-fila { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 0 16px; border-radius: 12px; border: 1px solid var(--borde-fuerte); background: var(--superficie); font-weight: 650; text-decoration: none; }
+.btn.prim { background: var(--marca); border-color: var(--marca); color: var(--sobre-marca); }
+.btn.peligro { color: var(--negativo); border-color: var(--borde-fuerte); }
+.btn.peq { min-height: 40px; font-size: 14px; padding: 0 12px; }
+.btn.bloque { width: 100%; }
+
+/* ---------- Hojas y diálogos ---------- */
+.velo { position: fixed; inset: 0; z-index: 60; background: rgba(8, 12, 20, .45); display: flex; align-items: flex-end; justify-content: center; }
+.velo[hidden] { display: none; }
+.hoja { width: 100%; max-width: 560px; max-height: 92%; overflow: auto; background: var(--superficie); border-radius: 22px 22px 0 0; padding-bottom: env(safe-area-inset-bottom, 0px); }
+.hoja-cab { position: sticky; top: 0; z-index: 1; background: var(--superficie); padding: 8px 16px 12px; border-bottom: 1px solid var(--borde); }
+.agarre { width: 40px; height: 5px; border-radius: 99px; background: var(--borde-fuerte); margin: 2px auto 10px; }
+.hoja-cab .fila-c { display: flex; align-items: center; gap: 10px; }
+.hoja-cab h2 { margin: 0; font-size: 19px; flex: 1; }
+.hoja-cab p { margin: 2px 0 0; font-size: 13px; color: var(--texto-3); }
+.cerrar { width: 38px; height: 38px; border-radius: 12px; border: 1px solid var(--borde); background: var(--superficie); display: grid; place-items: center; }
+.pasos { display: flex; gap: 6px; margin-top: 10px; }
+.pasos i { flex: 1; height: 4px; border-radius: 9px; background: var(--borde); }
+.pasos i.on { background: var(--marca); }
+.hoja-cuerpo { padding: 16px; display: grid; gap: 16px; }
+.hoja-pie { position: sticky; bottom: 0; background: var(--superficie); border-top: 1px solid var(--borde); padding: 12px 16px; display: grid; grid-template-columns: 1fr 2fr; gap: 10px; }
+.campo { display: grid; gap: 6px; }
+.campo label, .campo .lbl { font-size: 13.5px; font-weight: 650; color: var(--texto-2); }
+.control { width: 100%; min-height: 48px; border: 1px solid var(--borde-fuerte); border-radius: 12px; background: var(--superficie); color: var(--texto); font: inherit; padding: 0 14px; }
+.control.dinero-c { display: flex; align-items: center; gap: 6px; padding: 0 14px; }
+.control.dinero-c span { color: var(--texto-3); font-weight: 600; }
+.control.dinero-c input { flex: 1; min-width: 0; width: 100%; border: 0; background: transparent; font: inherit; color: var(--texto); text-align: right; font-variant-numeric: tabular-nums; outline: none; font-weight: 650; }
+.ayuda { font-size: 12.5px; color: var(--texto-3); }
+.error { font-size: 12.5px; color: var(--negativo); font-weight: 600; }
+.control.mal { border-color: var(--negativo); }
+.dos { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+.dos > *, .campo, .kpi, .segmentos button { min-width: 0; }
+.item-c { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; padding: 12px 0; border-top: 1px solid var(--borde); }
+.item-c:first-child { border-top: 0; padding-top: 0; }
+.cant { display: inline-flex; align-items: center; border: 1px solid var(--borde-fuerte); border-radius: 10px; overflow: hidden; }
+.cant button { width: 36px; height: 34px; border: 0; background: var(--superficie-2); font-size: 18px; }
+.cant span { min-width: 34px; text-align: center; font-weight: 700; }
+.totales-c { background: var(--superficie-2); border-radius: 14px; padding: 4px 14px; }
+.dialogo { width: min(92%, 400px); align-self: center; background: var(--superficie); border-radius: 20px; padding: 20px; display: grid; gap: 12px; box-shadow: var(--sombra-2); }
+.dialogo h2 { margin: 0; font-size: 19px; }
+.dialogo p { margin: 0; color: var(--texto-2); }
+.dialogo .bot { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(148px + env(safe-area-inset-bottom, 0px)); z-index: 70; background: var(--texto); color: var(--fondo); border-radius: 14px; padding: 11px 16px; font-size: 14px; font-weight: 600; box-shadow: var(--sombra-2); display: flex; gap: 8px; align-items: center; max-width: calc(100% - 32px); }
+.toast[hidden] { display: none; }
+.mas-rejilla { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.guia li { padding: 10px 0; border-top: 1px solid var(--borde); }
+.guia li:first-child { border-top: 0; }
+.guia a { font-weight: 650; color: var(--marca); text-decoration: none; }
+.guia p { margin: 2px 0 0; font-size: 13.5px; color: var(--texto-2); }
+
+/* ---------- Factura como hoja real ---------- */
+.factura-marco { display: grid; gap: 12px; }
+.visor { background: var(--superficie-2); border: 1px solid var(--borde); border-radius: var(--r-md); padding: 12px; overflow: hidden; }
+.visor.ampliado { overflow-x: auto; }
+.escala { transform-origin: top left; }
+.papel { width: 720px; min-height: 1018px; background: var(--papel); color: var(--tinta); padding: 44px 46px; font: 13px/1.45 var(--fuente); box-shadow: 0 2px 10px rgba(16,24,40,.12); color-scheme: light; }
+.papel .num { font-variant-numeric: tabular-nums; }
+
+/* Propuesta A · Fiel a la original */
+.fa .cab { display: flex; gap: 14px; align-items: center; padding-bottom: 14px; border-bottom: 2px solid var(--tinta); }
+.fa .logo { width: 58px; height: 58px; border-radius: 10px; background: var(--fc); color: #fff; display: grid; place-items: center; font-weight: 800; font-size: 20px; flex: none; }
+.fa .neg-n { font-size: 20px; font-weight: 800; }
+.fa .neg-m { font-size: 12px; color: var(--tinta-2); line-height: 1.5; }
+.fa .titulo { text-align: center; font-size: 30px; font-weight: 800; letter-spacing: .04em; margin: 22px 0 16px; }
+.fa .meta { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; }
+.fa .p-lbl { font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #8A93A3; margin-bottom: 3px; }
+.fa .p-n { font-size: 15px; font-weight: 700; }
+.fa .p-m { font-size: 12px; color: var(--tinta-2); line-height: 1.5; }
+.fa .nro { text-align: right; }
+.fa .nro b { display: block; font-size: 22px; color: var(--fc); }
+.fa .nro .f { color: var(--fc); font-size: 13.5px; }
+.fa .nro .fp { color: var(--tinta-2); font-size: 12.5px; margin-top: 2px; }
+.fa table { width: 100%; border-collapse: collapse; margin-top: 18px; }
+.fa thead th { background: var(--fc); color: #fff; font-size: 12px; font-weight: 600; padding: 8px 10px; text-align: left; }
+.fa th.n, .fa td.n { text-align: right; white-space: nowrap; }
+.fa tbody td { padding: 9px 10px; border-bottom: 1px solid var(--linea-papel); vertical-align: top; }
+.fa .it-n { font-weight: 700; }
+.fa .it-s { font-size: 11.5px; color: var(--tinta-2); margin-top: 2px; }
+.fa .abajo { display: grid; grid-template-columns: 1fr 44%; gap: 22px; margin-top: 14px; align-items: start; }
+.fa .tenga { border-top: 1px solid var(--fc); padding-top: 7px; font-size: 12px; }
+.fa .st { font-size: 11.5px; font-weight: 700; color: var(--fc); margin-bottom: 4px; }
+.fa .tot .tr { display: flex; justify-content: space-between; gap: 8px; padding: 7px 10px; border-bottom: 1px solid var(--linea-papel); }
+.fa .tot .gran { background: var(--fc); color: #fff; font-weight: 700; border-bottom: 0; font-size: 14px; }
+.fa .tot .saldo { color: #B42318; font-weight: 700; }
+.fa .pagos { margin-top: 18px; }
+.fa .pagos table { margin-top: 4px; }
+.fa .firmas { display: grid; grid-template-columns: 1fr 42%; gap: 22px; margin-top: 30px; align-items: end; }
+.fa .sello { justify-self: start; border: 3px solid #12733F; color: #12733F; font-weight: 800; font-size: 20px; letter-spacing: .12em; padding: 6px 16px; border-radius: 8px; transform: rotate(-6deg); }
+.fa .firma { text-align: center; font-size: 12px; }
+.fa .firma .trazo { height: 46px; border-bottom: 1px solid var(--tinta); margin-bottom: 4px; display: grid; place-items: end center; font: italic 26px/1 "Segoe Script", "Bradley Hand", cursive; color: #26365E; padding-bottom: 2px; }
+.fa .pie-f { text-align: center; font-size: 12px; color: #667085; margin-top: 26px; }
+
+/* Propuesta B · Original refinada: misma distribución, más orden y aire */
+.fb { padding-top: 0; }
+.fb .franja { height: 8px; background: var(--fc); margin: 0 -46px 32px; }
+.fb .cab { display: flex; gap: 16px; align-items: center; }
+.fb .logo { width: 60px; height: 60px; border-radius: 14px; background: var(--fc); color: #fff; display: grid; place-items: center; font-weight: 800; font-size: 21px; flex: none; }
+.fb .neg-n { font-size: 21px; font-weight: 800; letter-spacing: -.01em; }
+.fb .neg-m { font-size: 12px; color: var(--tinta-2); line-height: 1.5; }
+.fb .regla { height: 2px; background: var(--tinta); margin: 18px 0 0; }
+.fb .titulo { text-align: center; font-size: 30px; font-weight: 800; letter-spacing: .14em; margin: 22px 0 6px; }
+.fb .sub-t { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+.fb .sub-t span { border: 1px solid var(--linea-papel); border-radius: 999px; padding: 3px 12px; font-size: 12.5px; color: var(--tinta-2); }
+.fb .sub-t b { color: var(--fc); }
+.fb .meta { display: grid; grid-template-columns: 1fr auto; gap: 24px; background: #F6F8FB; border: 1px solid #E6EAF0; border-radius: 10px; padding: 14px 16px; }
+.fb .p-lbl { font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #8A93A3; margin-bottom: 3px; }
+.fb .p-n { font-size: 15px; font-weight: 700; }
+.fb .p-m { font-size: 12px; color: var(--tinta-2); line-height: 1.5; }
+.fb .nro { text-align: right; }
+.fb .nro b { display: block; font-size: 22px; color: var(--fc); }
+.fb .nro .fp { color: var(--tinta-2); font-size: 12.5px; }
+.fb table { width: 100%; border-collapse: collapse; margin-top: 18px; }
+.fb thead th { background: var(--fc); color: #fff; font-size: 11.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 9px 10px; text-align: left; }
+.fb thead th:first-child { border-radius: 6px 0 0 6px; } .fb thead th:last-child { border-radius: 0 6px 6px 0; }
+.fb th.n, .fb td.n { text-align: right; white-space: nowrap; }
+.fb tbody td { padding: 10px; border-bottom: 1px solid #E9EDF2; vertical-align: top; }
+.fb tbody tr:nth-child(even) td { background: #FAFBFD; }
+.fb .it-n { font-weight: 700; }
+.fb .it-s { font-size: 11.5px; color: var(--tinta-2); margin-top: 2px; }
+.fb .abajo { display: grid; grid-template-columns: 1fr 44%; gap: 22px; margin-top: 16px; align-items: start; }
+.fb .tenga { border-left: 3px solid var(--fc); padding: 2px 0 2px 12px; font-size: 12px; }
+.fb .st { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--fc); margin-bottom: 4px; }
+.fb .tot { border: 1px solid #E6EAF0; border-radius: 10px; overflow: hidden; }
+.fb .tot .tr { display: flex; justify-content: space-between; gap: 8px; padding: 8px 12px; border-top: 1px solid #EEF1F5; }
+.fb .tot .tr:first-child { border-top: 0; }
+.fb .tot .gran { background: var(--fc); color: #fff; font-weight: 800; font-size: 15px; border-top: 0; }
+.fb .tot .saldo { color: #B42318; font-weight: 800; background: #FDF1EF; }
+.fb .pagos { margin-top: 20px; }
+.fb .firmas { display: grid; grid-template-columns: 1fr 42%; gap: 22px; margin-top: 34px; align-items: end; }
+.fb .sello { justify-self: start; border: 3px solid #12733F; color: #12733F; font-weight: 800; font-size: 20px; letter-spacing: .12em; padding: 6px 16px; border-radius: 8px; transform: rotate(-6deg); }
+.fb .firma { text-align: center; font-size: 12px; }
+.fb .firma .trazo { height: 46px; border-bottom: 1px solid var(--tinta); margin-bottom: 4px; display: grid; place-items: end center; font: italic 26px/1 "Segoe Script", "Bradley Hand", cursive; color: #26365E; padding-bottom: 2px; }
+.fb .pie-f { text-align: center; font-size: 12px; color: #667085; margin-top: 28px; padding-top: 12px; border-top: 1px solid #E9EDF2; }
+
+/* ---------- Computador ---------- */
+@media (min-width: 900px) {
+  .marco { min-height: calc(100% - 37px); }
+  .lateral { display: flex; flex-direction: column; gap: 4px; width: 248px; flex: none; position: sticky; top: 0; height: calc(100vh - 37px); padding: 18px 12px; background: var(--superficie); border-right: 1px solid var(--borde); }
+  .lateral .neg { display: flex; align-items: center; gap: 10px; padding: 4px 8px 16px; font-weight: 700; }
+  .lateral .grupo-l { font-size: 11.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--texto-3); padding: 12px 10px 4px; }
+  .lateral a { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 10px; text-decoration: none; color: var(--texto-2); font-weight: 600; }
+  .lateral a[aria-current="page"] { background: var(--marca-suave); color: var(--marca); }
+  .lateral .abajo-l { margin-top: auto; }
+  .barra { display: none; }
+  .principal { padding-bottom: 32px; }
+  .cabecera, .contenido { max-width: 1080px; padding-left: 32px; padding-right: 32px; }
+  .cabecera { padding-top: 28px; }
+  .fab { position: static; box-shadow: none; height: 44px; border-radius: 12px; }
+  .cabecera-fila .fab-sitio { display: inline-flex; }
+  .kpis { grid-template-columns: repeat(4, 1fr); }
+  .dos-col { display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px; align-items: start; }
+  .velo { align-items: center; }
+  .hoja { border-radius: 22px; max-height: 88%; }
+  .factura-marco { grid-template-columns: 1fr 300px; align-items: start; }
+}
+.fab-sitio { display: none; }
+</style>
+
+<div class="demo-banda" role="note">
+  <strong>Demostración</strong><span>Propuesta visual · datos de ejemplo · nada se guarda</span>
+  <button type="button" id="abrirGuia">Pantallas</button>
+</div>
+
+<div class="marco">
+  <nav class="lateral" aria-label="Navegación principal" id="lateral"></nav>
+  <div class="principal">
+    <header class="cabecera" id="cabecera"></header>
+    <main class="contenido" id="contenido"></main>
+  </div>
+</div>
+<button type="button" class="fab" id="fab" hidden></button>
+<nav class="barra" id="barra" aria-label="Secciones"></nav>
+<div class="velo" id="velo" hidden></div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(() => {
+  // ---------- Íconos ----------
+  const P = {
+    inicio: '<path d="M4 11.5 12 5l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5h-5v5H5a1 1 0 0 1-1-1z"/>',
+    ventas: '<path d="M6 8h12l-1 11H7z"/><path d="M9 8a3 3 0 0 1 6 0"/>',
+    inventario: '<path d="M4 8 12 4l8 4v8l-8 4-8-4z"/><path d="M4 8l8 4 8-4M12 12v8"/>',
+    clientes: '<circle cx="9" cy="9" r="3.2"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><path d="M15.5 6.3a3 3 0 0 1 0 5.4M17 14a5 5 0 0 1 3.5 5"/>',
+    mas: '<circle cx="6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18" cy="12" r="1.3"/>',
+    facturas: '<path d="M7 3.5h7l4 4V20H7z"/><path d="M14 3.5V8h4M10 12h5M10 15.5h5"/>',
+    gastos: '<rect x="3.5" y="6" width="17" height="12" rx="2"/><path d="M3.5 10h17M7.5 14.5h3"/>',
+    reportes: '<path d="M5 19V11M10 19V6M15 19v-5M20 19V9"/>',
+    creditos: '<rect x="3" y="7" width="18" height="11" rx="2"/><circle cx="12" cy="12.5" r="2.3"/>',
+    ajustes: '<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/>',
+    buscar: '<circle cx="11" cy="11" r="6"/><path d="m20 20-4.5-4.5"/>',
+    mas2: '<path d="M12 5v14M5 12h14"/>',
+    atras: '<path d="M15 5l-7 7 7 7"/>',
+    der: '<path d="m9 5 7 7-7 7"/>',
+    cerrar: '<path d="M6 6l12 12M18 6 6 18"/>',
+    alerta: '<path d="M12 4 2.8 19.5h18.4z"/><path d="M12 10v4M12 17v.01"/>',
+    wa: '<path d="M4 20l1.3-3.8A8 8 0 1 1 8 19z"/><path d="M9 9.5c0 3 2.5 5.5 5.5 5.5l1-1.5-2-1-1 1a4 4 0 0 1-2-2l1-1-1-2z"/>',
+    tel: '<path d="M6 4h3l1.5 4-2 1.3a10 10 0 0 0 6.2 6.2L16 13.5l4 1.5v3a2 2 0 0 1-2 2A15 15 0 0 1 4 6a2 2 0 0 1 2-2z"/>',
+    imprimir: '<path d="M7 9V4h10v5M7 17H5a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-2"/><path d="M7 14h10v6H7z"/>',
+    compartir: '<circle cx="6" cy="12" r="2.3"/><circle cx="17" cy="6" r="2.3"/><circle cx="17" cy="18" r="2.3"/><path d="m8 11 7-4M8 13l7 4"/>',
+    caja: '<rect x="3" y="7" width="18" height="11" rx="2"/><path d="M8 7V5h8v2"/>',
+    calendario: '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+    ok: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+    editar: '<path d="M5 19h4L19 9l-4-4L5 15z"/>',
+    zoom: '<circle cx="11" cy="11" r="6"/><path d="m20 20-4.5-4.5M11 8v6M8 11h6"/>',
+  };
+  const ico = (n, s = '') => `<svg class="i ${s}" viewBox="0 0 24 24" aria-hidden="true">${P[n] || ''}</svg>`;
+
+  // ---------- Formato (igual que Orisma: "$ 1.234,00") ----------
+  const dinero = (n) => { const a = Math.abs(n).toFixed(2).split('.'); return '$ ' + (n < 0 ? '-' : '') + a[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ',' + a[1]; };
+  const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+  const fecha = (iso) => { const [y, m, d] = iso.split('-'); return `${+d} ${MESES[m - 1]} ${y}`; };
+  const ini = (t) => t.split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+
+  // ---------- Datos de ejemplo (ficticios) ----------
+  const NEG = { nombre: 'Orisma Accesorios', dir: 'Cra 7 # 45-12, Bogotá', tel: '300 123 4567', email: 'ventas@orisma.co', tenga: 'Cambios dentro de los 8 días con la factura.\nLas piezas a medida no tienen devolución.', pie: 'Gracias por su compra', color: '#1E4FA0' };
+  const CLI = [
+    { id: 'c1', n: 'Laura Gómez', tel: '310 555 6677', email: 'laura@correo.com', dir: 'Calle 80 # 12-34', deuda: 34500, ventas: 6 },
+    { id: 'c2', n: 'Andrés Ruiz', tel: '300 111 2233', email: '', dir: '', deuda: 0, ventas: 3 },
+    { id: 'c3', n: 'Camila Torres', tel: '315 222 8899', email: 'camila.t@correo.com', dir: 'Av. 68 # 22-10', deuda: 120000, ventas: 9 },
+    { id: 'c4', n: 'Jorge Mendoza', tel: '', email: 'jmendoza@correo.com', dir: '', deuda: 0, ventas: 1 },
+    { id: 'c5', n: 'Valentina Ríos', tel: '301 777 4455', email: '', dir: 'Calle 53 # 7-20', deuda: 15000, ventas: 4 },
+  ];
+  const PROD = [
+    { id: 'p1', n: 'Manilla tejida', cat: 'Manillas', precio: 35000, costo: 15000, stock: 18, res: 2 },
+    { id: 'p2', n: 'Collar plata 925', cat: 'Collares', precio: 120000, costo: 60000, stock: 2, res: 0, bajo: true },
+    { id: 'p3', n: 'Aretes de perla', cat: 'Aretes', precio: 48000, costo: 20000, stock: 6, res: 1 },
+    { id: 'p4', n: 'Anillo ajustable', cat: 'Anillos', precio: 42000, costo: 18000, stock: 1, res: 0, bajo: true },
+    { id: 'p5', n: 'Tobillera con dijes', cat: 'Manillas', precio: 28000, costo: 11000, stock: 12, res: 0 },
+    { id: 'p6', n: 'Grabado personalizado', cat: 'Servicios', precio: 15000, costo: 0, stock: null, res: 0 },
+  ];
+  const VEN = [
+    { id: 'v6', f: '2026-11-20', c: 'Camila Torres', folio: 26, medio: 'Crédito', total: 168000, saldo: 120000 },
+    { id: 'v5', f: '2026-11-20', c: 'Andrés Ruiz', folio: null, medio: 'Efectivo', total: 48000, saldo: 0 },
+    { id: 'v4', f: '2026-11-20', c: 'Valentina Ríos', folio: 25, medio: 'Mixto', total: 63000, saldo: 15000 },
+    { id: 'v1', f: '2026-11-18', c: 'Laura Gómez', folio: 24, medio: 'Crédito', total: 184500, saldo: 34500 },
+    { id: 'v2', f: '2026-11-17', c: 'Andrés Ruiz', folio: 23, medio: 'Efectivo', total: 48000, saldo: 0 },
+    { id: 'v3', f: '2026-11-17', c: 'Jorge Mendoza', folio: null, medio: 'Tarjeta', total: 84000, saldo: 0 },
+  ];
+  const GAS = [
+    { id: 'g1', f: '2026-11-19', d: 'Compra de inventario: Manilla tejida', cat: 'Inventario', medio: 'Efectivo', m: 150000, compra: true },
+    { id: 'g2', f: '2026-11-15', d: 'Arriendo del local', cat: 'Local', medio: 'Tarjeta', m: 650000 },
+    { id: 'g3', f: '2026-11-12', d: 'Bolsas y cajas de regalo', cat: 'Empaques', medio: 'Efectivo', m: 48000 },
+    { id: 'g4', f: '2026-11-05', d: 'Compra de inventario: Aretes de perla', cat: 'Inventario', medio: 'Tarjeta', m: 120000, compra: true },
+    { id: 'g5', f: '2026-10-28', d: 'Publicidad en redes', cat: 'Publicidad', medio: 'Tarjeta', m: 90000 },
+  ];
+  const PEND = [
+    { id: 'pd1', tipo: 'Pedido', c: 'Laura Gómez', cuando: 'Mañana · 21 nov', resto: 40000, estado: 'av' },
+    { id: 'pd2', tipo: 'Apartado', c: 'Camila Torres', cuando: 'Abonado $ 30.000,00 de $ 120.000,00', resto: 90000, estado: 'neu' },
+    { id: 'pd3', tipo: 'Encargo', c: 'Andrés Ruiz', cuando: 'Sin fecha estimada', resto: 20000, estado: 'neu' },
+  ];
+  const FAC = {
+    credito: { folio: 24, fecha: '2026-11-18', cli: CLI[0], medio: 'A crédito', items: [
+      { n: 'Manilla tejida', s: 'Hilo encerado, cierre ajustable', c: 2, p: 35000 }, { n: 'Collar plata 925', s: '', c: 1, p: 120000 }, { n: 'Grabado personalizado', s: 'Iniciales L.G.', c: 1, p: 15000 } ],
+      desc: { pct: 10, m: 20500 }, total: 184500, notas: 'Entregar en caja de regalo', abonos: [{ f: '2026-11-18', medio: 'Efectivo', m: 100000 }, { f: '2026-11-19', medio: 'Tarjeta', m: 50000 }], saldo: 34500 },
+    pagada: { folio: 23, fecha: '2026-11-17', cli: CLI[1], medio: 'Efectivo', items: [{ n: 'Aretes de perla', s: 'Perla cultivada, broche de plata', c: 1, p: 48000 }], desc: null, total: 48000, notas: '', abonos: [], saldo: 0, firma: true },
+  };
+
+  // ---------- Destinos ----------
+  const BARRA = [['inicio', 'Inicio'], ['ventas', 'Ventas'], ['inventario', 'Inventario'], ['clientes', 'Clientes'], ['mas', 'Más']];
+  const PADRE = { venta: 'ventas', pendientes: 'ventas', producto: 'inventario', cliente: 'clientes', facturas: 'mas', 'factura-original': 'mas', 'factura-refinada': 'mas', gastos: 'mas', reportes: 'mas', formulario: 'ventas' };
+  const LATERAL = [
+    [null, [['inicio', 'Inicio', 'inicio']]],
+    ['Día a día', [['ventas', 'Ventas', 'ventas'], ['facturas', 'Facturas', 'facturas'], ['clientes', 'Clientes', 'clientes']]],
+    ['Negocio', [['inventario', 'Inventario', 'inventario'], ['gastos', 'Gastos', 'gastos'], ['reportes', 'Reportes', 'reportes']]],
+  ];
+  const $ = (s) => document.querySelector(s);
+
+  // ---------- Piezas ----------
+  const fila = ({ ir, mini, titulo, sub, valor, extra = '', valorClase = '' }) => `<li><a class="fila" href="#${ir}">${mini}<span class="fila-med"><span class="fila-t">${titulo}</span>${sub ? `<span class="fila-s">${sub}</span>` : ''}</span><span class="fila-d">${valor ? `<span class="fila-v ${valorClase}">${valor}</span>` : ''}${extra}</span></a></li>`;
+  const buscador = (ph) => `<label class="buscador">${ico('buscar', 's')}<input type="search" placeholder="${ph}" aria-label="${ph}"></label>`;
+  const segm = (op, act) => `<div class="segmentos" role="tablist">${op.map(([v, t]) => `<button type="button" data-seg="${v}" aria-pressed="${v === act}">${t}</button>`).join('')}</div>`;
+  const lineas = (l) => `<dl class="lineas">${l.map(([a, b, c = '']) => `<div class="linea ${c}"><dt>${a}</dt><dd>${b}</dd></div>`).join('')}</dl>`;
+
+  // ---------- Pantallas ----------
+  const estado = { ventasVista: 'ventas', repPeriodo: 'mes', invCat: '', facturaEj: 'credito', ampliar: false };
+  const P_ = {};
+
+  P_.inicio = () => ({
+    titulo: 'Hola, Orisma Accesorios', sub: 'Viernes, 20 de noviembre', avatar: true, fab: ['Nueva venta', 'formulario'],
+    html: `
+      <section class="destacada" aria-label="Hoy">
+        <div><div class="etq">Vendido hoy · 3 ventas</div><div class="cifra num">${dinero(279000)}</div></div>
+        <div class="pie"><div><small>Caja de hoy</small><b>${dinero(144000)}</b></div><div><small>Quedó a crédito</small><b>${dinero(135000)}</b></div></div>
+      </section>
+      <div class="accesos">
+        <a class="acceso" href="#formulario"><span class="ico">${ico('ventas')}</span>Vender</a>
+        <a class="acceso" href="#pendientes"><span class="ico">${ico('calendario')}</span>Pedido</a>
+        <a class="acceso" href="#cliente"><span class="ico">${ico('creditos')}</span>Cobrar</a>
+        <a class="acceso" href="#gastos"><span class="ico">${ico('gastos')}</span>Gasto</a>
+      </div>
+      <div class="kpis">
+        <a class="kpi" href="#clientes"><span class="t">${ico('creditos', 's')}Por cobrar</span><span class="v neg-t">${dinero(169500)}</span><span class="s">3 clientes deben</span></a>
+        <a class="kpi" href="#reportes"><span class="t">${ico('reportes', 's')}Ganancia del mes</span><span class="v pos-t">${dinero(1286400)}</span><span class="s">+12% vs. octubre</span></a>
+        <a class="kpi" href="#pendientes"><span class="t">${ico('calendario', 's')}Pendientes</span><span class="v">3</span><span class="s">1 se entrega mañana</span></a>
+        <a class="kpi" href="#inventario"><span class="t">${ico('alerta', 's')}Poco stock</span><span class="v av-t">2</span><span class="s">Collar plata, Anillo</span></a>
+      </div>
+      <div class="dos-col">
+        <div style="display:grid;gap:10px">
+          <div class="seccion-titulo"><h2>Últimas ventas</h2><a href="#ventas">Ver todas</a></div>
+          <div class="tarjeta"><ul class="lista">${VEN.slice(0, 4).map(ventaFila).join('')}</ul></div>
+        </div>
+        <div style="display:grid;gap:10px">
+          <div class="seccion-titulo"><h2>Próximas entregas</h2><a href="#pendientes">Ver</a></div>
+          <div class="tarjeta"><ul class="lista">${PEND.map(pendFila).join('')}</ul></div>
+        </div>
+      </div>
+      <p class="nota">Todas las cifras de este panel ya existen hoy en Reportes, Clientes, Inventario y Pendientes: el panel solo las reúne.</p>`,
+  });
+  const ventaFila = (v) => fila({ ir: 'venta', mini: `<span class="mini">${ini(v.c)}</span>`, titulo: v.c, sub: `${v.folio ? 'F-' + String(v.folio).padStart(4, '0') : 'Sin factura'} · ${v.medio}`, valor: dinero(v.total), extra: v.saldo ? `<span class="pill neg">Debe ${dinero(v.saldo)}</span>` : '' });
+  const pendFila = (p) => fila({ ir: 'pendientes', mini: `<span class="mini ${p.estado === 'av' ? 'av' : 'marca'}">${ico(p.tipo === 'Pedido' ? 'calendario' : p.tipo === 'Apartado' ? 'caja' : 'inventario', 's')}</span>`, titulo: p.c, sub: `${p.tipo} · ${p.cuando}`, valor: dinero(p.resto), extra: `<span class="pill ${p.estado}">Resto</span>` });
+
+  P_.ventas = () => {
+    const pend = estado.ventasVista === 'pendientes';
+    const grupos = {};
+    VEN.forEach((v) => (grupos[v.f] = grupos[v.f] || []).push(v));
+    return {
+      titulo: 'Ventas', sub: '6 ventas esta semana', fab: [pend ? 'Nuevo pendiente' : 'Nueva venta', 'formulario'],
+      html: `${segm([['ventas', 'Ventas'], ['pendientes', 'Pendientes']], estado.ventasVista)}
+        ${buscador(pend ? 'Buscar por cliente' : 'Buscar por cliente o folio')}
+        ${pend ? `
+          <div class="grupo"><span class="etiqueta">Pedidos · se entregan pronto</span><span>1</span></div><div class="tarjeta"><ul class="lista">${pendFila(PEND[0])}</ul></div>
+          <div class="grupo"><span class="etiqueta">Apartados</span><span>1</span></div><div class="tarjeta"><ul class="lista">${pendFila(PEND[1])}</ul></div>
+          <div class="grupo"><span class="etiqueta">Encargos</span><span>1</span></div><div class="tarjeta"><ul class="lista">${pendFila(PEND[2])}</ul></div>`
+        : Object.entries(grupos).map(([f, l]) => `<div class="grupo"><span class="etiqueta">${f === '2026-11-20' ? 'Hoy' : fecha(f)}</span><span class="num">${l.length} · ${dinero(l.reduce((s, v) => s + v.total, 0))}</span></div><div class="tarjeta"><ul class="lista">${l.map(ventaFila).join('')}</ul></div>`).join('')}`,
+    };
+  };
+  P_.pendientes = () => { estado.ventasVista = 'pendientes'; return P_.ventas(); };
+
+  P_.venta = () => ({
+    titulo: 'Venta a Laura Gómez', sub: '18 nov 2026 · Factura F-0024', volver: 'ventas',
+    html: `
+      <section class="tarjeta p" style="display:grid;gap:12px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+          <div><div class="etiqueta">Total</div><div style="font-size:28px;font-weight:750" class="num">${dinero(184500)}</div></div>
+          <span class="pill neg" style="margin-top:6px">Debe ${dinero(34500)}</span>
+        </div>
+        <div style="height:8px;border-radius:9px;background:var(--superficie-2);overflow:hidden"><div style="width:81%;height:100%;background:var(--positivo)"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:13.5px;color:var(--texto-3)"><span>Pagado ${dinero(150000)}</span><span>81%</span></div>
+      </section>
+      <div class="acciones-fila">
+        <a class="btn peq" href="#factura-original">${ico('facturas', 's')}Factura</a>
+        <a class="btn peq" href="#cliente">${ico('creditos', 's')}Abonar</a>
+        <button class="btn peq" type="button" data-toast="Abre WhatsApp con el recordatorio">${ico('wa', 's')}Recordar</button>
+      </div>
+      <div class="seccion-titulo"><h2>Productos</h2></div>
+      <div class="tarjeta p">${lineas([['2 × Manilla tejida', dinero(70000)], ['1 × Collar plata 925', dinero(120000)], ['1 × Grabado personalizado', dinero(15000)], ['Descuento (10%)', '-' + dinero(20500)], ['Total', dinero(184500), 'total']])}</div>
+      <div class="seccion-titulo"><h2>Ganancia</h2></div>
+      <div class="tarjeta p">${lineas([['Costo de lo vendido', dinero(90000)], ['Ganancia de esta venta', `<span class="pos-t">${dinero(94500)}</span>`]])}</div>
+      <button class="btn peligro bloque" type="button" data-dialogo="anular">Anular venta</button>`,
+  });
+
+  P_.inventario = () => {
+    const cats = ['Manillas', 'Collares', 'Aretes', 'Anillos', 'Servicios'];
+    const l = PROD.filter((p) => !estado.invCat || p.cat === estado.invCat);
+    return {
+      titulo: 'Inventario', sub: '6 productos · 39 unidades', fab: ['Nuevo producto', 'formulario'],
+      html: `${segm([['productos', 'Productos'], ['stock', 'Stock'], ['historial', 'Historial']], 'productos')}
+        ${buscador('Buscar producto')}
+        <div class="chips">${[['', 'Todas'], ...cats.map((c) => [c, c])].map(([v, t]) => `<button type="button" class="chip" data-cat="${v}" aria-pressed="${estado.invCat === v}">${t}</button>`).join('')}</div>
+        <a class="aviso-caja" href="#producto" style="text-decoration:none">${ico('alerta', 's')}<span><b>2 productos con poco stock.</b> Collar plata 925 y Anillo ajustable.</span></a>
+        <div class="tarjeta"><ul class="lista">${l.map((p) => fila({
+          ir: 'producto', mini: `<span class="mini foto">${ini(p.n)}</span>`, titulo: p.n,
+          sub: `${p.cat} · Gana ${dinero(p.precio - p.costo)}`,
+          valor: dinero(p.precio),
+          extra: p.stock === null ? '<span class="pill neu">Sin control</span>' : p.bajo ? `<span class="pill av">${p.stock} · poco stock</span>` : `<span class="pill pos">${p.stock} en stock</span>`,
+        })).join('')}</ul></div>`,
+    };
+  };
+
+  P_.producto = () => ({
+    titulo: 'Collar plata 925', sub: 'Collares', volver: 'inventario',
+    html: `
+      <div class="kpis">
+        <div class="kpi"><span class="t">Precio</span><span class="v">${dinero(120000)}</span></div>
+        <div class="kpi"><span class="t">Costo</span><span class="v">${dinero(60000)}</span></div>
+        <div class="kpi"><span class="t">Ganancia por unidad</span><span class="v pos-t">${dinero(60000)}</span><span class="s">+100% sobre el costo</span></div>
+        <div class="kpi"><span class="t">En stock</span><span class="v av-t">2</span><span class="s">Aviso desde 3</span></div>
+      </div>
+      <div class="acciones-fila"><a class="btn peq" href="#formulario">${ico('editar', 's')}Editar</a><a class="btn peq" href="#formulario">${ico('caja', 's')}Comprar</a><button class="btn peq peligro" type="button" data-dialogo="eliminar">Eliminar</button></div>
+      <div class="seccion-titulo"><h2>Historial de compras</h2></div>
+      <div class="tarjeta p">${lineas([['12 nov · 4 unid. a ' + dinero(60000), dinero(240000)], ['20 oct · 2 unid. a ' + dinero(58000), dinero(116000)], ['Costo promedio', dinero(59333.33), 'total']])}</div>`,
+  });
+
+  P_.clientes = () => ({
+    titulo: 'Clientes', sub: '5 clientes · 3 con deuda', fab: ['Nuevo cliente', 'formulario'],
+    html: `${buscador('Buscar cliente')}
+      <div class="tarjeta p" style="display:flex;justify-content:space-between;align-items:center;gap:12px"><div><div class="etiqueta">Total por cobrar</div><div style="font-size:22px;font-weight:750" class="num neg-t">${dinero(169500)}</div></div><a class="btn peq" href="#cliente">Ver créditos</a></div>
+      <div class="tarjeta"><ul class="lista">${CLI.map((c) => fila({ ir: 'cliente', mini: `<span class="mini ${c.deuda ? 'neg' : ''}">${ini(c.n)}</span>`, titulo: c.n, sub: c.tel || c.email || 'Sin datos de contacto', valor: c.deuda ? dinero(c.deuda) : '', valorClase: 'neg-t', extra: c.deuda ? '<span class="pill neg">Debe</span>' : `<span class="pill neu">${c.ventas} compras</span>` })).join('')}</ul></div>`,
+  });
+
+  P_.cliente = () => ({
+    titulo: 'Camila Torres', sub: 'Cliente desde mar 2026 · 9 compras', volver: 'clientes',
+    html: `
+      <section class="tarjeta p" style="display:grid;gap:12px">
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-end"><div><div class="etiqueta">Debe</div><div style="font-size:28px;font-weight:750" class="num neg-t">${dinero(120000)}</div></div><span class="pill neg">1 venta a crédito</span></div>
+        <div class="dos"><a class="btn prim" href="#formulario">Abonar</a><button class="btn" type="button" data-dialogo="liquidar">Liquidar todo</button></div>
+      </section>
+      <div class="acciones-fila"><button class="btn peq" type="button" data-toast="Abre WhatsApp">${ico('wa', 's')}WhatsApp</button><button class="btn peq" type="button" data-toast="Llama al cliente">${ico('tel', 's')}Llamar</button><a class="btn peq" href="#formulario">${ico('editar', 's')}Editar</a></div>
+      <div class="seccion-titulo"><h2>Datos</h2></div>
+      <div class="tarjeta p">${lineas([['Teléfono', '315 222 8899'], ['Correo', 'camila.t@correo.com'], ['Dirección', 'Av. 68 # 22-10']])}</div>
+      <div class="seccion-titulo"><h2>Créditos</h2></div>
+      <div class="tarjeta"><ul class="lista">${fila({ ir: 'venta', mini: `<span class="mini neg">${ico('creditos', 's')}</span>`, titulo: '20 nov · F-0026', sub: 'Abonado ' + dinero(48000) + ' de ' + dinero(168000), valor: dinero(120000), valorClase: 'neg-t' })}</ul></div>`,
+  });
+
+  P_.gastos = () => ({
+    titulo: 'Gastos', sub: 'Noviembre 2026', volver: 'mas', fab: ['Nuevo gasto', 'formulario'],
+    html: `
+      <section class="tarjeta p" style="display:grid;gap:10px">
+        <div class="etiqueta">Gastado este mes</div>
+        <div style="font-size:28px;font-weight:750" class="num">${dinero(968000)}</div>
+        <div class="dos" style="font-size:13.5px;color:var(--texto-3)"><span>Compras de inventario<br><b class="num" style="color:var(--texto)">${dinero(270000)}</b></span><span>Otros gastos<br><b class="num" style="color:var(--texto)">${dinero(698000)}</b></span></div>
+      </section>
+      ${buscador('Buscar gasto o categoría')}
+      <div class="grupo"><span class="etiqueta">Noviembre</span><span class="num">4 · ${dinero(968000)}</span></div>
+      <div class="tarjeta"><ul class="lista">${GAS.slice(0, 4).map(gastoFila).join('')}</ul></div>
+      <div class="grupo"><span class="etiqueta">Octubre</span><span class="num">1 · ${dinero(90000)}</span></div>
+      <div class="tarjeta"><ul class="lista">${GAS.slice(4).map(gastoFila).join('')}</ul></div>`,
+  });
+  const gastoFila = (g) => fila({ ir: 'formulario', mini: `<span class="mini ${g.compra ? 'marca' : ''}">${ico(g.compra ? 'inventario' : 'gastos', 's')}</span>`, titulo: g.d, sub: `${g.cat} · ${fecha(g.f)} · ${g.medio}`, valor: '-' + dinero(g.m), valorClase: 'neg-t' });
+
+  P_.reportes = () => {
+    const per = estado.repPeriodo;
+    const D = { mes: [1286400, 'Noviembre', '+12% vs. octubre', 2840000, 1180000, 373600], anterior: [1148600, 'Octubre', '−3% vs. septiembre', 2510000, 1010000, 351400], todo: [9872300, 'Desde el inicio', '', 21450000, 8870000, 2707700] }[per];
+    return {
+      titulo: 'Reportes', sub: 'Cómo va el negocio', volver: 'mas',
+      html: `${segm([['resumen', 'Resumen'], ['caja', 'Caja'], ['flujo', 'Flujo']], 'resumen')}
+        <div class="chips">${[['mes', 'Este mes'], ['anterior', 'Mes anterior'], ['todo', 'Todo']].map(([v, t]) => `<button type="button" class="chip" data-per="${v}" aria-pressed="${per === v}">${t}</button>`).join('')}</div>
+        <section class="tarjeta p" style="display:grid;gap:6px">
+          <div class="etiqueta">Ganancia · ${D[1]}</div>
+          <div style="font-size:32px;font-weight:750;letter-spacing:-.01em" class="num pos-t">${dinero(D[0])}</div>
+          ${D[2] ? `<span class="pill ${D[2].startsWith('+') ? 'pos' : 'neg'}" style="justify-self:start">${D[2]}</span>` : ''}
+          <p class="nota">Ganancia = ventas − costo de lo vendido − otros gastos. Las compras de inventario no restan hasta que se venden.</p>
+        </section>
+        <div class="kpis">
+          <div class="kpi"><span class="t">Ventas</span><span class="v pos-t">${dinero(D[3])}</span></div>
+          <div class="kpi"><span class="t">Costo de lo vendido</span><span class="v">${dinero(D[4])}</span></div>
+          <div class="kpi"><span class="t">Otros gastos</span><span class="v neg-t">${dinero(D[5])}</span></div>
+          <div class="kpi"><span class="t">Por cobrar</span><span class="v neg-t">${dinero(169500)}</span></div>
+        </div>
+        <div class="seccion-titulo"><h2>Ganancia de los últimos 6 meses</h2></div>
+        <div class="tarjeta p"><div class="barras" role="img" aria-label="Ganancia mensual de junio a noviembre">${[['jun', 0.48], ['jul', 0.62], ['ago', 0.55], ['sep', 0.81], ['oct', 0.89], ['nov', 1]].map(([m, h]) => `<div><i style="height:${Math.round(h * 100)}%"></i><small>${m}</small></div>`).join('')}</div></div>
+        <div class="seccion-titulo"><h2>Más vendidos</h2></div>
+        <div class="tarjeta p">${lineas([['Manilla tejida', '24 unid.'], ['Aretes de perla', '11 unid.'], ['Tobillera con dijes', '9 unid.'], ['Collar plata 925', '6 unid.'], ['Anillo ajustable', '5 unid.']])}</div>`,
+    };
+  };
+
+  P_.mas = () => ({
+    titulo: 'Más', sub: 'Todo lo demás de tu negocio',
+    html: `
+      <div class="mas-rejilla">
+        ${[['facturas', 'Facturas', 'facturas'], ['gastos', 'Gastos', 'gastos'], ['reportes', 'Reportes', 'reportes'], ['cliente', 'Créditos', 'creditos'], ['pendientes', 'Pendientes', 'calendario'], ['formulario', 'Ajustes', 'ajustes']].map(([h, t, i]) => `<a class="acceso" href="#${h}"><span class="ico">${ico(i)}</span>${t}</a>`).join('')}
+      </div>
+      <div class="seccion-titulo"><h2>Propuestas de factura</h2></div>
+      <div class="tarjeta"><ul class="lista">
+        ${fila({ ir: 'factura-original', mini: `<span class="mini marca">A</span>`, titulo: 'Propuesta A · Fiel a la original', sub: 'La distribución de tu app "Cuentas"', valor: '', extra: ico('der', 's') })}
+        ${fila({ ir: 'factura-refinada', mini: `<span class="mini marca">B</span>`, titulo: 'Propuesta B · Original refinada', sub: 'La misma distribución, más ordenada', valor: '', extra: ico('der', 's') })}
+      </ul></div>`,
+  });
+
+  P_.facturas = () => ({
+    titulo: 'Facturas', sub: 'Última: F-0026', volver: 'mas', fab: ['Facturar venta', 'factura-original'],
+    html: `${buscador('Buscar por cliente o folio')}
+      <div class="aviso-caja" style="background:var(--marca-suave);color:var(--marca)">${ico('facturas', 's')}<span><b>2 ventas sin factura.</b> Toca "Facturar venta" para facturar una.</span></div>
+      <div class="tarjeta"><ul class="lista">${VEN.filter((v) => v.folio).map((v) => fila({ ir: 'factura-original', mini: `<span class="mini marca">${ico('facturas', 's')}</span>`, titulo: `F-${String(v.folio).padStart(4, '0')} · ${v.c}`, sub: fecha(v.f), valor: dinero(v.total), extra: v.saldo ? '<span class="pill neg">Con saldo</span>' : '<span class="pill pos">Pagada</span>' })).join('')}</ul></div>`,
+  });
+
+  // Factura: una hoja real (720 px de diseño, proporción carta/A4) que se escala para caber en la pantalla.
+  const documentoFactura = (prop, f) => {
+    const filasItems = f.items.map((it, i) => `<tr><td>${i + 1}</td><td><div class="it-n">${it.n}</div>${it.s ? `<div class="it-s">${it.s}</div>` : ''}</td><td class="n">${it.c}</td><td class="n num">${dinero(it.p)}</td><td class="n num">${dinero(it.p * it.c)}</td></tr>`).join('');
+    const suma = f.items.reduce((s, it) => s + it.p * it.c, 0);
+    const pagado = f.abonos.reduce((s, a) => s + a.m, 0);
+    const totales = `<div class="tot">
+      <div class="tr"><span>Suma de productos</span><span class="num">${dinero(suma)}</span></div>
+      ${f.desc ? `<div class="tr"><span>Descuento (${f.desc.pct}%)</span><span class="num">-${dinero(f.desc.m)}</span></div>` : ''}
+      <div class="tr gran"><span>Gran total</span><span class="num">${dinero(f.total)}</span></div>
+      ${f.abonos.length ? `<div class="tr"><span>Pagado</span><span class="num">-${dinero(pagado)}</span></div>` : ''}
+      ${f.saldo ? `<div class="tr saldo"><span>Saldo</span><span class="num">${dinero(f.saldo)}</span></div>` : ''}</div>`;
+    const tenga = `<div class="tenga"><div class="st">Tenga en cuenta</div>${NEG.tenga.replace(/\n/g, '<br>')}${f.notas ? `<br>${f.notas}` : ''}</div>`;
+    const pagos = f.abonos.length ? `<div class="pagos"><div class="st">Pagos recibidos</div><table><thead><tr><th>Fecha</th><th>Medio</th><th class="n">Monto</th></tr></thead><tbody>${f.abonos.map((a) => `<tr><td>${fecha(a.f)}</td><td>${a.medio}</td><td class="n num">${dinero(a.m)}</td></tr>`).join('')}</tbody></table></div>` : '';
+    const firmas = `<div class="firmas">${!f.saldo ? '<div class="sello">PAGADA</div>' : '<div></div>'}<div class="firma"><div class="trazo">${f.firma ? 'Orisma' : ''}</div><div>${NEG.nombre}</div><div><strong>Firma</strong></div></div></div>`;
+    const cliente = `<div><div class="p-lbl">Facturar a</div><div class="p-n">${f.cli.n}</div><div class="p-m">${[f.cli.dir, f.cli.tel, f.cli.email].filter(Boolean).join('<br>')}</div></div>`;
+    const cabNeg = `<div class="logo">${ini(NEG.nombre)}</div><div><div class="neg-n">${NEG.nombre}</div><div class="neg-m">${NEG.dir}<br>${NEG.tel}<br>${NEG.email}</div></div>`;
+    const nro = String(f.folio).padStart(4, '0');
+    if (prop === 'a') return `<article class="papel fa" style="--fc:${NEG.color}">
+      <div class="cab">${cabNeg}</div>
+      <div class="titulo">FACTURA</div>
+      <div class="meta">${cliente}<div class="nro"><b>Nº ${nro}</b><div class="f">${fecha(f.fecha)}</div><div class="fp">Forma de pago: ${f.medio}</div></div></div>
+      <table><thead><tr><th style="width:6%">Nº</th><th>Producto</th><th class="n" style="width:11%">Cantidad</th><th class="n" style="width:18%">Tarifa</th><th class="n" style="width:18%">Monto</th></tr></thead><tbody>${filasItems}</tbody></table>
+      <div class="abajo">${tenga}${totales}</div>${pagos}${firmas}<div class="pie-f">${NEG.pie}</div></article>`;
+    return `<article class="papel fb" style="--fc:${NEG.color}">
+      <div class="franja"></div>
+      <div class="cab">${cabNeg}</div><div class="regla"></div>
+      <div class="titulo">FACTURA</div>
+      <div class="sub-t"><span>Nº <b>${nro}</b></span><span>${fecha(f.fecha)}</span><span>Forma de pago: ${f.medio}</span></div>
+      <div class="meta">${cliente}<div class="nro"><div class="p-lbl">Factura</div><b>Nº ${nro}</b><div class="fp">${fecha(f.fecha)}</div></div></div>
+      <table><thead><tr><th style="width:6%">Nº</th><th>Producto</th><th class="n" style="width:11%">Cant.</th><th class="n" style="width:18%">Tarifa</th><th class="n" style="width:18%">Monto</th></tr></thead><tbody>${filasItems}</tbody></table>
+      <div class="abajo">${tenga}${totales}</div>${pagos}${firmas}<div class="pie-f">${NEG.pie}</div></article>`;
+  };
+  const pantallaFactura = (prop) => () => {
+    const f = FAC[estado.facturaEj];
+    return {
+      titulo: prop === 'a' ? 'Factura · Propuesta A' : 'Factura · Propuesta B', sub: prop === 'a' ? 'Fiel a la distribución original' : 'Distribución original, refinada', volver: 'mas',
+      html: `<div class="factura-marco">
+        <div style="display:grid;gap:12px;min-width:0">
+          ${segm([['credito', 'A crédito con abonos'], ['pagada', 'Pagada con firma']], estado.facturaEj)}
+          <div class="visor ${estado.ampliar ? 'ampliado' : ''}" id="visor"><div class="escala" id="escala">${documentoFactura(prop, f)}</div></div>
+          <div class="dos"><button class="btn" type="button" data-toast="En la app abre el diálogo de impresión">${ico('imprimir', 's')}Imprimir</button><button class="btn prim" type="button" data-toast="En la app genera el PDF y lo comparte">${ico('compartir', 's')}Compartir PDF</button></div>
+        </div>
+        <div class="tarjeta p" style="display:grid;gap:10px">
+          <button class="btn peq" type="button" id="ampliar">${ico('zoom', 's')}${estado.ampliar ? 'Ver la hoja completa' : 'Ver a tamaño real'}</button>
+          <a class="btn peq" href="#${prop === 'a' ? 'factura-refinada' : 'factura-original'}">Ver propuesta ${prop === 'a' ? 'B' : 'A'}</a>
+          <p class="nota">${prop === 'a'
+            ? 'Recupera tu factura original: encabezado con línea negra, "FACTURA" centrado, número y fecha en color a la derecha, tabla con encabezado de color y "Tenga en cuenta" al lado de los totales, con el gran total en una franja de color y el saldo en rojo.'
+            : 'La misma distribución con ajustes de orden: franja de color arriba, número, fecha y forma de pago bajo el título, cliente en un recuadro, filas alternadas, totales en un bloque propio y pie separado.'}</p>
+          <p class="nota">En las dos, la factura es una hoja con proporción de papel: se ve igual en la pantalla, al imprimir y en el PDF, y ya no se sale por los lados en el teléfono. Los cálculos no cambian.</p>
+        </div></div>`,
+    };
+  };
+  P_['factura-original'] = pantallaFactura('a');
+  P_['factura-refinada'] = pantallaFactura('b');
+
+  P_.formulario = () => ({
+    titulo: 'Formularios', sub: 'Campos, botones, selectores y ventanas', volver: 'inicio',
+    html: `
+      <p class="nota">Toca cada botón para ver cómo se abren las ventanas.</p>
+      <div style="display:grid;gap:10px">
+        <button class="btn prim bloque" type="button" data-hoja="venta">Nueva venta (paso 2 de 2)</button>
+        <button class="btn bloque" type="button" data-hoja="cliente">Nuevo cliente (con error de validación)</button>
+        <button class="btn bloque" type="button" data-dialogo="eliminar">Confirmar antes de eliminar</button>
+      </div>
+      <div class="seccion-titulo"><h2>Controles</h2></div>
+      <div class="tarjeta p" style="display:grid;gap:16px">
+        <div class="campo"><label for="d1">Nombre del producto</label><input class="control" id="d1" value="Manilla tejida"></div>
+        <div class="dos">
+          <div class="campo"><span class="lbl">Costo</span><div class="control dinero-c"><span>$</span><input id="d2" inputmode="decimal" value="15.000" aria-label="Costo"></div></div>
+          <div class="campo"><span class="lbl">Precio</span><div class="control dinero-c"><span>$</span><input id="d3" inputmode="decimal" value="35.000" aria-label="Precio"></div></div>
+        </div>
+        <span class="pill pos" style="justify-self:start">Ganas ${dinero(20000)} por unidad (+133%)</span>
+        <div class="campo"><span class="lbl">Forma de pago</span>${segm([['ef', 'Efectivo'], ['ta', 'Tarjeta'], ['cr', 'Crédito'], ['mi', 'Mixto']], 'ef')}</div>
+        <div class="campo"><label for="d4">Categoría</label><select class="control" id="d4"><option>Manillas</option><option>Collares</option></select></div>
+      </div>`,
+  });
+
+  // ---------- Hojas, diálogos y avisos ----------
+  const velo = $('#velo');
+  const cerrarVelo = () => { velo.hidden = true; velo.innerHTML = ''; };
+  velo.addEventListener('click', (e) => { if (e.target === velo || e.target.closest('[data-cerrar]')) cerrarVelo(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') cerrarVelo(); });
+  const hojas = {
+    venta: () => `<div class="hoja" role="dialog" aria-modal="true" aria-labelledby="hv"><div class="hoja-cab"><div class="agarre"></div><div class="fila-c"><h2 id="hv">Nueva venta</h2><button class="cerrar" type="button" data-cerrar aria-label="Cerrar">${ico('cerrar', 's')}</button></div><p>Laura Gómez · Paso 2 de 2</p><div class="pasos"><i class="on"></i><i class="on"></i></div></div>
+      <div class="hoja-cuerpo">
+        ${buscador('Agregar producto')}
+        <div>${[['Manilla tejida', 35000, 2], ['Collar plata 925', 120000, 1]].map(([n, p, c]) => `<div class="item-c"><div><div style="font-weight:650">${n}</div><div class="ayuda">${dinero(p)} c/u</div></div><div style="font-weight:700" class="num">${dinero(p * c)}</div><div class="cant"><button type="button" aria-label="Menos">−</button><span>${c}</span><button type="button" aria-label="Más">+</button></div><button class="enlace" type="button" style="justify-self:end;color:var(--negativo)">Quitar</button></div>`).join('')}</div>
+        <div class="dos"><div class="campo"><span class="lbl">Descuento (%)</span><div class="control dinero-c"><input id="h1" value="10" aria-label="Descuento"><span>%</span></div></div><div class="campo"><span class="lbl">Total a cobrar</span><div class="control dinero-c"><span>$</span><input id="h2" value="171.000" aria-label="Total"></div></div></div>
+        <div class="campo"><span class="lbl">Forma de pago</span>${segm([['ef', 'Efectivo'], ['ta', 'Tarjeta'], ['cr', 'Crédito'], ['mi', 'Mixto']], 'cr')}</div>
+        <div class="totales-c">${lineas([['Suma de productos', dinero(190000)], ['Descuento (10%)', '-' + dinero(19000)], ['Total', dinero(171000), 'total']])}</div>
+      </div>
+      <div class="hoja-pie"><button class="btn" type="button" data-cerrar>Atrás</button><button class="btn prim" type="button" data-cerrar data-toast="Venta registrada">Cobrar ${dinero(171000)}</button></div></div>`,
+    cliente: () => `<div class="hoja" role="dialog" aria-modal="true" aria-labelledby="hc"><div class="hoja-cab"><div class="agarre"></div><div class="fila-c"><h2 id="hc">Nuevo cliente</h2><button class="cerrar" type="button" data-cerrar aria-label="Cerrar">${ico('cerrar', 's')}</button></div></div>
+      <div class="hoja-cuerpo">
+        <div class="campo"><label for="c1">Nombre</label><input class="control mal" id="c1" placeholder="Ej. Laura Gómez" aria-describedby="c1e"><span class="error" id="c1e">Escribe el nombre del cliente.</span></div>
+        <div class="campo"><label for="c2">Teléfono</label><input class="control" id="c2" inputmode="tel" placeholder="Opcional"><span class="ayuda">Para enviarle recordatorios por WhatsApp.</span></div>
+        <div class="campo"><label for="c3">Correo</label><input class="control" id="c3" inputmode="email" placeholder="Opcional"></div>
+        <div class="campo"><label for="c4">Dirección de facturación</label><textarea class="control" id="c4" rows="2" style="padding-top:12px" placeholder="Opcional"></textarea></div>
+      </div>
+      <div class="hoja-pie"><button class="btn" type="button" data-cerrar>Cancelar</button><button class="btn prim" type="button" data-cerrar data-toast="Cliente registrado">Guardar</button></div></div>`,
+  };
+  const dialogos = {
+    anular: ['¿Anular esta venta?', 'Las unidades vuelven al inventario. Esta acción no se puede deshacer.', 'Anular venta'],
+    eliminar: ['¿Eliminar este producto?', 'Sus ventas se conservan. Esta acción no se puede deshacer.', 'Eliminar'],
+    liquidar: ['¿Liquidar toda la deuda?', `Se registrará un abono de ${dinero(120000)} para cerrar sus ventas a crédito.`, 'Liquidar'],
+  };
+  const abrirDialogo = (k) => { const [t, m, a] = dialogos[k]; velo.innerHTML = `<div class="dialogo" role="alertdialog" aria-modal="true" aria-labelledby="dt"><h2 id="dt">${t}</h2><p>${m}</p><div class="bot"><button class="btn" type="button" data-cerrar>Cancelar</button><button class="btn prim" type="button" data-cerrar data-toast="Hecho" style="background:var(--negativo);border-color:var(--negativo)">${a}</button></div></div>`; velo.hidden = false; velo.querySelector('[data-cerrar]').focus(); };
+  const abrirHoja = (k) => { velo.innerHTML = hojas[k](); velo.hidden = false; };
+  let reloj;
+  const aviso = (t) => { const el = $('#toast'); el.innerHTML = `${ico('ok', 's')}${t}`; el.hidden = false; clearTimeout(reloj); reloj = setTimeout(() => { el.hidden = true; }, 2200); };
+  const GUIA = [
+    ['inicio', 'Inicio (nuevo)', 'Resumen del día, accesos rápidos y lo que necesita atención.'],
+    ['ventas', 'Ventas', 'Agrupadas por día con su total; pendientes en la otra pestaña.'],
+    ['venta', 'Detalle de venta', 'Total, cuánto se ha pagado y acciones a mano.'],
+    ['inventario', 'Inventario', 'Stock como etiqueta de color; filtros por categoría.'],
+    ['producto', 'Detalle de producto', 'Cifras clave arriba, historial de compras abajo.'],
+    ['clientes', 'Clientes', 'Total por cobrar y quién debe, a primera vista.'],
+    ['cliente', 'Detalle de cliente', 'Deuda, abonar, WhatsApp y créditos.'],
+    ['gastos', 'Gastos', 'Total del mes y gastos agrupados por mes.'],
+    ['reportes', 'Reportes', 'Ganancia destacada, cifras y últimos 6 meses.'],
+    ['mas', 'Menú "Más"', 'Facturas, Gastos, Reportes, Créditos y Ajustes.'],
+    ['formulario', 'Formularios y ventanas', 'Campos, selectores, hojas y confirmaciones.'],
+    ['factura-original', 'Factura · Propuesta A', 'Fiel a tu factura original.'],
+    ['factura-refinada', 'Factura · Propuesta B', 'La original con ajustes de orden.'],
+  ];
+  $('#abrirGuia').addEventListener('click', () => {
+    velo.innerHTML = `<div class="hoja" role="dialog" aria-modal="true" aria-labelledby="hg"><div class="hoja-cab"><div class="agarre"></div><div class="fila-c"><h2 id="hg">Pantallas de la demostración</h2><button class="cerrar" type="button" data-cerrar aria-label="Cerrar">${ico('cerrar', 's')}</button></div><p>También puedes navegar con la barra de abajo, como en la app.</p></div><div class="hoja-cuerpo"><ol class="lista guia">${GUIA.map(([h, t, d]) => `<li><a href="#${h}" data-cerrar>${t}</a><p>${d}</p></li>`).join('')}</ol></div></div>`;
+    velo.hidden = false;
+  });
+
+  // ---------- Pintar ----------
+  const escalar = () => {
+    const v = $('#visor'), e = $('#escala');
+    if (!v || !e) return;
+    const papel = e.firstElementChild;
+    if (estado.ampliar) { e.style.transform = 'none'; v.style.height = 'auto'; return; }
+    const k = Math.min(1, (v.clientWidth - 24) / papel.offsetWidth);
+    e.style.transform = `scale(${k})`;
+    v.style.height = `${papel.offsetHeight * k + 24}px`;
+  };
+  addEventListener('resize', escalar);
+
+  const pintar = () => {
+    let r = (location.hash || '#inicio').slice(1);
+    if (!P_[r]) r = 'inicio';
+    if (r === 'ventas' && estado.ventasVista === 'pendientes' && !window.__desdePend) estado.ventasVista = 'ventas';
+    window.__desdePend = false;
+    const s = P_[r]();
+    const activo = PADRE[r] || r;
+    const actLat = { venta: 'ventas', pendientes: 'ventas', producto: 'inventario', cliente: 'clientes', 'factura-original': 'facturas', 'factura-refinada': 'facturas', formulario: 'inicio' }[r] || r;
+    $('#barra').innerHTML = BARRA.map(([h, t]) => `<a href="#${h}" ${h === activo ? 'aria-current="page"' : ''}><span class="ico">${ico(h)}</span>${t}</a>`).join('');
+    $('#lateral').innerHTML = `<div class="neg"><span class="avatar-negocio">OA</span>Orisma Accesorios</div>${LATERAL.map(([g, l]) => `${g ? `<div class="grupo-l">${g}</div>` : ''}${l.map(([h, t, i]) => `<a href="#${h}" ${h === actLat ? 'aria-current="page"' : ''}>${ico(i)}${t}</a>`).join('')}`).join('')}<div class="abajo-l"><a href="#mas">${ico('ajustes')}Ajustes y más</a></div>`;
+    $('#cabecera').innerHTML = `<div class="cabecera-fila">${s.volver ? `<a class="atras" href="#${s.volver}" aria-label="Volver">${ico('atras')}</a>` : ''}${s.avatar ? '<span class="avatar-negocio">OA</span>' : ''}<div class="cabecera-titulo"><h1>${s.titulo}</h1>${s.sub ? `<p>${s.sub}</p>` : ''}</div>${s.fab ? `<a class="btn prim fab-sitio" href="#${s.fab[1]}">${ico('mas2', 's')}${s.fab[0]}</a>` : ''}</div>`;
+    $('#contenido').innerHTML = s.html;
+    const fab = $('#fab');
+    fab.hidden = !s.fab || matchMedia('(min-width: 900px)').matches;
+    if (s.fab) { fab.innerHTML = `${ico('mas2')}${s.fab[0]}`; fab.onclick = () => { if (s.fab[1] === 'formulario') abrirHoja(r === 'clientes' ? 'cliente' : 'venta'); else location.hash = s.fab[1]; }; }
+    requestAnimationFrame(escalar);
+  };
+
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('button, a');
+    if (!b) return;
+    if (b.dataset.toast) aviso(b.dataset.toast);
+    if (b.dataset.dialogo) abrirDialogo(b.dataset.dialogo);
+    if (b.dataset.hoja) abrirHoja(b.dataset.hoja);
+    if (b.dataset.cat !== undefined) { estado.invCat = b.dataset.cat; pintar(); }
+    if (b.dataset.per) { estado.repPeriodo = b.dataset.per; pintar(); }
+    if (b.id === 'ampliar') { estado.ampliar = !estado.ampliar; pintar(); }
+    if (b.dataset.seg) {
+      const g = b.parentElement;
+      g.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      if (['ventas', 'pendientes'].includes(b.dataset.seg) && $('#contenido').contains(b)) { estado.ventasVista = b.dataset.seg; window.__desdePend = true; pintar(); }
+      if (['credito', 'pagada'].includes(b.dataset.seg)) { estado.facturaEj = b.dataset.seg; pintar(); }
+    }
+    if (b.matches('a[href="#pendientes"]')) { estado.ventasVista = 'pendientes'; window.__desdePend = true; }
+  });
+  addEventListener('hashchange', () => { cerrarVelo(); pintar(); scrollTo(0, 0); });
+  pintar();
+})();
+</script>
