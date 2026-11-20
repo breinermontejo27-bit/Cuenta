@@ -272,3 +272,18 @@ export async function espacio() {
 export function nuevoId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 }
+
+/** Lee un dato interno del almacén "meta" (o `porDefecto` si no existe). */
+export async function leerMeta(clave, porDefecto = null) {
+  const base = await abrir();
+  const r = await pedir(base.transaction('meta').objectStore('meta').get(clave));
+  return r ? r.v : porDefecto;
+}
+
+/** Guarda (o borra, con `valor` undefined) un dato interno del almacén "meta". */
+export function guardarMeta(clave, valor) {
+  return transaccion(['meta'], 'readwrite', (a) => {
+    if (valor === undefined) a('meta').delete(clave);
+    else a('meta').put({ k: clave, v: valor });
+  });
+}

@@ -3,7 +3,7 @@
 
 /** Mes de una fecha: "2026-11-19" → "2026-11" (monthKey, L512). */
 export function mesDe(iso) {
-  return iso.slice(0, 7);
+  return iso == null ? '' : String(iso).slice(0, 7);
 }
 
 /** Mes anterior al de hoy (mesAnteriorKey, L1800). */

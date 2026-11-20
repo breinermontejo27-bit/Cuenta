@@ -1,7 +1,7 @@
 // Constantes de la aplicación. Sin lógica: solo valores que el resto de módulos consulta.
 
 export const NOMBRE_APP = 'Orisma';
-export const VERSION_APP = '2.0.0-etapa7';
+export const VERSION_APP = '2.0.0-etapa8';
 
 // Base de datos (se usa desde la Etapa 5).
 export const NOMBRE_BD = 'orisma';

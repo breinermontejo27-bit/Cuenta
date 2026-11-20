@@ -27,7 +27,7 @@ export function abrirFormularioPendiente(id, tipoNuevo) {
   const tipo = r ? tipoDe(r) : (tipoNuevo || 'pedido');
   const esApa = tipo === 'apartado', esEnc = tipo === 'encargo';
   const aj = obtenerAjustes();
-  const items = r ? r.items.map((it) => ({ ...it })) : [];
+  const items = r ? (r.items || []).map((it) => ({ ...it })) : [];
   let panelAbierto = items.length === 0;
   const capa = abrirHoja({
     titulo: `${r ? 'Editar' : 'Nuevo'} ${tipo}`,

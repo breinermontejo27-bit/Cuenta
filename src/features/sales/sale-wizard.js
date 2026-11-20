@@ -20,6 +20,7 @@ import { totalesVenta, descuentoPorcentaje, descuentoDesdeTotal, costoCarrito, g
 import { disponible, mensajeSinStock } from '../../business/inventory-rules.js';
 import { abrirServicioLibre, abrirPrendaAMedida } from './sale-items.js';
 import { pintarPago, leerMontosPago, actualizarResto, confirmarCobro, mostrarVentaRegistrada } from './sale-payment.js';
+import { contiene } from '../../business/text.js';
 
 const TEXTO_GUARDAR = { venta: 'Registrar venta', pedido: 'Agendar pedido', encargo: 'Registrar encargo', apartado: 'Crear apartado' };
 const AVISO_PENDIENTE = {
@@ -49,7 +50,7 @@ export function abrirAsistente() {
     ponerPaso('Paso 1 de 2 · elige el cliente');
     const pintarClientes = (t) => {
       const term = t.trim().toLowerCase();
-      const items = coleccion('clientes').filter((c) => c.nombre.toLowerCase().includes(term));
+      const items = coleccion('clientes').filter((c) => contiene(c.nombre, term));
       montar(zonaPaso.querySelector('[data-zona="clientes"]'), items.length
         ? lista(items.map((c) => fila({ datos: { cliente: c.id }, iniciales: c.nombre, titulo: c.nombre, sub: c.telefono || '' })))
         : estadoVacio({ icono: 'buscar', titulo: 'Sin resultados', texto: 'Prueba con otro nombre.' }));
@@ -160,7 +161,7 @@ export function abrirAsistente() {
       const t = e.target.value.trim().toLowerCase();
       const res = $('[data-zona="resultados"]');
       if (!t) { res.hidden = true; return; }
-      const encontrados = coleccion('inventario').filter((p) => p.nombre.toLowerCase().includes(t)).slice(0, 8);
+      const encontrados = coleccion('inventario').filter((p) => contiene(p.nombre, t)).slice(0, 8);
       res.hidden = false;
       montar(res, encontrados.length ? html`${encontrados.map((p) => html`<li><button type="button" class="fila" data-producto="${p.id}"><span class="fila-principal"><span class="fila-titulo">${p.nombre}</span></span><span class="fila-valor"><span class="monto">${dinero(p.precio)}</span></span></button></li>`)}` : html`<li class="nota">Sin productos con ese nombre</li>`);
       res.querySelectorAll('[data-producto]').forEach((b) => b.addEventListener('click', () => {

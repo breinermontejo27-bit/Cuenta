@@ -13,7 +13,7 @@ import { abrirDetallePendiente } from './pending-detail.js';
 import { abrirDetalleApartado } from './layaway-detail.js';
 
 function filaPendiente(p, dia) {
-  const resumen = p.items.map((it) => `${it.cantidad} × ${it.nombre}`).join(', ');
+  const resumen = (p.items || []).map((it) => `${it.cantidad} × ${it.nombre}`).join(', ');
   if (p.tipo === 'apartado') {
     const total = totalApartado(p, obtenerAjustes().impuesto), abonado = abonadoPendiente(p), saldo = Math.max(0, total - abonado);
     return fila({ datos: { pendiente: p.id }, titulo: p.clienteNombre, sub: resumen, sub2: `Abonado ${dinero(abonado)} de ${dinero(total)}`, insignias: [saldo <= 0 ? insignia('pagado', 'Pagado') : insignia('deuda', 'Falta ' + dinero(saldo))] });

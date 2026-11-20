@@ -14,6 +14,7 @@ import { operar } from '../../ui/operar.js';
 import { crearGasto, editarGasto, eliminarGasto } from '../../operations/expenses.js';
 import { comprarDesdeGastos } from '../../operations/purchases.js';
 import { sincronizarCompra, tieneControlStock } from '../../business/inventory-rules.js';
+import { contiene } from '../../business/text.js';
 
 const MEDIOS = [['efectivo', 'Efectivo'], ['tarjeta', 'Tarjeta']];
 
@@ -97,7 +98,7 @@ export function abrirNuevoGasto() {
       const t = buscar.value.trim().toLowerCase();
       const res = $('[data-zona="resultados"]');
       if (!t) { res.hidden = true; return; }
-      const encontrados = coleccion('inventario').filter((x) => x.nombre.toLowerCase().includes(t)).slice(0, 8);
+      const encontrados = coleccion('inventario').filter((x) => contiene(x.nombre, t)).slice(0, 8);
       res.hidden = false;
       montar(res, encontrados.length
         ? html`${encontrados.map((x) => html`<li><button type="button" class="fila" data-producto="${x.id}"><span class="fila-principal"><span class="fila-titulo">${x.nombre}</span></span><span class="fila-valor"><span class="monto">${dinero(x.precio)}</span></span></button></li>`)}`

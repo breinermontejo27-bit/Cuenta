@@ -8,6 +8,7 @@
 
 import { num, sumar, limitar } from './numbers.js';
 import { cantidadesNecesarias, descontarStock, tieneControlStock } from './inventory-rules.js';
+import { texto, compararTexto, contiene } from './text.js';
 
 /** Nombre de cada tipo de pendiente en los textos. */
 export const NOMBRE_TIPO = Object.freeze({ pedido: 'pedido', encargo: 'encargo', apartado: 'apartado' });
@@ -66,9 +67,9 @@ export function estadoPorFecha(p, hoy) {
 export function agruparPendientes(pedidos, hoy, termino = '') {
   const t = String(termino).trim().toLowerCase();
   const todos = pedidos.filter((p) => p.estado === 'pendiente');
-  const activos = todos.filter((p) => p.clienteNombre.toLowerCase().includes(t));
+  const activos = todos.filter((p) => contiene(p.clienteNombre, t));
   const porCreado = (a, b) => (a.creadoTs || 0) - (b.creadoTs || 0);
-  const porFecha = (a, b) => a.fechaEntrega.localeCompare(b.fechaEntrega) || porCreado(a, b);
+  const porFecha = (a, b) => compararTexto(a.fechaEntrega, b.fechaEntrega) || porCreado(a, b);
   const ped = activos.filter((p) => tipoDe(p) === 'pedido');
   const enc = activos.filter((p) => p.tipo === 'encargo');
   const apa = activos.filter((p) => p.tipo === 'apartado');
@@ -89,7 +90,7 @@ export function saldoDetallePendiente(p) {
 
 /** RP-10 · Costo de un pendiente: costo actual del producto, o el escrito si no está en inventario (costoPedido, L1145). */
 export function costoPendiente(p, inventario) {
-  return p.items.reduce((s, it) => {
+  return (p.items || []).reduce((s, it) => {
     const prod = inventario.find((x) => x.id === it.productoId);
     const c = prod ? num(prod.costo) : num(it.costo);
     return s + c * num(it.cantidad);
@@ -104,7 +105,7 @@ export function itemDeFormulario({ nombre, cantidad, precio, caracteristicas, co
   const cant = num(cantidad);
   if (!n) return { ok: false, campo: 'nombre' };
   if (cant <= 0) return { ok: false, campo: 'cantidad' };
-  const prod = inventario.find((x) => x.nombre.toLowerCase() === n.toLowerCase());
+  const prod = inventario.find((x) => texto(x.nombre).toLowerCase() === n.toLowerCase());
   return {
     ok: true,
     item: { productoId: prod ? prod.id : null, nombre: prod ? prod.nombre : n, cantidad: cant, precio: num(precio), caracteristicas: String(caracteristicas || '').trim() || (prod && prod.descripcion) || '', costo: num(costo) },
@@ -219,7 +220,7 @@ export function faltanteParaEntregar(p, inventario) {
 export function entregarPendiente(p, opciones, { inventario, clientes, impuestoPct, hoy, ahora, nuevoId }) {
   const faltante = faltanteParaEntregar(p, inventario);
   if (faltante) return { ok: false, faltante };
-  const items = p.items.map((it) => ({ productoId: it.productoId, nombre: it.nombre, precio: num(it.precio), cantidad: num(it.cantidad), caracteristicas: it.caracteristicas || '', foto: it.foto || '', materiales: it.materiales || [] }));
+  const items = (p.items || []).map((it) => ({ productoId: it.productoId, nombre: it.nombre, precio: num(it.precio), cantidad: num(it.cantidad), caracteristicas: it.caracteristicas || '', foto: it.foto || '', materiales: it.materiales || [] }));
   const sumaItems = items.reduce((s, it) => s + it.precio * it.cantidad, 0);
   const descPct = limitar(num(p.descuentoPct), 0, 100);
   const descMonto = sumaItems * descPct / 100;
@@ -230,7 +231,7 @@ export function entregarPendiente(p, opciones, { inventario, clientes, impuestoP
   const anticipo = Math.min(num(p.anticipo), total);
   const saldo = total - anticipo;
   const cli = clientes.find((c) => c.id === p.clienteId) || {};
-  const detalles = p.items.filter((it) => it.caracteristicas).map((it) => `${it.nombre}: ${it.caracteristicas}`);
+  const detalles = (p.items || []).filter((it) => it.caracteristicas).map((it) => `${it.nombre}: ${it.caracteristicas}`);
   const pagaAhora = !!(opciones && opciones.pagaAhora) && saldo > 0;
   const metodoSaldo = (opciones && opciones.metodo) || 'efectivo';
   const quedaCredito = saldo > 0 && !pagaAhora;

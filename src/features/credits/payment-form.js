@@ -12,12 +12,13 @@ import { seccion, tarjetaLineas, nota } from '../../ui/components/cards.js';
 import { operar } from '../../ui/operar.js';
 import { abonarVenta } from '../../operations/credits.js';
 import { saldoVenta, abonadoVenta } from '../../business/payments.js';
+import { compararTexto } from '../../business/text.js';
 
 export function abrirAbono(ventaId, alVolver) {
   const v = coleccion('ventas').find((x) => x.id === ventaId);
   if (!v) return;
   const saldo = saldoVenta(v);
-  const abonos = (v.abonos || []).slice().sort((a, b) => b.fecha.localeCompare(a.fecha));
+  const abonos = (v.abonos || []).slice().sort((a, b) => compararTexto(b.fecha, a.fecha));
   const volver = async () => { await capa.cerrar(); if (alVolver) alVolver(); };
   const capa = abrirHoja({
     titulo: 'Registrar abono',

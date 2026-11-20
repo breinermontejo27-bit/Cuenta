@@ -6,7 +6,7 @@
 
 export const VERSION_ESQUEMA = 1;
 
-import { COLECCIONES } from '../core/config.js';
+import { COLECCIONES, AJUSTES_INICIALES, CONFIG_DEFAULTS } from '../core/config.js';
 
 export { COLECCIONES };
 
@@ -84,8 +84,12 @@ export const FORMAS = {
   },
 };
 
+// Claves que podrían alterar los objetos de JavaScript si se copian sin cuidado (contaminación de prototipos).
+const CLAVES_PROHIBIDAS = ['__proto__', 'constructor', 'prototype'];
+
 function revisarObjeto(obj, forma, ruta, problemas) {
   if (!obj || typeof obj !== 'object' || Array.isArray(obj)) { problemas.push(`${ruta}: no es un registro`); return; }
+  for (const k of CLAVES_PROHIBIDAS) if (Object.prototype.hasOwnProperty.call(obj, k)) problemas.push(`${ruta}: campo no permitido "${k}"`);
   for (const req of forma._requeridos || []) {
     if (obj[req] === undefined || obj[req] === null || obj[req] === '') problemas.push(`${ruta}: falta "${req}"`);
   }
@@ -143,4 +147,28 @@ export function revisarDatos(datos, modo = 'legado') {
   return modo === 'estricto'
     ? { errores: [...errores, ...forma], advertencias: huerfanas, conteos }
     : { errores, advertencias: [...forma, ...huerfanas], conteos };
+}
+
+/**
+ * Ajustes traídos de la versión anterior con un campo no válido (p. ej. una imagen o un color dañados): ese campo
+ * vuelve a su valor por defecto. Sin esto, ningún ajuste se podría volver a guardar (y con ellos los folios de
+ * factura y los números de comprobante). La versión original siempre guarda valores válidos, así que con datos
+ * reales no debería ocurrir; la copia literal de lo original se conserva igual en "respaldos".
+ * @returns {{ ajustes: Object|null, cambiados: string[] }}
+ */
+export function sanearAjustesLegado(ajustes) {
+  if (!ajustes || typeof ajustes !== 'object' || Array.isArray(ajustes)) return { ajustes, cambiados: [] };
+  const limpio = {}, cambiados = [];
+  for (const [campo, valor] of Object.entries(ajustes)) {
+    if (CLAVES_PROHIBIDAS.includes(campo)) { cambiados.push(campo); continue; }
+    const tipo = FORMAS.ajustes[campo];
+    if (typeof tipo === 'string' && !TIPOS[tipo](valor)) {
+      cambiados.push(campo);
+      const defecto = campo in CONFIG_DEFAULTS ? CONFIG_DEFAULTS[campo] : AJUSTES_INICIALES[campo];
+      if (defecto !== undefined) limpio[campo] = defecto;
+      continue;
+    }
+    limpio[campo] = valor;
+  }
+  return { ajustes: cambiados.length ? limpio : ajustes, cambiados };
 }

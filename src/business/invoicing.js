@@ -2,6 +2,7 @@
 
 import { num } from './numbers.js';
 import { abonadoVenta, saldoVenta } from './payments.js';
+import { compararTexto, contiene } from './text.js';
 
 /** RF-01 · Asigna folio si la venta no lo tiene; el contador sube 1 (generarFactura, L3204–3211). */
 export function asignarFolio(venta, ajustes) {
@@ -21,7 +22,7 @@ export function siguienteComprobante(ajustes) {
 /** RP-17 · Documento "Comprobante de abono" de un pendiente (comprobanteDeAbono, L1230–1244). */
 export function comprobanteDeAbono(p, cliente, numero, hoy) {
   const cli = cliente || {};
-  const items = p.items.map((it) => ({ productoId: it.productoId, nombre: it.nombre, precio: num(it.precio), cantidad: num(it.cantidad), caracteristicas: it.caracteristicas || '' }));
+  const items = (p.items || []).map((it) => ({ productoId: it.productoId, nombre: it.nombre, precio: num(it.precio), cantidad: num(it.cantidad), caracteristicas: it.caracteristicas || '' }));
   const total = items.reduce((s, it) => s + it.precio * it.cantidad, 0);
   const abonos = p.tipo === 'apartado'
     ? (p.abonos || []).map((a) => ({ fecha: a.fecha, monto: num(a.monto), metodo: a.metodo }))
@@ -43,12 +44,12 @@ export function datosDocumento(v, ajustes, inventario) {
     color: ajustes.colorFactura || '#1E4FA0',
     titulo: v.tituloDoc || ajustes.facturaTitulo || 'FACTURA',
     saldo, pagada: saldo <= 0,
-    abonos: (v.abonos || []).slice().sort((a, b) => (a.fecha || '').localeCompare(b.fecha || '')),
+    abonos: (v.abonos || []).slice().sort((a, b) => compararTexto(a.fecha, b.fecha)),
     abonado: abonadoVenta(v),
     sumaProductos: v.sumaItems !== undefined ? v.sumaItems : v.subtotal,
     descuentoEtiqueta: v.descuentoTipo === 'monto' ? 'Descuento' : `Descuento (${v.descuentoPct}%)`,
     descripcion: (it) => it.caracteristicas || ((producto(it) || {}).descripcion) || '',
-    fotos: v.items.map((it) => { const pr = producto(it); const src = it.foto || (pr && pr.foto); return src ? { src, nombre: it.nombre } : null; }).filter(Boolean),
+    fotos: (v.items || []).map((it) => { const pr = producto(it); const src = it.foto || (pr && pr.foto); return src ? { src, nombre: it.nombre } : null; }).filter(Boolean),
     mostrar: (clave) => ajustes[clave] !== false,
     mostrarOpcional: (clave) => ajustes[clave] === true,
   };
@@ -72,7 +73,7 @@ export function filtrarFacturas(ventas, termino) {
   const t = String(termino || '').trim().toLowerCase();
   return {
     facturas: ventas.filter((v) => v.folio)
-      .filter((v) => v.clienteNombre.toLowerCase().includes(t) || ('f' + v.folio).includes(t) || String(v.folio).padStart(4, '0').includes(t))
+      .filter((v) => contiene(v.clienteNombre, t) || ('f' + v.folio).includes(t) || String(v.folio).padStart(4, '0').includes(t))
       .sort((a, b) => b.folio - a.folio),
     sinFactura: ventas.filter((v) => !v.folio).length,
     hayFacturas: ventas.some((v) => v.folio),
@@ -81,5 +82,5 @@ export function filtrarFacturas(ventas, termino) {
 
 /** Ventas sin factura, más recientes primero (openSinFacturaPicker, L3250–3252). */
 export function ventasSinFactura(ventas) {
-  return ventas.filter((v) => !v.folio).sort((a, b) => b.fecha.localeCompare(a.fecha) || (b.creadoTs || 0) - (a.creadoTs || 0));
+  return ventas.filter((v) => !v.folio).sort((a, b) => compararTexto(b.fecha, a.fecha) || (b.creadoTs || 0) - (a.creadoTs || 0));
 }

@@ -22,7 +22,7 @@ export function abrirDetalleVenta(id) {
     titulo: v.clienteNombre,
     paso: `${fecha(v.fecha)} · Sin factura generada`,
     cuerpo: html`
-      ${tarjetaLineas(v.items.map((it) => [html`<span class="linea-titulo">${it.cantidad} × ${it.nombre}</span><span class="linea-sub">${dinero(it.precio)} c/u</span>`, dinero(it.precio * it.cantidad)]))}
+      ${tarjetaLineas((v.items || []).map((it) => [html`<span class="linea-titulo">${it.cantidad} × ${it.nombre}</span><span class="linea-sub">${dinero(it.precio)} c/u</span>`, dinero(it.precio * it.cantidad)]))}
       ${v.notas ? html`<p class="nota"><strong>Notas:</strong> ${v.notas}</p>` : ''}
       ${tarjetaLineas([
         ['Suma de productos', dinero(v.sumaItems !== undefined ? v.sumaItems : v.subtotal)],

@@ -32,7 +32,7 @@ export function folio(n) {
 
 /** Iniciales de un nombre: "Ana Pérez" → "AP" (igual que initials, L504). */
 export function iniciales(nombre) {
-  return (nombre || '?').trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+  return (String(nombre == null ? '' : nombre) || '?').trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
 }
 
 /** Nombres de los medios de pago (RV-14). */

@@ -2,6 +2,7 @@
 // (Etapa 1, Documento 2 §3: RI-01 … RI-17). Funciones puras: reciben los datos y devuelven resultados nuevos.
 
 import { num } from './numbers.js';
+import { compararTexto } from './text.js';
 
 /** RI-01 · ¿El producto controla stock? (stock vacío = sin control; ver "diferencias de borde" en la documentación). */
 export function tieneControlStock(p) {
@@ -17,7 +18,7 @@ export function stockDe(p) {
 export function categorias(inventario) {
   const set = new Set();
   inventario.forEach((p) => { if (p.categoria) set.add(p.categoria); });
-  return Array.from(set).sort((a, b) => a.localeCompare(b));
+  return Array.from(set).sort((a, b) => compararTexto(a, b));
 }
 
 /** RI-04 · Límite de poco stock del producto, o null si no avisa (umbralStock, L709). */
@@ -55,7 +56,7 @@ function unidadesEnItem(it, productoId, contarProducto) {
 /** RI-13 · Reservado por pedidos y apartados pendientes (y por materiales de cualquier pendiente) (L850). */
 export function reservadoSinEncargos(pedidos, productoId) {
   return pedidos.filter((p) => p.estado === 'pendiente')
-    .reduce((s, p) => s + p.items.reduce((a, it) => a + unidadesEnItem(it, productoId, p.tipo !== 'encargo'), 0), 0);
+    .reduce((s, p) => s + (p.items || []).reduce((a, it) => a + unidadesEnItem(it, productoId, p.tipo !== 'encargo'), 0), 0);
 }
 
 /** RI-14 · Un encargo aparta sus unidades solo si el stock libre alcanza, por orden de creación (L861). */
@@ -67,7 +68,7 @@ export function reservadoPorEncargos(pedidos, inventario, productoId) {
     .sort((a, b) => (a.creadoTs || 0) - (b.creadoTs || 0));
   let total = 0;
   for (const p of encargos) {
-    const q = p.items.reduce((s, it) => s + (it.productoId === productoId ? num(it.cantidad) : 0), 0);
+    const q = (p.items || []).reduce((s, it) => s + (it.productoId === productoId ? num(it.cantidad) : 0), 0);
     if (q <= 0) continue;
     if (q > libre) break;
     total += q;
@@ -257,7 +258,7 @@ export function movimientoBaja(p, { hoy, ahora, nuevoId }) {
 
 /** Historial de compras de un producto (L1999–2002). */
 export function comprasDeProducto(p, gastos, ventas) {
-  const compras = gastos.filter((g) => g.tipo === 'compra' && g.productoId === p.id).sort((a, b) => b.fecha.localeCompare(a.fecha));
+  const compras = gastos.filter((g) => g.tipo === 'compra' && g.productoId === p.id).sort((a, b) => compararTexto(b.fecha, a.fecha));
   const unidades = compras.reduce((s, g) => s + num(g.cantidad), 0);
   const invertido = compras.reduce((s, g) => s + num(g.monto), 0);
   const vendidas = ventas.reduce((s, v) => s + (v.items || []).filter((it) => it.productoId === p.id).reduce((a, it) => a + num(it.cantidad), 0), 0);
@@ -301,7 +302,7 @@ export function historialInventario(ventas, gastos, movimientos, inventario) {
     const tipo = m.tipo || 'ajuste';
     ev.push({ tipo, fecha: m.fecha, ts: m.ts || 0, nombre: m.productoNombre || m.nombre || 'Producto', stockAnterior: m.stockAnterior, stockNuevo: m.stockNuevo, cantidad: m.cantidad, motivo: m.motivo || '' });
   });
-  return ev.sort((a, b) => b.fecha.localeCompare(a.fecha) || b.ts - a.ts);
+  return ev.sort((a, b) => compararTexto(b.fecha, a.fecha) || b.ts - a.ts);
 }
 
 /** Variación de unidades que muestra el historial para cada evento (qty, L691–698). */

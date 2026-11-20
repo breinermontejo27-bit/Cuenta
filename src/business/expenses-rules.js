@@ -1,6 +1,7 @@
 // Gastos generales (Etapa 1, Documento 2 §9: RG-07, RG-09). Las compras de inventario están en inventory-rules.js.
 
 import { num } from './numbers.js';
+import { compararTexto, contiene } from './text.js';
 
 /** RG-07 · Gasto general nuevo (L2514–2524). Solo la descripción es obligatoria; el monto se acepta como venga. */
 export function gastoGeneral({ descripcion, monto, fecha, categoria, metodo }, { hoy, nuevoId }) {
@@ -19,6 +20,6 @@ export function editarGasto(anterior, { descripcion, monto, fecha, categoria, me
 /** Lista de gastos: búsqueda en descripción o categoría, más recientes primero (L1578–1580). */
 export function filtrarGastos(gastos, termino) {
   const t = String(termino || '').trim().toLowerCase();
-  return gastos.filter((g) => g.descripcion.toLowerCase().includes(t) || (g.categoria || '').toLowerCase().includes(t))
-    .sort((a, b) => b.fecha.localeCompare(a.fecha));
+  return gastos.filter((g) => contiene(g.descripcion, t) || contiene(g.categoria, t))
+    .sort((a, b) => compararTexto(b.fecha, a.fecha));
 }

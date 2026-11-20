@@ -28,7 +28,7 @@ export function documento(v) {
       </div>
       <table>
         <thead><tr><th>Nº</th><th>Producto</th><th class="num">Cantidad</th><th class="num">Tarifa</th><th class="num">Monto</th></tr></thead>
-        <tbody>${v.items.map((it, i) => html`<tr><td>${i + 1}</td><td><div>${it.nombre}</div>${d.descripcion(it) ? html`<div class="doc-item-sub">${d.descripcion(it)}</div>` : ''}</td><td class="num">${it.cantidad}</td><td class="num">${dinero(it.precio)}</td><td class="num">${dinero(it.precio * it.cantidad)}</td></tr>`)}</tbody>
+        <tbody>${(v.items || []).map((it, i) => html`<tr><td>${i + 1}</td><td><div>${it.nombre}</div>${d.descripcion(it) ? html`<div class="doc-item-sub">${d.descripcion(it)}</div>` : ''}</td><td class="num">${it.cantidad}</td><td class="num">${dinero(it.precio)}</td><td class="num">${dinero(it.precio * it.cantidad)}</td></tr>`)}</tbody>
       </table>
       <div class="doc-pie-tabla">
         <div class="doc-nota">${d.mostrar('mostrarTenga') ? html`<strong>Tenga en cuenta</strong>${aj.tengaTexto ? html`<div>${aj.tengaTexto.split('\n').map((l, i) => html`${i ? html`<br>` : ''}${l}`)}</div>` : ''}${v.notas ? html`<div>${v.notas}</div>` : ''}` : ''}</div>
@@ -56,5 +56,6 @@ export function documento(v) {
 
 /** Aplica el color elegido (sin estilos en línea: la política de seguridad no los permite). */
 export function aplicarColor(contenedor) {
-  contenedor.querySelectorAll('.documento[data-color]').forEach((d) => d.style.setProperty('--color-factura', d.dataset.color));
+  // Solo colores "#rrggbb": un valor raro (p. ej. de datos antiguos) no puede inyectar otras reglas de estilo.
+  contenedor.querySelectorAll('.documento[data-color]').forEach((d) => d.style.setProperty('--color-factura', /^#[0-9a-fA-F]{6}$/.test(d.dataset.color) ? d.dataset.color : '#1E4FA0'));
 }

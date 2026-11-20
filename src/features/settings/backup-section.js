@@ -2,7 +2,8 @@
 
 import { prepararRespaldo, analizarRespaldo, restaurarRespaldo, resumenDatos } from '../../operations/backup.js';
 import { descargar } from '../../services/export.js';
-import { informarError } from '../../core/errors.js';
+import { informarError, erroresRegistrados } from '../../core/errors.js';
+import { VERSION_APP } from '../../core/config.js';
 import { html, montar } from '../../ui/html.js';
 import { abrirHoja } from '../../ui/overlays/sheet.js';
 import { confirmar } from '../../ui/overlays/dialog.js';
@@ -37,7 +38,10 @@ export async function abrirRespaldo() {
         <div data-zona="analisis"></div>
       </section>
       ${r.respaldos.length ? html`<section class="seccion"><h3 class="seccion-titulo">Copias automáticas</h3>
-        <div class="tarjeta"><dl class="lineas">${r.respaldos.slice().reverse().map((b) => html`<div class="linea"><dt>${MOTIVOS[b.motivo] || b.motivo}</dt><dd>${fechaHora(b.fecha)}</dd></div>`)}</dl></div></section>` : ''}`,
+        <div class="tarjeta"><dl class="lineas">${r.respaldos.slice().reverse().map((b) => html`<div class="linea"><dt>${MOTIVOS[b.motivo] || b.motivo}</dt><dd>${fechaHora(b.fecha)}</dd></div>`)}</dl></div></section>` : ''}
+      ${erroresRegistrados().length ? html`<section class="seccion"><h3 class="seccion-titulo">Diagnóstico</h3>
+        <p class="nota">La app anotó ${erroresRegistrados().length} ${erroresRegistrados().length === 1 ? 'error' : 'errores'} en este dispositivo. Si algo falla, descarga el registro y compártelo con quien te ayude con la app. No se envía solo a ningún lado.</p>
+        <button type="button" class="btn btn-secundario btn-bloque" data-accion="diagnostico">Descargar registro de errores</button></section>` : ''}`,
   });
   const el = capa.elemento;
   el.querySelector('[data-accion="descargar"]').addEventListener('click', async () => {
@@ -46,6 +50,11 @@ export async function abrirRespaldo() {
       descargar(texto, nombre, 'application/json');
       notificar('Respaldo descargado. Revisa la carpeta de Descargas.', { tipo: 'exito' });
     } catch (e) { informarError(e, 'descargar respaldo'); }
+  });
+  const diag = el.querySelector('[data-accion="diagnostico"]');
+  if (diag) diag.addEventListener('click', () => {
+    const texto = [`Orisma ${VERSION_APP} · ${navigator.userAgent}`, ...erroresRegistrados().map((e) => `${e.fecha} · ${e.tipo} · ${e.contexto} · ${e.mensaje}`)].join('\n');
+    descargar(texto, 'orisma-registro-de-errores.txt', 'text/plain');
   });
   el.querySelector('[data-accion="archivo"]').addEventListener('change', async (ev) => {
     const archivo = ev.target.files && ev.target.files[0];

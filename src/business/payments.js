@@ -1,6 +1,7 @@
 // Abonos, saldos y créditos de ventas (Etapa 1, Documento 2 §5: RC-01 … RC-06).
 
 import { num, sumar } from './numbers.js';
+import { compararTexto } from './text.js';
 
 /** RC-01 · Total abonado a una venta (abonadoVenta, L555). */
 export function abonadoVenta(venta) {
@@ -31,12 +32,12 @@ export function deudores(clientes, ventas) {
 
 /** Ventas con saldo de un cliente, de la más antigua a la más nueva (openCreditoCliente, L3716). */
 export function ventasConSaldo(ventas, clienteId) {
-  return ventas.filter((v) => v.clienteId === clienteId && saldoVenta(v) > 0).sort((a, b) => a.fecha.localeCompare(b.fecha));
+  return ventas.filter((v) => v.clienteId === clienteId && saldoVenta(v) > 0).sort((a, b) => compararTexto(a.fecha, b.fecha));
 }
 
 /** Ventas fiadas de un cliente, de la más nueva a la más antigua (formulario de cliente, L1929). */
 export function ventasFiadasCliente(ventas, clienteId) {
-  return ventas.filter((v) => v.clienteId === clienteId && v.fiado).sort((a, b) => b.fecha.localeCompare(a.fecha));
+  return ventas.filter((v) => v.clienteId === clienteId && v.fiado).sort((a, b) => compararTexto(b.fecha, a.fecha));
 }
 
 /**

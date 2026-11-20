@@ -6,13 +6,13 @@ import { html, icono } from '../html.js';
  * Campo con etiqueta. tipo: 'text' | 'number' | 'tel' | 'email' | 'date' | 'month' | 'textarea' | 'select' | 'color'.
  * dinero: alinea a la derecha con cifras tabulares. opciones (select): [[valor, texto]].
  */
-export function campo({ id, etiqueta, tipo = 'text', valor = '', placeholder = '', ayuda = '', dinero = false, filas = 2, opciones = [], lista = '', modo = '' }) {
+export function campo({ id, etiqueta, tipo = 'text', valor = '', placeholder = '', ayuda = '', dinero = false, filas = 2, opciones = [], lista = '', modo = '', autocompletar = '' }) {
   const clase = `control${dinero ? ' dinero' : ''}`;
   const inputmode = modo || (tipo === 'number' ? (dinero ? 'decimal' : 'numeric') : '');
   let control;
   if (tipo === 'textarea') control = html`<textarea id="${id}" name="${id}" class="${clase}" rows="${filas}" placeholder="${placeholder}">${valor}</textarea>`;
   else if (tipo === 'select') control = html`<select id="${id}" name="${id}" class="${clase}">${opciones.map(([v, t]) => html`<option value="${v}"${String(v) === String(valor) ? html` selected` : ''}>${t}</option>`)}</select>`;
-  else control = html`<input id="${id}" name="${id}" class="${clase}" type="${tipo}" value="${valor}" placeholder="${placeholder}"${inputmode ? html` inputmode="${inputmode}"` : ''}${lista ? html` list="${lista}"` : ''}${tipo === 'number' ? html` step="any"` : ''}>`;
+  else control = html`<input id="${id}" name="${id}" class="${clase}" type="${tipo}" value="${valor}" placeholder="${placeholder}"${inputmode ? html` inputmode="${inputmode}"` : ''}${lista ? html` list="${lista}"` : ''}${autocompletar ? html` autocomplete="${autocompletar}"` : ''}${tipo === 'number' ? html` step="any"` : ''}>`;
   return html`<div class="campo" data-campo="${id}"><label for="${id}">${etiqueta}</label>${control}${ayuda ? html`<span class="ayuda">${ayuda}</span>` : ''}<span class="mensaje" id="${id}-error" hidden></span></div>`;
 }
 

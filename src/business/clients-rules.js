@@ -1,4 +1,5 @@
 // Clientes (formulario y lista, L624–643, L1968–1981).
+import { contiene } from './text.js';
 
 /** Guarda un cliente desde su formulario. Nombre obligatorio (RG-06). */
 export function guardarCliente(anterior, { nombre, telefono, email, direccion }, { nuevoId }) {
@@ -10,5 +11,5 @@ export function guardarCliente(anterior, { nombre, telefono, email, direccion },
 /** Búsqueda por nombre, en el orden en que se registraron (L626). */
 export function filtrarClientes(clientes, termino) {
   const t = String(termino || '').trim().toLowerCase();
-  return clientes.filter((c) => c.nombre.toLowerCase().includes(t));
+  return clientes.filter((c) => contiene(c.nombre, t));
 }

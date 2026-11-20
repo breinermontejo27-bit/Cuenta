@@ -7,7 +7,7 @@
 //  8. Si algo falla, se deshace todo y localStorage queda intacto.
 // localStorage NUNCA se modifica ni se borra aquí.
 
-import { COLECCIONES, revisarDatos } from './schema.js';
+import { COLECCIONES, revisarDatos, sanearAjustesLegado } from './schema.js';
 import { leerTodo, reemplazarTodo, transaccion, cargarEnMemoria } from './database.js';
 import { inflarImagenes, dataUrlDeArchivo } from './files.js';
 
@@ -40,8 +40,11 @@ export function leerLegado(almacen = globalThis.localStorage) {
       else ajustes = valor;
     } else colecciones[nombre] = valor;
   }
+  const saneo = sanearAjustesLegado(ajustes);
+  ajustes = saneo.ajustes;
   const revision = errores.length ? { errores: [], advertencias: [], conteos: {} } : revisarDatos({ colecciones, ajustes }, 'legado');
-  return { crudo, datos: { colecciones, ajustes }, errores: [...errores, ...revision.errores], advertencias: revision.advertencias, conteos: revision.conteos, origen: detectarOrigen(crudo, colecciones) };
+  const avisosSaneo = saneo.cambiados.map((c) => `ajustes.${c}: valor no válido; se usa el valor por defecto (el original queda en la copia literal)`);
+  return { crudo, datos: { colecciones, ajustes }, errores: [...errores, ...revision.errores], advertencias: [...avisosSaneo, ...revision.advertencias], conteos: revision.conteos, origen: detectarOrigen(crudo, colecciones) };
 }
 
 /** Reconoce la versión de origen por la forma de los datos (la versión original no guardaba número de versión). */

@@ -11,8 +11,10 @@ import { abrirRespaldo } from './backup-section.js';
 import { abrirNegocio } from './business-section.js';
 import { abrirFactura } from './invoice-section.js';
 import { abrirProductos, abrirMoneda } from './products-section.js';
+import { abrirBloqueo, resumenBloqueo } from './lock-section.js';
 
-const ABRIR = { negocio: abrirNegocio, factura: abrirFactura, productos: abrirProductos, moneda: abrirMoneda, respaldo: abrirRespaldo, creditos: () => pedirHoja('creditos:lista', {}) };
+let pintarResumenBloqueo = () => {};
+const ABRIR = { bloqueo: () => abrirBloqueo(() => pintarResumenBloqueo()), negocio: abrirNegocio, factura: abrirFactura, productos: abrirProductos, moneda: abrirMoneda, respaldo: abrirRespaldo, creditos: () => pedirHoja('creditos:lista', {}) };
 
 function secciones(aj) {
   return [
@@ -22,6 +24,7 @@ function secciones(aj) {
     { id: 'productos', icono: 'inventario', titulo: 'Productos', resumen: `Poco stock desde ${aj.stockMinimo} unid.` + (aj.margenDefault ? ` · Ganancia por defecto ${aj.margenDefault}%` : '') },
     { id: 'moneda', icono: 'gastos', titulo: 'Moneda e impuestos', resumen: `${aj.moneda} · Impuesto ${aj.impuesto}%` },
     { id: 'respaldo', icono: 'compartir', titulo: 'Respaldo', resumen: 'Descargar o restaurar tus datos' },
+    { id: 'bloqueo', icono: 'candado', titulo: 'Bloqueo con PIN', resumen: '…' },
   ];
 }
 
@@ -42,11 +45,17 @@ export default {
         ${lista.map((s) => html`
           <li><button type="button" class="fila" data-seccion="${s.id}">
             <span class="miniatura">${icono(s.icono, 'sm')}</span>
-            <span class="fila-principal"><span class="fila-titulo">${s.titulo}</span><span class="fila-sub">${s.resumen}</span></span>
+            <span class="fila-principal"><span class="fila-titulo">${s.titulo}</span><span class="fila-sub" data-resumen="${s.id}">${s.resumen}</span></span>
             ${icono('derecha', 'sm ter')}
           </button></li>`)}
       </ul>
       <p class="pie-version">Orisma ${VERSION_APP}</p>`);
     contenedor.querySelectorAll('[data-seccion]').forEach((b) => b.addEventListener('click', () => ABRIR[b.dataset.seccion]()));
+    pintarResumenBloqueo = async () => {
+      const texto = await resumenBloqueo();
+      const el = contenedor.querySelector('[data-resumen="bloqueo"]');
+      if (el) el.textContent = texto;
+    };
+    pintarResumenBloqueo();
   },
 };

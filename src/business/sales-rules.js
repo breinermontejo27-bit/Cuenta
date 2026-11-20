@@ -4,6 +4,7 @@
 
 import { num, limitar } from './numbers.js';
 import { cantidadesNecesarias, tieneControlStock } from './inventory-rules.js';
+import { compararTexto, contiene } from './text.js';
 
 /** RV-02 · Suma de productos (sumaItems, L2609). */
 export function sumaCarrito(carrito) {
@@ -182,6 +183,6 @@ export function unidadesVendidas(venta) {
 /** Lista de ventas para la pantalla: búsqueda por cliente o "f<folio>", más recientes primero (L1555–1557). */
 export function filtrarVentas(ventas, termino) {
   const t = String(termino || '').trim().toLowerCase();
-  return ventas.filter((v) => v.clienteNombre.toLowerCase().includes(t) || (v.folio && ('f' + v.folio).includes(t)))
-    .sort((a, b) => b.fecha.localeCompare(a.fecha) || (b.creadoTs || 0) - (a.creadoTs || 0));
+  return ventas.filter((v) => contiene(v.clienteNombre, t) || (v.folio && ('f' + v.folio).includes(t)))
+    .sort((a, b) => compararTexto(b.fecha, a.fecha) || (b.creadoTs || 0) - (a.creadoTs || 0));
 }

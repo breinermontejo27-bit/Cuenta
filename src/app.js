@@ -2,12 +2,14 @@
 // Para agregar un módulo: crear su carpeta en features/ e incluirlo en MODULOS (Etapa 2, §3.5).
 
 import { eventos, EVENTOS } from './core/events.js';
-import { iniciarCapturaErrores, registrarError, informarError, ErrorDeAlmacenamiento } from './core/errors.js';
+import { iniciarCapturaErrores, registrarError, informarError, conectarRegistro, ErrorDeAlmacenamiento } from './core/errors.js';
 import { iniciarNavegacion, registrarHoja } from './core/navigation.js';
 import { iniciarMarco } from './ui/layouts/app-shell.js';
 import { notificar } from './ui/notifications/toast.js';
 import { cargarEnMemoria, pedirPersistencia, transaccion } from './data/database.js';
 import { importarLegado } from './data/legacy-import.js';
+import { leerRegistroErrores, guardarRegistroErrores } from './operations/diagnostics.js';
+import { protegerConPin, vigilarSegundoPlano } from './features/settings/lock-screen.js';
 
 import clientes from './features/clients/index.js';
 import inventario from './features/inventory/index.js';
@@ -28,11 +30,22 @@ async function iniciar() {
   eventos.escuchar(EVENTOS.ACTUALIZACION, ({ activar }) => notificar('Hay una versión nueva de Orisma.', {
     duracion: 15000, accion: { texto: 'Actualizar', alPulsar: activar },
   }));
+  await conectarRegistroGuardado();
   await cargarDatos();
+  // Con PIN activado, nada de la app se pinta hasta escribirlo (Etapa 8).
+  await protegerConPin();
+  vigilarSegundoPlano();
   for (const m of [...MODULOS, ...MODULOS_DE_HOJAS]) for (const [nombre, abrir] of Object.entries(m.hojas || {})) registrarHoja(nombre, abrir);
   iniciarMarco(document.getElementById('app'), MODULOS);
   iniciarNavegacion({ modulos: MODULOS, inicial: 'clientes' });
   registrarServiceWorker();
+}
+
+/** El registro de errores sobrevive a recargar la app (se guarda en el dispositivo; nunca se envía). */
+async function conectarRegistroGuardado() {
+  let anteriores = [];
+  try { anteriores = await leerRegistroErrores(); } catch (_) { /* sin almacenamiento: queda solo en memoria */ }
+  conectarRegistro(anteriores, guardarRegistroErrores);
 }
 
 /**
@@ -67,6 +80,7 @@ function registrarServiceWorker() {
     if (recargando) location.reload();
   });
   navigator.serviceWorker.register('sw.js').then((reg) => {
+    if (!reg) return; // algunos navegadores (o modos de prueba) lo bloquean sin dar error
     const avisar = (trabajador) => eventos.emitir(EVENTOS.ACTUALIZACION, {
       activar: () => { recargando = true; trabajador.postMessage('ACTIVAR'); },
     });

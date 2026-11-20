@@ -15,12 +15,13 @@ import { abonar, entregar } from '../../operations/orders.js';
 import { totalApartado, abonadoPendiente } from '../../business/orders-rules.js';
 import { lineasItems, recordarPorWhatsApp, mostrarComprobante, confirmarCancelacion } from './pending-detail.js';
 import { abrirFormularioPendiente } from './pending-form.js';
+import { compararTexto } from '../../business/text.js';
 
 export function abrirDetalleApartado(id) {
   const p = coleccion('pedidos').find((x) => x.id === id);
   if (!p) return;
   const total = totalApartado(p, obtenerAjustes().impuesto), abonado = abonadoPendiente(p), saldo = Math.max(0, total - abonado);
-  const abonos = (p.abonos || []).slice().sort((a, b) => a.fecha.localeCompare(b.fecha));
+  const abonos = (p.abonos || []).slice().sort((a, b) => compararTexto(a.fecha, b.fecha));
   const capa = abrirHoja({
     titulo: p.clienteNombre,
     paso: 'Apartado · sin fecha fija de entrega',

@@ -20,21 +20,40 @@ export class ErrorDeAlmacenamiento extends Error {
 
 const MAX_REGISTRO = 50;
 const registro = [];
+let alCambiarRegistro = null;
 
 /** Últimos errores registrados (más reciente al final). */
 export function erroresRegistrados() {
   return registro.slice();
 }
 
-/** Guarda un error en el registro local de diagnóstico. */
+/**
+ * Conecta el registro con el almacenamiento (lo hace el arranque): `anteriores` son los errores guardados en otra
+ * sesión y `guardar(lista)` se llama cada vez que el registro cambia. El núcleo no sabe dónde se guarda.
+ */
+export function conectarRegistro(anteriores, guardar) {
+  const previos = (Array.isArray(anteriores) ? anteriores : []).filter((e) => e && typeof e.fecha === 'string');
+  registro.unshift(...previos);
+  registro.splice(0, Math.max(0, registro.length - MAX_REGISTRO));
+  alCambiarRegistro = guardar;
+}
+
+/** Vacía el registro (también el guardado). */
+export function vaciarRegistro() {
+  registro.length = 0;
+  if (alCambiarRegistro) alCambiarRegistro([]);
+}
+
+/** Guarda un error en el registro de diagnóstico (solo en este dispositivo; nunca se envía a ningún lado). */
 export function registrarError(error, contexto = '') {
   registro.push({
     fecha: new Date().toISOString(),
-    tipo: (error && error.name) || 'Error',
-    mensaje: String((error && error.message) || error),
-    contexto,
+    tipo: String((error && error.name) || 'Error').slice(0, 60),
+    mensaje: String((error && error.message) || error).slice(0, 300),
+    contexto: String(contexto).slice(0, 80),
   });
   if (registro.length > MAX_REGISTRO) registro.shift();
+  if (alCambiarRegistro) alCambiarRegistro(registro.slice());
 }
 
 /** Traduce un error a un texto entendible para el dueño del negocio. */

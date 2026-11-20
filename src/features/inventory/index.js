@@ -11,6 +11,7 @@ import { abrirFormularioProducto } from './product-form.js';
 import { abrirPocoStock } from './low-stock.js';
 import { dibujarStock } from './stock-view.js';
 import { dibujarHistorial } from './history-view.js';
+import { contiene } from '../../business/text.js';
 
 function dibujarProductos(contenedor, busqueda) {
   const inv = coleccion('inventario'), pedidos = coleccion('pedidos'), aj = obtenerAjustes();
@@ -18,7 +19,7 @@ function dibujarProductos(contenedor, busqueda) {
   let cat = leerInterfaz('inventario:categoria', '');
   if (cat && !cats.includes(cat)) { cat = ''; escribirInterfaz('inventario:categoria', ''); }
   const termino = String(busqueda || '').trim().toLowerCase();
-  let items = inv.filter((p) => p.nombre.toLowerCase().includes(termino));
+  let items = inv.filter((p) => contiene(p.nombre, termino));
   if (cat) items = items.filter((p) => p.categoria === cat);
   const bajos = inv.filter((p) => esPocoStock(p, aj));
   const filas = items.map((p) => {

@@ -20,7 +20,7 @@ import { abrirFormularioPendiente } from './pending-form.js';
 
 /** Líneas de los productos de un pendiente (con materiales y foto). */
 export function lineasItems(p) {
-  return lineas(p.items.map((it) => [
+  return lineas((p.items || []).map((it) => [
     html`<span class="linea-titulo">${it.cantidad} × ${it.nombre}</span><span class="linea-sub">${it.caracteristicas || 'Sin características'}</span>${(it.materiales || []).length ? html`<span class="linea-sub">Materiales: ${it.materiales.map((m) => `${(Number(m.cantidad) || 0) * (Number(it.cantidad) || 0)} × ${m.nombre}`).join(', ')}</span>` : ''}${imagenSegura(it.foto) ? html`<img class="foto-item" src="${imagenSegura(it.foto)}" alt="">` : ''}`,
     it.precio ? dinero(it.precio * it.cantidad) : '—',
   ]));
