@@ -1,0 +1,39 @@
+/* Orisma 2.0 · Documento de factura y comprobante (mismo contenido y secciones que la versión original, L3279–3372).
+   Siempre fondo blanco (es un documento); el color principal lo elige el negocio (--color-factura). */
+.documento { --color-factura: #1E4FA0; background: #fff; color: #141820; border-radius: var(--r-md); padding: 24px; font-size: 13px; line-height: 1.45; box-shadow: var(--sombra-2); overflow: hidden; }
+.documento .doc-cabecera { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding-bottom: 14px; border-bottom: 3px solid var(--color-factura); }
+.documento .doc-negocio { display: flex; gap: 12px; align-items: center; min-width: 0; }
+.documento .doc-logo { width: 54px; height: 54px; border-radius: 10px; object-fit: contain; flex: none; }
+.documento .doc-logo-vacio { width: 54px; height: 54px; border-radius: 10px; background: var(--color-factura); color: #fff; display: grid; place-items: center; font-weight: 800; font-size: 18px; flex: none; }
+.documento .doc-nombre { font-weight: 800; font-size: 16px; }
+.documento .doc-meta { color: #4A5261; }
+.documento .doc-titulo { font-size: 26px; font-weight: 800; color: var(--color-factura); letter-spacing: .04em; margin: 14px 0 6px; }
+.documento .doc-fila { display: flex; justify-content: space-between; gap: 16px; }
+.documento .doc-etq { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: #646C7A; font-weight: 700; }
+.documento .doc-cliente { font-weight: 700; font-size: 15px; }
+.documento .doc-numero { font-weight: 800; font-size: 16px; text-align: right; }
+.documento .doc-derecha { text-align: right; color: #4A5261; }
+.documento table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+.documento th { text-align: left; font-size: 11px; text-transform: uppercase; color: #fff; background: var(--color-factura); padding: 8px; }
+.documento td { padding: 8px; border-bottom: 1px solid #E1E4EA; vertical-align: top; }
+.documento .num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.documento .doc-item-sub { color: #646C7A; font-size: 12px; }
+.documento .doc-pie-tabla { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; }
+.documento .doc-nota { flex: 1; min-width: 0; color: #4A5261; }
+.documento .doc-nota strong { color: #141820; display: block; }
+.documento .doc-totales { min-width: 220px; }
+.documento .doc-totales div { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; }
+.documento .doc-totales .gran { font-weight: 800; font-size: 15px; border-top: 2px solid var(--color-factura); margin-top: 4px; padding-top: 6px; }
+.documento .doc-totales .saldo { font-weight: 800; color: #B42318; }
+.documento .doc-firmas { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-top: 24px; }
+.documento .doc-sello { border: 3px solid #12733F; color: #12733F; font-weight: 900; padding: 4px 14px; transform: rotate(-8deg); letter-spacing: .1em; border-radius: 6px; }
+.documento .doc-firma { text-align: center; min-width: 180px; }
+.documento .doc-firma img { display: block; max-height: 56px; max-width: 70%; margin: 0 auto -6px; }
+.documento .doc-firma-linea { border-top: 1px solid #141820; margin: 6px 0 4px; }
+.documento .doc-pie { text-align: center; color: #4A5261; margin-top: 18px; padding-top: 10px; border-top: 1px solid #E1E4EA; }
+.documento .doc-fotos { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.documento .doc-fotos figure { margin: 0; text-align: center; font-size: 11px; color: #4A5261; }
+.documento .doc-fotos img { display: block; max-width: 150px; max-height: 190px; object-fit: contain; border-radius: 4px; }
+.documento-pdf { position: fixed; left: -10000px; top: 0; width: 760px; background: #fff; padding: 24px; }
+.documento-pdf .documento { box-shadow: none; border-radius: 0; }
+@media (max-width: 480px) { .documento { padding: 16px 12px; font-size: 12px; } .documento .doc-titulo { font-size: 20px; } .documento th, .documento td { padding: 6px 4px; } .documento .doc-totales { min-width: 0; flex: 1; } .documento .doc-pie-tabla { flex-direction: column; } .documento .doc-totales { width: 100%; } }

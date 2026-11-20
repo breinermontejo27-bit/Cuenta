@@ -1,0 +1,8 @@
+/* Orisma 2.0 · Impresión
+   Al imprimir solo se ve el documento marcado con #zonaImpresion (factura o comprobante). */
+@media print {
+  body > *:not(#capas) { display: none !important; }
+  #capas .velo { position: static; background: none; display: block; }
+  #capas .hoja { box-shadow: none; max-height: none; height: auto; padding: 0; }
+  #capas .hoja > :not(#zonaImpresion) { display: none !important; }
+}
