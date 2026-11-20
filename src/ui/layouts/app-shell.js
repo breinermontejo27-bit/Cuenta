@@ -1,6 +1,7 @@
 // Marco de la app: barra lateral (computador), encabezado, buscador, acción principal, pestañas (teléfono)
 // y zona de contenido. Todo sale del registro de módulos (Etapa 2, §3.5); este archivo no conoce ninguno.
 
+import { MODO_PRUEBA } from '../../core/config.js';
 import { eventos, EVENTOS } from '../../core/events.js';
 import { obtenerAjustes, leerInterfaz, escribirInterfaz } from '../../core/state.js';
 import { rutaActual, irA, ruta } from '../../core/navigation.js';
@@ -45,6 +46,7 @@ function estructura() {
       <div class="pie"><a href="${ruta('ajustes')}" class="enlace-lateral" data-modulo="ajustes">${icono('ajustes')}<span>Ajustes</span></a></div>
     </aside>
     <div class="principal">
+      ${MODO_PRUEBA ? html`<p class="aviso-prueba" role="note"><strong>Copia de prueba.</strong> Lo que hagas aquí no cambia tu app real ni sus datos.</p>` : ''}
       <header class="barra-sup">
         <div class="fila">
           <div class="negocio" data-negocio></div>

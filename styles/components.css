@@ -198,3 +198,6 @@ details.plegable > .nota { padding: 0 var(--e-4) var(--e-3); }
 .bloqueo-titulo { margin: 0; font-size: var(--t-lg); font-weight: var(--peso-semi); overflow-wrap: anywhere; }
 .bloqueo-aviso { margin: 0; color: var(--negativo); font-size: var(--t-sm); }
 .bloqueo .control { text-align: center; letter-spacing: .3em; font-size: var(--t-lg); }
+
+/* Copia de prueba (Etapa 10) */
+.aviso-prueba { margin: 0; padding: var(--e-2) var(--e-4); background: var(--aviso-suave); color: var(--aviso); font-size: var(--t-sm); text-align: center; }

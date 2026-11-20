@@ -7,7 +7,14 @@
 
 importScripts('./src/precache-list.js');
 const { version, archivos } = self.ORISMA_PRECACHE;
-const CACHE = 'orisma-' + version;
+// La copia de prueba (carpeta "/prueba/", Etapa 10) usa su propio caché y nunca borra los de la app real ni el de
+// la app anterior: conviven en el mismo sitio.
+const PRUEBA = /\/prueba\/$/.test(new URL(self.registration.scope).pathname);
+const PREFIJO = PRUEBA ? 'orisma-prueba-' : 'orisma-';
+const CACHE = PREFIJO + version;
+const esPropio = (k) => k.startsWith(PREFIJO) && (PRUEBA || !k.startsWith('orisma-prueba-'));
+// La app real, al instalarse, también retira el caché de la app anterior ("cuentas-…").
+const sePuedeBorrar = (k) => k !== CACHE && (esPropio(k) || (!PRUEBA && k.startsWith('cuentas-')));
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(archivos))
@@ -15,13 +22,13 @@ self.addEventListener('install', (e) => {
     // "cuentas-…"): se activa enseguida. No hay una versión de Orisma a mitad de una operación que proteger.
     // Las actualizaciones de Orisma a Orisma siguen esperando a que el usuario toque "Actualizar".
     .then(() => caches.keys())
-    .then((claves) => { if (!claves.some((k) => k.startsWith('orisma-') && k !== CACHE)) return self.skipWaiting(); return undefined; }));
+    .then((claves) => { if (!claves.some((k) => esPropio(k) && k !== CACHE)) return self.skipWaiting(); return undefined; }));
 });
 
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys()
-      .then((claves) => Promise.all(claves.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+      .then((claves) => Promise.all(claves.filter(sePuedeBorrar).map((k) => caches.delete(k))))
       .then(() => self.clients.claim()),
   );
 });

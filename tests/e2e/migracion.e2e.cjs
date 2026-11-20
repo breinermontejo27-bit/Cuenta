@@ -3,6 +3,7 @@
 // V. La versión anterior cambia después de importar: aviso, comparación y "traer de nuevo" (con copia previa).
 // I. Limpieza de imágenes sin uso (sin tocar las que se usan ni los respaldos).
 // L. Listas largas por partes ("Mostrar más") y búsqueda en todos los registros.
+// P. Copia de prueba en "/prueba/" junto a la app anterior: no toca nada de la app real (Etapa 10).
 // Uso: node tests/e2e/migracion.e2e.cjs   (requiere playwright y git). Todos los datos son ficticios.
 const { chromium } = require('playwright');
 const http = require('http'), fs = require('fs'), path = require('path'), os = require('os');
@@ -15,8 +16,10 @@ const TIPOS = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
 const PUERTO = 8810, BASE = `http://localhost:${PUERTO}`;
 let servir = RAIZ; // qué app se publica en "/" (se cambia a mitad de la prueba, como al publicar Orisma)
 const servidor = http.createServer((q, r) => {
-  const rel = decodeURIComponent(q.url.split('?')[0]).slice(1) || 'index.html';
-  const p = path.join(servir, rel);
+  let rel = decodeURIComponent(q.url.split('?')[0]).slice(1) || 'index.html';
+  let raiz = servir;
+  if (rel.startsWith('prueba/')) { raiz = RAIZ; rel = rel.slice(7) || 'index.html'; } // copia de prueba de Orisma
+  const p = path.join(raiz, rel);
   fs.readFile(p, (e, d) => { if (e) { r.writeHead(404); return r.end(); } r.writeHead(200, { 'Content-Type': TIPOS[path.extname(p)] || 'application/octet-stream', 'Cache-Control': 'no-cache' }); r.end(d); });
 }).listen(PUERTO);
 
@@ -187,15 +190,15 @@ const SEMILLA = {
     await l.evaluate(() => new Promise((r) => { const x = indexedDB.deleteDatabase('orisma'); x.onsuccess = x.onerror = x.onblocked = () => r(); }));
     await l.reload(); await l.waitForSelector('#contenido');
     await l.evaluate(() => { location.hash = '#/ventas/ventas'; });
-    await l.waitForSelector('#contenido [data-mas]');
+    await l.waitForSelector('#contenido [data-mostrar-mas]');
     const filas = () => l.locator('#contenido .solo-movil .fila').count();
     afirmar(await filas() === 100, `se ven ${await filas()}`);
-    afirmar((await l.textContent('#contenido [data-mas]')).includes('quedan 150'), 'texto del botón');
-    await l.click('#contenido [data-mas]');
+    afirmar((await l.textContent('#contenido [data-mostrar-mas]')).includes('quedan 150'), 'texto del botón');
+    await l.click('#contenido [data-mostrar-mas]');
     afirmar(await filas() === 200, `tras uno: ${await filas()}`);
-    await l.click('#contenido [data-mas]');
+    await l.click('#contenido [data-mostrar-mas]');
     afirmar(await filas() === 250, `tras dos: ${await filas()}`);
-    afirmar(!(await l.locator('#contenido [data-mas]').count()), 'el botón sigue');
+    afirmar(!(await l.locator('#contenido [data-mostrar-mas]').count()), 'el botón sigue');
   });
   await caso('L2 · la búsqueda encuentra registros que no estaban entre los primeros 100', async () => {
     await l.evaluate(() => { location.hash = '#/ventas/ventas'; });
@@ -207,6 +210,56 @@ const SEMILLA = {
     await l.waitForFunction(() => document.querySelectorAll('#contenido .solo-movil .fila').length === 250);
   });
   await cl.close();
+
+  // ================= P. Copia de prueba en /prueba/ =================
+  const cp = await nav.newContext({ viewport: { width: 390, height: 844 } });
+  const t = await cp.newPage();
+  t.errores = [];
+  t.on('pageerror', (e) => t.errores.push(e.message));
+  const bases = () => t.evaluate(() => indexedDB.databases().then((l) => l.map((d) => d.name).sort()));
+  await caso('P1 · la copia de prueba trae los datos reales a SU base, con aviso visible, sin tocar la app anterior', async () => {
+    servir = VIEJO;
+    await t.goto(BASE + '/index.html');
+    await t.evaluate((s) => { for (const [k, v] of Object.entries(s)) localStorage.setItem(k, JSON.stringify(v)); }, SEMILLA);
+    await t.reload();
+    await t.waitForFunction(() => navigator.serviceWorker.controller !== null, null, { timeout: 15000 });
+    await t.goto(BASE + '/prueba/index.html');
+    await t.waitForSelector('#contenido .lista', { timeout: 15000 });
+    afirmar(await t.isVisible('.aviso-prueba'), 'no se ve el aviso de copia de prueba');
+    afirmar((await estado(t)).ventas === 1, 'no trajo los datos');
+    afirmar(JSON.stringify(await bases()) === '["orisma-prueba"]', 'bases: ' + JSON.stringify(await bases()));
+    await t.waitForFunction(() => caches.keys().then((k) => k.some((x) => x.startsWith('orisma-prueba-'))), null, { timeout: 15000 });
+    const k = await t.evaluate(() => caches.keys());
+    afirmar(k.includes('cuentas-v3') && !k.some((x) => /^orisma-(?!prueba)/.test(x)), 'cachés: ' + k.join(','));
+    const intacto = await t.evaluate((s) => Object.entries(s).every(([kk, v]) => localStorage.getItem(kk) === JSON.stringify(v)), SEMILLA);
+    afirmar(intacto, 'cambió localStorage');
+  });
+  await caso('P2 · sin conexión siguen funcionando las dos: la app anterior y la copia de prueba', async () => {
+    await cp.setOffline(true);
+    await t.goto(BASE + '/index.html');
+    await t.waitForSelector('#listWrap .row', { timeout: 15000 });
+    await t.goto(BASE + '/prueba/index.html');
+    await t.waitForSelector('#contenido .lista', { timeout: 15000 });
+    await cp.setOffline(false);
+  });
+  await caso('P3 · lo que se haga en la prueba no llega a la app anterior', async () => {
+    await t.evaluate(async () => { const m = await import('./src/operations/clients.js'); await m.guardarCliente(null, { nombre: 'Solo en la prueba', telefono: '', email: '', direccion: '' }); });
+    const enAnterior = await t.evaluate(() => localStorage.getItem('cuentas_clientes'));
+    afirmar(!enAnterior.includes('Solo en la prueba'), 'llegó a la app anterior');
+  });
+  await caso('P4 · al publicar Orisma de verdad, importa los datos ACTUALES de la app anterior (no los de la prueba)', async () => {
+    await t.goto(BASE + '/index.html');
+    await t.evaluate(() => { const c = JSON.parse(localStorage.getItem('cuentas_clientes')); c.push({ id: 'c9', nombre: 'Nuevo en la app anterior', telefono: '', email: '', direccion: '' }); localStorage.setItem('cuentas_clientes', JSON.stringify(c)); });
+    servir = RAIZ;
+    await t.reload();
+    await t.waitForSelector('#contenido .lista', { timeout: 15000 });
+    const nombres = await t.evaluate(() => import('./src/core/state.js').then((m) => m.coleccion('clientes').map((c) => c.nombre)));
+    afirmar(nombres.includes('Nuevo en la app anterior') && !nombres.includes('Solo en la prueba'), nombres.join(','));
+    afirmar(!(await t.isVisible('.aviso-prueba')), 'la app real muestra el aviso de prueba');
+    afirmar(JSON.stringify(await bases()) === '["orisma","orisma-prueba"]', 'bases: ' + JSON.stringify(await bases()));
+    afirmar(!t.errores.length, t.errores.join(' | '));
+  });
+  await cp.close();
 
   await nav.close();
   servidor.close();

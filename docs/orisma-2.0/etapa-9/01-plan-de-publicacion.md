@@ -25,6 +25,7 @@ copia automática. Orisma no mezcla las dos versiones por su cuenta: si se regis
 decidir a mano (V1–V4 en `migracion.e2e.cjs`).
 
 ## Pasos para publicar (Etapa 10, con aprobación)
+0. Recomendado: probar antes la copia de prueba en el teléfono (`etapa-10/02-guia-prueba-en-telefono.md`).
 1. Respaldo: el dueño descarga un respaldo desde la app actual (Ajustes › Respaldo) y lo guarda fuera del teléfono.
 2. Verificar en la rama: `npm test`, `npm run verificar`, `NODE_PATH=$(npm root -g) npm run test:e2e`.
 3. Unir la rama de Orisma con la rama que publica GitHub Pages (por solicitud de cambios, revisada).

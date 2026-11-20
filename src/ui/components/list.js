@@ -74,16 +74,16 @@ export function paginar(items, clave) {
 export function botonMostrarMas({ restantes, clave }) {
   if (!restantes) return '';
   const siguiente = Math.min(restantes, POR_PAGINA);
-  return html`<button type="button" class="btn btn-secundario btn-bloque mostrar-mas" data-mas="${clave}">Mostrar ${siguiente} más (quedan ${restantes})</button>`;
+  return html`<button type="button" class="btn btn-secundario btn-bloque mostrar-mas" data-mostrar-mas="${clave}">Mostrar ${siguiente} más (quedan ${restantes})</button>`;
 }
 
 /** Conecta los botones "Mostrar más": amplía el límite y llama a `redibujar()`. */
 export function conectarMostrarMas(contenedor, redibujar) {
-  contenedor.querySelectorAll('[data-mas]').forEach((b) => b.addEventListener('click', () => {
-    const clave = `limite:${b.dataset.mas}`;
+  contenedor.querySelectorAll('[data-mostrar-mas]').forEach((b) => b.addEventListener('click', () => {
+    const clave = `limite:${b.dataset.mostrarMas}`;
     escribirInterfaz(clave, leerInterfaz(clave, POR_PAGINA) + POR_PAGINA);
     redibujar();
-    const otro = contenedor.querySelector('[data-mas]');
+    const otro = contenedor.querySelector('[data-mostrar-mas]');
     if (otro) otro.focus({ preventScroll: true });
   }));
 }

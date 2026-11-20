@@ -1,10 +1,15 @@
 // Constantes de la aplicación. Sin lógica: solo valores que el resto de módulos consulta.
 
 export const NOMBRE_APP = 'Orisma';
-export const VERSION_APP = '2.0.0-etapa9';
+export const VERSION_APP = '2.0.0-rc.1';
+
+// Copia de prueba (Etapa 10): si la app se abre desde una carpeta "/prueba/", usa su PROPIA base de datos.
+// Así el dueño puede probarla en su teléfono con sus datos reales (se copian, nunca se modifican) sin gastar
+// la migración real ni mezclar lo que registre en la prueba con la app definitiva.
+export const MODO_PRUEBA = typeof location !== 'undefined' && /\/prueba\//.test(location.pathname);
 
 // Base de datos (se usa desde la Etapa 5).
-export const NOMBRE_BD = 'orisma';
+export const NOMBRE_BD = MODO_PRUEBA ? 'orisma-prueba' : 'orisma';
 
 // Colecciones del negocio. Los nombres coinciden con las claves de la versión original
 // (`cuentas_<coleccion>`) para que la migración no tenga que renombrar nada (Etapa 2, A6).

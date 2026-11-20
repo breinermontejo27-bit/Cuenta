@@ -5,6 +5,7 @@ import { html, montar } from '../../ui/html.js';
 import { dinero, fecha, folio } from '../../ui/format.js';
 import { estadoVacio } from '../../ui/components/list.js';
 import { historialInventario, variacionHistorial } from '../../business/inventory-rules.js';
+import { contiene } from '../../business/text.js';
 
 const TIPO = { venta: 'Venta', compra: 'Compra', ajuste: 'Ajuste de stock', alta: 'Producto nuevo', baja: 'Producto eliminado', devolucion: 'Devolución' };
 const POR_DEFECTO = { alta: 'Producto agregado', baja: 'Producto eliminado' };
@@ -18,7 +19,7 @@ function detalle(e) {
 export function dibujarHistorial(contenedor, busqueda) {
   const ventas = coleccion('ventas'), gastos = coleccion('gastos'), movimientos = coleccion('movimientos');
   const termino = String(busqueda || '').trim().toLowerCase();
-  const evs = historialInventario(ventas, gastos, movimientos, coleccion('inventario')).filter((e) => (e.nombre || '').toLowerCase().includes(termino));
+  const evs = historialInventario(ventas, gastos, movimientos, coleccion('inventario')).filter((e) => contiene(e.nombre, termino));
   if (!evs.length) {
     const nada = movimientos.length + ventas.length + gastos.length === 0;
     montar(contenedor, estadoVacio(nada
