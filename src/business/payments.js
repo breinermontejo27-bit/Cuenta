@@ -18,6 +18,13 @@ export function deudaCliente(ventas, clienteId) {
   return ventas.filter((v) => v.clienteId === clienteId).reduce((s, v) => s + saldoVenta(v), 0);
 }
 
+/** Deuda de cada cliente (Map clienteId → deuda), en una sola pasada. Mismo resultado que deudaCliente. */
+export function deudasPorCliente(ventas) {
+  const r = new Map();
+  for (const v of ventas) r.set(v.clienteId, (r.get(v.clienteId) || 0) + saldoVenta(v));
+  return r;
+}
+
 /** RC-03 · Total por cobrar de todas las ventas (totalPorCobrarAll, L3673). */
 export function totalPorCobrar(ventas) {
   return ventas.reduce((s, v) => s + saldoVenta(v), 0);

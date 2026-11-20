@@ -10,7 +10,7 @@ import { ErrorDeAlmacenamiento } from '../core/errors.js';
 import { coleccion, reemplazarColecciones, reemplazarAjustes, registrarArchivo } from '../core/state.js';
 import { COLECCIONES, VERSION_ESQUEMA, revisarRegistro, revisarDatos } from './schema.js';
 import { VERSION_BD, actualizarEstructura } from './migrations.js';
-import { extraerImagenes, registroDeArchivo, urlDeArchivo } from './files.js';
+import { extraerImagenes, registroDeArchivo, urlDeArchivo, referenciasDeImagen } from './files.js';
 
 let db = null;
 const posiciones = Object.fromEntries(COLECCIONES.map((c) => [c, new Map()]));
@@ -285,5 +285,43 @@ export function guardarMeta(clave, valor) {
   return transaccion(['meta'], 'readwrite', (a) => {
     if (valor === undefined) a('meta').delete(clave);
     else a('meta').put({ k: clave, v: valor });
+  });
+}
+
+/**
+ * Borra las imágenes que ya ningún registro usa (al cambiar o quitar una foto, al eliminar un producto o anular
+ * una venta). Lee y borra dentro de UNA transacción sobre todos los almacenes: ninguna operación puede guardar una
+ * foto nueva mientras tanto, así que nunca se borra una imagen en uso. Los respaldos automáticos llevan sus
+ * imágenes dentro y no dependen de este almacén.
+ * @returns {Promise<{ borradas: number, bytes: number }>}
+ */
+export async function limpiarArchivosSinUso() {
+  const base = await abrir();
+  return new Promise((ok, ko) => {
+    const tx = base.transaction([...COLECCIONES, 'ajustes', 'archivos'], 'readwrite');
+    const usados = new Set();
+    let porLeer = COLECCIONES.length + 1, borradas = 0, bytes = 0;
+    const leido = () => {
+      if (--porLeer) return;
+      const cursor = tx.objectStore('archivos').openCursor();
+      cursor.onsuccess = () => {
+        const c = cursor.result;
+        if (!c) return;
+        if (!usados.has(c.key)) {
+          borradas++;
+          bytes += c.value.datos ? c.value.datos.size : String(c.value.texto || '').length;
+          c.delete();
+        }
+        c.continue();
+      };
+    };
+    for (const col of COLECCIONES) {
+      const q = tx.objectStore(col).getAll();
+      q.onsuccess = () => { for (const fila of q.result) for (const id of referenciasDeImagen(col, fila.r)) usados.add(id); leido(); };
+    }
+    const qa = tx.objectStore('ajustes').getAll();
+    qa.onsuccess = () => { for (const fila of qa.result) for (const id of referenciasDeImagen('ajustes', fila.r)) usados.add(id); leido(); };
+    tx.oncomplete = () => ok({ borradas, bytes });
+    tx.onabort = tx.onerror = () => ko(aError(tx.error, 'No se pudieron limpiar las imágenes'));
   });
 }

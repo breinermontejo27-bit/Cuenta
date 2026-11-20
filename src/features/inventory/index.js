@@ -3,7 +3,7 @@
 import { coleccion, obtenerAjustes, leerInterfaz, escribirInterfaz } from '../../core/state.js';
 import { html, montar } from '../../ui/html.js';
 import { dinero } from '../../ui/format.js';
-import { estadoVacio, fila, lista, insignia, alTocarFila } from '../../ui/components/list.js';
+import { estadoVacio, fila, lista, insignia, alTocarFila, paginar, botonMostrarMas, conectarMostrarMas } from '../../ui/components/list.js';
 import { chips } from '../../ui/components/segmented.js';
 import { banner } from '../../ui/components/cards.js';
 import { categorias, esPocoStock, gananciaUnitaria, unidadesReservadas, tieneControlStock } from '../../business/inventory-rules.js';
@@ -22,7 +22,8 @@ function dibujarProductos(contenedor, busqueda) {
   let items = inv.filter((p) => contiene(p.nombre, termino));
   if (cat) items = items.filter((p) => p.categoria === cat);
   const bajos = inv.filter((p) => esPocoStock(p, aj));
-  const filas = items.map((p) => {
+  const pag = paginar(items, `productos|${cat}|${termino}`);
+  const filas = pag.visibles.map((p) => {
     const g = gananciaUnitaria(p);
     const res = unidadesReservadas(pedidos, inv, p.id);
     const stock = tieneControlStock(p) ? `${p.stock} unid.${res > 0 ? ` · ${res} reservadas · ${Math.max(0, p.stock - res)} disponibles` : ''}` : 'Sin control de stock';
@@ -37,10 +38,11 @@ function dibujarProductos(contenedor, busqueda) {
   montar(contenedor, html`
     ${cats.length ? chips('categoria', [['', 'Todas'], ...cats.map((c) => [c, c])], cat) : ''}
     ${bajos.length ? banner('aviso', `Poco stock (${bajos.length}) · toca para revisar`, bajos.map((p) => p.nombre).join(', '), 'poco-stock') : ''}
-    ${items.length ? lista(filas) : estadoVacio(inv.length
+    ${items.length ? html`${lista(filas)}${botonMostrarMas(pag)}` : estadoVacio(inv.length
       ? { icono: 'buscar', titulo: 'Sin resultados', texto: 'Prueba con otro nombre o categoría.' }
       : { icono: 'inventario', titulo: 'Aún no tienes productos', texto: 'Toca "Nuevo producto" para agregar el primero.' })}`);
   alTocarFila(contenedor, 'id', abrirFormularioProducto);
+  conectarMostrarMas(contenedor, () => dibujarProductos(contenedor, busqueda));
   contenedor.querySelectorAll('[data-grupo="categoria"] .chip').forEach((b) => b.addEventListener('click', () => {
     escribirInterfaz('inventario:categoria', b.dataset.valor);
     dibujarProductos(contenedor, busqueda);

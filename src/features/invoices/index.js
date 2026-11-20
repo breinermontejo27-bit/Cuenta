@@ -6,7 +6,7 @@ import { dinero, fecha, folio } from '../../ui/format.js';
 import { abrirHoja } from '../../ui/overlays/sheet.js';
 import { notificar } from '../../ui/notifications/toast.js';
 import { acciones } from '../../ui/components/fields.js';
-import { estadoVacio, fila, lista, insignia, alTocarFila } from '../../ui/components/list.js';
+import { estadoVacio, fila, lista, insignia, alTocarFila, paginar, botonMostrarMas, conectarMostrarMas } from '../../ui/components/list.js';
 import { banner, nota } from '../../ui/components/cards.js';
 import { operar } from '../../ui/operar.js';
 import { generarFactura } from '../../operations/invoices.js';
@@ -46,13 +46,15 @@ export default {
   accionPrincipal: { texto: 'Facturar venta', ejecutar: elegirVentaParaFacturar },
   dibujar(contenedor, { busqueda }) {
     const r = filtrarFacturas(coleccion('ventas'), busqueda);
+    const pag = paginar(r.facturas, `facturas|${busqueda || ''}`);
     const aviso = r.sinFactura > 0 ? banner('info', `${r.sinFactura} venta(s) sin factura`, ' · toca "Facturar venta" para facturar una', 'facturar') : '';
     montar(contenedor, html`${aviso}${r.facturas.length
-      ? lista(r.facturas.map((v) => fila({ datos: { id: v.id }, titulo: `${folio(v.folio)} · ${v.clienteNombre}`, sub: fecha(v.fecha), valor: dinero(v.total), extra: [saldoVenta(v) > 0 ? insignia('deuda', 'Con saldo') : insignia('pagado', 'Pagada')] })))
+      ? html`${lista(pag.visibles.map((v) => fila({ datos: { id: v.id }, titulo: `${folio(v.folio)} · ${v.clienteNombre}`, sub: fecha(v.fecha), valor: dinero(v.total), extra: [saldoVenta(v) > 0 ? insignia('deuda', 'Con saldo') : insignia('pagado', 'Pagada')] })))}${botonMostrarMas(pag)}`
       : estadoVacio(r.hayFacturas
         ? { icono: 'buscar', titulo: 'Sin resultados', texto: 'Prueba con otro nombre o folio.' }
         : { icono: 'facturas', titulo: 'Aún no tienes facturas', texto: 'Toca "Facturar venta" para generar una a partir de una venta registrada.' })}`);
     alTocarFila(contenedor, 'id', verFactura);
+    conectarMostrarMas(contenedor, () => this.dibujar(contenedor, { busqueda }));
     const b = contenedor.querySelector('[data-accion="facturar"]');
     if (b) b.addEventListener('click', elegirVentaParaFacturar);
   },

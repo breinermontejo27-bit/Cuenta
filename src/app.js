@@ -10,6 +10,8 @@ import { cargarEnMemoria, pedirPersistencia, transaccion } from './data/database
 import { importarLegado } from './data/legacy-import.js';
 import { leerRegistroErrores, guardarRegistroErrores } from './operations/diagnostics.js';
 import { protegerConPin, vigilarSegundoPlano } from './features/settings/lock-screen.js';
+import { avisarSiCambioLaVersionAnterior } from './features/settings/migration-section.js';
+import { limpiarImagenes } from './operations/migration.js';
 
 import clientes from './features/clients/index.js';
 import inventario from './features/inventory/index.js';
@@ -39,6 +41,16 @@ async function iniciar() {
   iniciarMarco(document.getElementById('app'), MODULOS);
   iniciarNavegacion({ modulos: MODULOS, inicial: 'clientes' });
   registrarServiceWorker();
+  mantenimiento();
+}
+
+/** Tareas tranquilas después de abrir: avisar si la versión anterior cambió y borrar imágenes que ya no se usan. */
+function mantenimiento() {
+  const luego = window.requestIdleCallback || ((fn) => setTimeout(fn, 1500));
+  luego(() => {
+    avisarSiCambioLaVersionAnterior();
+    limpiarImagenes().catch((e) => registrarError(e, 'limpiar imágenes'));
+  });
 }
 
 /** El registro de errores sobrevive a recargar la app (se guarda en el dispositivo; nunca se envía). */

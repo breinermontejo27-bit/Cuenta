@@ -11,6 +11,7 @@
 .btn-texto.peligro { color: var(--negativo); }
 .btn[disabled] { opacity: .45; cursor: not-allowed; }
 .btn-bloque { width: 100%; }
+.mostrar-mas { margin-top: var(--e-3); }
 .acciones { display: flex; gap: var(--e-3); margin-top: var(--e-5); }
 .acciones .btn { flex: 1; }
 

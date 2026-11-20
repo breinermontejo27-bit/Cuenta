@@ -270,7 +270,19 @@ export function comprasDeProducto(p, gastos, ventas) {
 /** RI-11 · Resumen de stock (renderStockHtml, L749–760). */
 export function resumenStock(inventario, pedidos, ajustes) {
   const enStock = (p) => ((p.stock === '' || p.stock === null) ? null : Number(p.stock));
-  const reservadas = (p) => unidadesReservadas(pedidos, inventario, p.id);
+  // Optimización (Etapa 9): las reservas se calculan una vez por producto, y solo para los que aparecen en algún
+  // pendiente; para los demás son 0 (mismo resultado que calcularlas, sin recorrer todos los pedidos).
+  const enPendientes = new Set();
+  for (const pd of pedidos) {
+    if (pd.estado !== 'pendiente') continue;
+    for (const it of pd.items || []) { enPendientes.add(it.productoId); for (const m of it.materiales || []) enPendientes.add(m.productoId); }
+  }
+  const memo = new Map();
+  const reservadas = (p) => {
+    if (!enPendientes.has(p.id)) return 0;
+    if (!memo.has(p.id)) memo.set(p.id, unidadesReservadas(pedidos, inventario, p.id));
+    return memo.get(p.id);
+  };
   return {
     productos: inventario.length,
     unidades: inventario.reduce((s, p) => s + (enStock(p) || 0), 0),

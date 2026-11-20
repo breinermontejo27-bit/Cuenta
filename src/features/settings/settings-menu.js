@@ -12,9 +12,10 @@ import { abrirNegocio } from './business-section.js';
 import { abrirFactura } from './invoice-section.js';
 import { abrirProductos, abrirMoneda } from './products-section.js';
 import { abrirBloqueo, resumenBloqueo } from './lock-section.js';
+import { abrirMigracion, hayMigracion } from './migration-section.js';
 
 let pintarResumenBloqueo = () => {};
-const ABRIR = { bloqueo: () => abrirBloqueo(() => pintarResumenBloqueo()), negocio: abrirNegocio, factura: abrirFactura, productos: abrirProductos, moneda: abrirMoneda, respaldo: abrirRespaldo, creditos: () => pedirHoja('creditos:lista', {}) };
+const ABRIR = { migracion: abrirMigracion, bloqueo: () => abrirBloqueo(() => pintarResumenBloqueo()), negocio: abrirNegocio, factura: abrirFactura, productos: abrirProductos, moneda: abrirMoneda, respaldo: abrirRespaldo, creditos: () => pedirHoja('creditos:lista', {}) };
 
 function secciones(aj) {
   return [
@@ -25,6 +26,7 @@ function secciones(aj) {
     { id: 'moneda', icono: 'gastos', titulo: 'Moneda e impuestos', resumen: `${aj.moneda} · Impuesto ${aj.impuesto}%` },
     { id: 'respaldo', icono: 'compartir', titulo: 'Respaldo', resumen: 'Descargar o restaurar tus datos' },
     { id: 'bloqueo', icono: 'candado', titulo: 'Bloqueo con PIN', resumen: '…' },
+    { id: 'migracion', icono: 'atras', titulo: 'Versión anterior', resumen: 'Datos traídos de la app "Cuentas"' },
   ];
 }
 
@@ -57,5 +59,9 @@ export default {
       if (el) el.textContent = texto;
     };
     pintarResumenBloqueo();
+    // "Versión anterior" solo aparece si hay algo que mostrar.
+    const filaMigracion = contenedor.querySelector('[data-seccion="migracion"]');
+    filaMigracion.closest('li').hidden = true;
+    hayMigracion().then((si) => { filaMigracion.closest('li').hidden = !si; });
   },
 };

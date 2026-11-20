@@ -46,6 +46,18 @@ export async function extraerImagenes(coleccion, registro) {
   return { registro: copia, archivos };
 }
 
+/** Identificadores de archivo que un registro (ya guardado, con referencias) usa. */
+export function referenciasDeImagen(coleccion, registro) {
+  const ids = [];
+  for (const ruta of CAMPOS_IMAGEN[coleccion] || []) {
+    recorrer(registro, ruta, (padre, campo) => {
+      const v = padre[campo];
+      if (typeof v === 'string' && v.startsWith(PREFIJO_ARCHIVO)) ids.push(v.slice(PREFIJO_ARCHIVO.length));
+    });
+  }
+  return ids;
+}
+
 /** Reemplaza las referencias "archivo:" por la imagen (data URL). `resolver(id)` devuelve el data URL o ''. No modifica el original. */
 export function inflarImagenes(coleccion, registro, resolver) {
   const copia = structuredClone(registro);

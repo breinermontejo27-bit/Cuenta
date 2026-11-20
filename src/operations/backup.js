@@ -25,5 +25,5 @@ export function restaurarRespaldo(analisis) {
 export async function resumenDatos() {
   const conteos = Object.fromEntries(COLECCIONES.map((c) => [c, coleccion(c).length]));
   const [esp, respaldos, todo] = await Promise.all([espacio(), listarRespaldos(), leerTodo()]);
-  return { conteos, espacio: esp, respaldos, migracion: todo.meta.migracionLegado || null, persistente: !!todo.meta.persistente };
+  return { conteos, espacio: esp, respaldos, migracion: todo.meta.migracionLegado || null, persistente: !!todo.meta.persistente, limpieza: todo.meta.limpiezaImagenes || null };
 }

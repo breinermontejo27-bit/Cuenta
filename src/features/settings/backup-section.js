@@ -10,7 +10,7 @@ import { confirmar } from '../../ui/overlays/dialog.js';
 import { notificar } from '../../ui/notifications/toast.js';
 
 const NOMBRES = { clientes: 'Clientes', inventario: 'Productos', ventas: 'Ventas', gastos: 'Gastos', pedidos: 'Pendientes', movimientos: 'Movimientos de inventario' };
-const MOTIVOS = { legado: 'Copia original de Cuentas (antes de importar)', 'antes de restaurar': 'Antes de restaurar un respaldo' };
+const MOTIVOS = { legado: 'Copia original de Cuentas (antes de importar)', 'antes de restaurar': 'Antes de restaurar un respaldo', 'antes de traer de nuevo': 'Antes de traer de nuevo los datos anteriores' };
 const megas = (b) => (b / 1048576).toLocaleString('es', { maximumFractionDigits: 1 }) + ' MB';
 const fechaHora = (iso) => new Date(iso).toLocaleString('es', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
@@ -29,6 +29,7 @@ export async function abrirRespaldo() {
       <section class="seccion"><h3 class="seccion-titulo">Datos guardados</h3>
         <div class="tarjeta">${lineasConteo(r.conteos)}</div>
         ${r.espacio ? html`<p class="nota">Espacio usado: ${megas(r.espacio.usado)}.</p>` : ''}
+        ${r.limpieza ? html`<p class="nota">Fotos que ya no se usaban y se borraron solas: ${r.limpieza.borradas} (${megas(r.limpieza.bytes)}).</p>` : ''}
         ${r.migracion ? html`<p class="nota">Datos traídos de la versión anterior el ${fechaHora(r.migracion.fecha)}. Los originales siguen intactos en este navegador.</p>` : ''}
       </section>
       <button type="button" class="btn btn-primario btn-bloque" data-accion="descargar">Descargar respaldo</button>

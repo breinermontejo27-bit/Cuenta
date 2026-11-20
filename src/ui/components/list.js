@@ -2,6 +2,7 @@
 
 import { html, icono, imagenSegura } from '../html.js';
 import { iniciales } from '../format.js';
+import { leerInterfaz, escribirInterfaz } from '../../core/state.js';
 
 /** Estado vacío con ícono, título y texto de ayuda. */
 export function estadoVacio({ icono: nombreIcono = 'clientes', titulo, texto }) {
@@ -52,4 +53,37 @@ export function etiquetaGrupo(texto) {
 /** Conecta el toque de las filas: `fn(valor)` con el valor del atributo data-<clave>. */
 export function alTocarFila(contenedor, clave, fn) {
   contenedor.querySelectorAll(`.fila[data-${clave}]`).forEach((b) => b.addEventListener('click', () => fn(b.dataset[clave])));
+}
+
+// ----- Listas largas por partes (Etapa 9, D4-27) -----
+// Con miles de registros, dibujar todo de una vez tardaba ~0,5 s por pantalla. Se muestran las primeras filas
+// y un botón "Mostrar más". El buscador sigue buscando en TODOS los registros.
+export const POR_PAGINA = 100;
+
+/**
+ * Parte visible de una lista. `clave` identifica la lista y su búsqueda (p. ej. `ventas|ana`): al cambiar la
+ * búsqueda se vuelve a empezar por las primeras filas.
+ * @returns {{ visibles: Array, restantes: number, clave: string }}
+ */
+export function paginar(items, clave) {
+  const limite = leerInterfaz(`limite:${clave}`, POR_PAGINA);
+  return { visibles: items.slice(0, limite), restantes: Math.max(0, items.length - limite), clave };
+}
+
+/** Botón "Mostrar más" (vacío si ya se ve todo). */
+export function botonMostrarMas({ restantes, clave }) {
+  if (!restantes) return '';
+  const siguiente = Math.min(restantes, POR_PAGINA);
+  return html`<button type="button" class="btn btn-secundario btn-bloque mostrar-mas" data-mas="${clave}">Mostrar ${siguiente} más (quedan ${restantes})</button>`;
+}
+
+/** Conecta los botones "Mostrar más": amplía el límite y llama a `redibujar()`. */
+export function conectarMostrarMas(contenedor, redibujar) {
+  contenedor.querySelectorAll('[data-mas]').forEach((b) => b.addEventListener('click', () => {
+    const clave = `limite:${b.dataset.mas}`;
+    escribirInterfaz(clave, leerInterfaz(clave, POR_PAGINA) + POR_PAGINA);
+    redibujar();
+    const otro = contenedor.querySelector('[data-mas]');
+    if (otro) otro.focus({ preventScroll: true });
+  }));
 }

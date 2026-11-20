@@ -8,8 +8,8 @@
 // localStorage NUNCA se modifica ni se borra aquí.
 
 import { COLECCIONES, revisarDatos, sanearAjustesLegado } from './schema.js';
-import { leerTodo, reemplazarTodo, transaccion, cargarEnMemoria } from './database.js';
-import { inflarImagenes, dataUrlDeArchivo } from './files.js';
+import { leerTodo, reemplazarTodo, transaccion, cargarEnMemoria, leerMeta, listarRespaldos, leerRespaldo, agregarRespaldo } from './database.js';
+import { inflarImagenes, dataUrlDeArchivo, huella } from './files.js';
 
 export const CLAVES = Object.freeze({
   clientes: 'cuentas_clientes', inventario: 'cuentas_inventario', ventas: 'cuentas_ventas', gastos: 'cuentas_gastos',
@@ -74,7 +74,7 @@ export async function importarLegado(almacen = globalThis.localStorage, ahora = 
   const lectura = leerLegado(almacen);
   if (lectura.errores.length) return { estado: 'error', errores: lectura.errores };
 
-  const detalle = { fecha: ahora().toISOString(), origen: lectura.origen, conteos: lectura.conteos, advertencias: lectura.advertencias.length };
+  const detalle = { fecha: ahora().toISOString(), origen: lectura.origen, conteos: lectura.conteos, advertencias: lectura.advertencias.length, huella: await huellaLegado(lectura.crudo) };
   try {
     await reemplazarTodo({
       colecciones: lectura.datos.colecciones,
@@ -124,4 +124,75 @@ async function deshacerImportacion() {
     almacen('meta').delete('migracionLegado');
   });
   await cargarEnMemoria();
+}
+
+// ----------------- Etapa 9: seguimiento de la versión anterior después de importar -----------------
+
+/** Texto crudo de las 7 claves (sin interpretar). */
+function leerCrudo(almacen) {
+  const crudo = {};
+  for (const clave of Object.values(CLAVES)) crudo[clave] = almacen.getItem(clave);
+  return crudo;
+}
+
+/** Huella de los datos de la versión anterior: cambia si cambia cualquier letra de cualquiera de las 7 claves. */
+export function huellaLegado(crudo) {
+  return huella(JSON.stringify(Object.values(CLAVES).map((k) => [k, crudo[k] ?? null])));
+}
+
+/** Copia literal más reciente guardada al importar (almacén "respaldos", motivo "legado"). */
+async function ultimaCopiaLegado() {
+  const copias = (await listarRespaldos()).filter((r) => r.motivo === 'legado').sort((a, b) => String(b.fecha).localeCompare(String(a.fecha)));
+  if (!copias.length) return null;
+  try { return JSON.parse(await leerRespaldo(copias[0].id)); } catch (_) { return null; }
+}
+
+/**
+ * Estado de la migración: ¿se importó?, ¿siguen los datos anteriores en este navegador? y ¿cambiaron después de
+ * importar? (p. ej. si se siguió usando la app anterior, sin conexión, antes de que se actualizara).
+ * Solo lee; no cambia nada.
+ */
+export async function estadoLegado(almacen = globalThis.localStorage) {
+  const importado = await leerMeta('migracionLegado');
+  let hay = false;
+  try { hay = hayDatosLegado(almacen); } catch (_) { hay = false; }
+  if (!importado || !hay) return { importado, hayLegado: hay, cambiado: false };
+  const crudo = leerCrudo(almacen);
+  const actual = await huellaLegado(crudo);
+  let referencia = importado.huella;
+  if (!referencia) {
+    const copia = await ultimaCopiaLegado();
+    referencia = copia && copia.claves ? await huellaLegado(copia.claves) : null;
+  }
+  const cambiado = referencia !== null && actual !== referencia;
+  return { importado, hayLegado: true, cambiado, conteosLegado: cambiado ? leerLegado(almacen).conteos : importado.conteos };
+}
+
+/**
+ * Trae de nuevo los datos de la versión anterior, REEMPLAZANDO los de Orisma. Antes se guarda un respaldo
+ * automático de lo que hay en Orisma (`respaldoActual`, formato 3) y una nueva copia literal de lo anterior.
+ * Se verifica registro por registro; si algo falla, se vuelve a lo que había. localStorage no se toca.
+ */
+export async function reimportarLegado(respaldoActual, almacen = globalThis.localStorage, ahora = () => new Date()) {
+  const lectura = leerLegado(almacen);
+  if (lectura.errores.length) return { estado: 'error', errores: lectura.errores };
+  const anterior = await leerMeta('migracionLegado');
+  const detalle = { fecha: ahora().toISOString(), origen: lectura.origen, conteos: lectura.conteos, advertencias: lectura.advertencias.length, huella: await huellaLegado(lectura.crudo), vez: ((anterior && anterior.vez) || 1) + 1 };
+  const previo = JSON.stringify(respaldoActual);
+  const volver = () => reemplazarTodo({
+    colecciones: Object.fromEntries(COLECCIONES.map((c) => [c, respaldoActual.datos[c] || []])),
+    ajustes: respaldoActual.datos.config || null,
+    meta: { migracionLegado: anterior },
+  });
+  try {
+    await reemplazarTodo({ colecciones: lectura.datos.colecciones, ajustes: lectura.datos.ajustes, respaldoPrevio: previo, motivo: 'antes de traer de nuevo', meta: { migracionLegado: detalle } });
+    const verificacion = await verificarContra(lectura.datos);
+    if (!verificacion.ok) { await volver(); return { estado: 'error', errores: verificacion.diferencias }; }
+    const literal = JSON.stringify({ app: 'cuentas', origen: 'localStorage', fecha: detalle.fecha, claves: lectura.crudo });
+    await transaccion(['respaldos'], 'readwrite', (a) => { agregarRespaldo(a, 'legado', literal); });
+  } catch (e) {
+    await volver().catch(() => {});
+    return { estado: 'error', errores: [String((e && e.message) || e)] };
+  }
+  return { estado: 'importado', ...detalle };
 }

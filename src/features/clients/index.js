@@ -1,11 +1,11 @@
 // Módulo Clientes: lista con deuda por cliente (L624–643).
 
 import { coleccion } from '../../core/state.js';
-import { montar } from '../../ui/html.js';
+import { html, montar } from '../../ui/html.js';
 import { dinero } from '../../ui/format.js';
-import { estadoVacio, fila, lista, insignia, alTocarFila } from '../../ui/components/list.js';
+import { estadoVacio, fila, lista, insignia, alTocarFila, paginar, botonMostrarMas, conectarMostrarMas } from '../../ui/components/list.js';
 import { filtrarClientes } from '../../business/clients-rules.js';
-import { deudaCliente } from '../../business/payments.js';
+import { deudasPorCliente } from '../../business/payments.js';
 import { abrirFormularioCliente } from './client-form.js';
 
 export default {
@@ -27,10 +27,13 @@ export default {
         : { icono: 'clientes', titulo: 'Aún no tienes clientes', texto: 'Toca "Nuevo cliente" para registrar el primero.' }));
       return;
     }
-    montar(contenedor, lista(items.map((c) => {
-      const deuda = deudaCliente(ventas, c.id);
+    const deudas = deudasPorCliente(ventas);
+    const pag = paginar(items, `clientes|${busqueda || ''}`);
+    montar(contenedor, html`${lista(pag.visibles.map((c) => {
+      const deuda = deudas.get(c.id) || 0;
       return fila({ datos: { id: c.id }, iniciales: c.nombre, titulo: c.nombre, sub: c.telefono || c.email || 'Sin datos de contacto', insignias: deuda > 0 ? [insignia('deuda', 'Debe ' + dinero(deuda))] : [] });
-    })));
+    }))}${botonMostrarMas(pag)}`);
     alTocarFila(contenedor, 'id', abrirFormularioCliente);
+    conectarMostrarMas(contenedor, () => this.dibujar(contenedor, { busqueda }));
   },
 };

@@ -3,14 +3,19 @@
 // - Navegación: la página guardada (index.html); si no está, la red.
 // - Archivos de la app: primero la copia guardada, luego la red.
 // - Nunca se responde con index.html a algo que no sea una navegación (corrige D4-12).
-// - La versión nueva espera hasta que el usuario acepta "Actualizar".
+// - La versión nueva espera hasta que el usuario acepta "Actualizar" (salvo la primera instalación).
 
 importScripts('./src/precache-list.js');
 const { version, archivos } = self.ORISMA_PRECACHE;
 const CACHE = 'orisma-' + version;
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(archivos)));
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(archivos))
+    // Primera instalación de Orisma (incluido el paso desde la app anterior "Cuentas", cuyo caché se llama
+    // "cuentas-…"): se activa enseguida. No hay una versión de Orisma a mitad de una operación que proteger.
+    // Las actualizaciones de Orisma a Orisma siguen esperando a que el usuario toque "Actualizar".
+    .then(() => caches.keys())
+    .then((claves) => { if (!claves.some((k) => k.startsWith('orisma-') && k !== CACHE)) return self.skipWaiting(); return undefined; }));
 });
 
 self.addEventListener('activate', (e) => {

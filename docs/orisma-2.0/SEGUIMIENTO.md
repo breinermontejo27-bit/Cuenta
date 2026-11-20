@@ -13,8 +13,8 @@ el dueño autorizó usar esta versión). Se conserva intacta en el historial de 
 | 5 | Sistema de datos y almacenamiento | Aprobada (2026-11-19) | `etapa-5/` + `src/data/` |
 | 6 | Motor de reglas comerciales | Aprobada (2026-11-19) | `etapa-6/` + `src/business/` |
 | 7 | Reconstrucción de módulos | Aprobada (2026-11-20) | `etapa-7/` + `src/features/`, `src/operations/`, `src/services/` |
-| 8 | Integración y seguridad | **Terminada — esperando aprobación** | `etapa-8/` |
-| 9 | Optimización y migración | Pendiente | — |
+| 8 | Integración y seguridad | Aprobada (2026-11-20) | `etapa-8/` |
+| 9 | Optimización y migración | **Terminada — esperando aprobación** | `etapa-9/` |
 | 10 | Pruebas integrales y estabilización | Pendiente | — |
 
 ## Decisiones pendientes del dueño
@@ -49,3 +49,4 @@ Decisión de la Etapa 2 (A9): no se usa como base; se reemplaza en la Etapa 4 y 
 | 2026-11-19 | 6 | Motor de reglas: 101 funciones puras; iguales a la versión original en 400+400 conjuntos aleatorios (oráculo literal) y 46 operaciones reales en la app original; 14/14 mutaciones detectadas; 69/69 pruebas. |
 | 2026-11-19 | 7 | Módulos reconstruidos (55 archivos nuevos): 9/9 escenarios con datos idénticos a la versión original operando ambas apps; 69/69, 25/25, 17/17 y 46/46 pruebas; recorrido sin errores en teléfono y computador. |
 | 2026-11-20 | 8 | Integración y seguridad: arranque integrado, PIN opcional, registro de errores persistente, saneo de ajustes dañados, D4-23 corregido; 31/31 pruebas de seguridad, 75/75 unitarias y todas las anteriores iguales. |
+| 2026-11-20 | 9 | Optimización y migración: listas 10–20 veces más rápidas que la original con 5.000 ventas; paso real desde la app instalada comprobado; aviso y "traer de nuevo" si la versión anterior cambia; limpieza de imágenes sin uso; plan de publicación y de vuelta atrás. 13/13 de migración, 77/77 unitarias y todas las anteriores iguales. |
