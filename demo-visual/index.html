@@ -273,6 +273,22 @@ svg.i.s { width: 18px; height: 18px; }
 .fb .firma .trazo { height: 46px; border-bottom: 1px solid var(--tinta); margin-bottom: 4px; display: grid; place-items: end center; font: italic 26px/1 "Segoe Script", "Bradley Hand", cursive; color: #26365E; padding-bottom: 2px; }
 .fb .pie-f { text-align: center; font-size: 12px; color: #667085; margin-top: 28px; padding-top: 12px; border-top: 1px solid #E9EDF2; }
 
+/* ---------- Ajustes ---------- */
+.interruptor { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-top: 1px solid var(--borde); font-size: 15px; }
+.interruptor:first-child { border-top: 0; }
+.interruptor input { appearance: none; width: 46px; height: 28px; border-radius: 999px; background: var(--borde-fuerte); position: relative; flex: none; cursor: pointer; transition: background .15s; }
+.interruptor input::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.25); transition: transform .15s; }
+.interruptor input:checked { background: var(--marca); }
+.interruptor input:checked::after { transform: translateX(18px); }
+.engranaje { width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--borde); background: var(--superficie); display: grid; place-items: center; flex: none; color: var(--texto-2); text-decoration: none; }
+.mapa { width: 100%; border-collapse: collapse; font-size: 14px; }
+.mapa th { text-align: left; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--texto-3); padding: 10px 12px; border-bottom: 1px solid var(--borde); }
+.mapa td { padding: 10px 12px; border-bottom: 1px solid var(--borde); vertical-align: top; }
+.mapa td:first-child { font-weight: 600; }
+.mapa tr.grupo-m td { background: var(--superficie-2); font-weight: 700; font-size: 13px; color: var(--texto-2); }
+.mapa a { color: var(--marca); font-weight: 600; text-decoration: none; }
+.tabla-scroll { overflow-x: auto; }
+
 /* ---------- Selector de estilo (demo) ---------- */
 .estilos { display: inline-grid; grid-auto-flow: column; background: var(--superficie); border: 1px solid var(--demo); border-radius: 999px; padding: 2px; }
 .estilos button { border: 0; background: transparent; color: var(--demo); border-radius: 999px; padding: 3px 10px; font-size: 12.5px; font-weight: 650; white-space: nowrap; }
@@ -451,7 +467,7 @@ svg.i.s { width: 18px; height: 18px; }
 
   // ---------- Destinos ----------
   const BARRA = [['inicio', 'Inicio'], ['ventas', 'Ventas'], ['inventario', 'Inventario'], ['clientes', 'Clientes'], ['mas', 'Más']];
-  const PADRE = { venta: 'ventas', pendientes: 'ventas', producto: 'inventario', cliente: 'clientes', facturas: 'mas', 'factura-original': 'mas', 'factura-refinada': 'mas', gastos: 'mas', reportes: 'mas', formulario: 'ventas' };
+  const PADRE = { ajustes: 'mas', 'ajustes-respaldo': 'mas', 'ajustes-factura': 'mas', donde: 'mas', venta: 'ventas', pendientes: 'ventas', producto: 'inventario', cliente: 'clientes', facturas: 'mas', 'factura-original': 'mas', 'factura-refinada': 'mas', gastos: 'mas', reportes: 'mas', formulario: 'ventas' };
   const LATERAL = [
     [null, [['inicio', 'Inicio', 'inicio']]],
     ['Día a día', [['ventas', 'Ventas', 'ventas'], ['facturas', 'Facturas', 'facturas'], ['clientes', 'Clientes', 'clientes']]],
@@ -676,12 +692,80 @@ svg.i.s { width: 18px; height: 18px; }
     titulo: 'Más', sub: 'Todo lo demás de tu negocio',
     html: `
       <div class="mas-rejilla">
-        ${[['facturas', 'Facturas', 'facturas'], ['gastos', 'Gastos', 'gastos'], ['reportes', 'Reportes', 'reportes'], ['cliente', 'Créditos', 'creditos'], ['pendientes', 'Pendientes', 'calendario'], ['formulario', 'Ajustes', 'ajustes']].map(([h, t, i]) => `<a class="acceso" href="#${h}"><span class="ico">${ico(i)}</span>${t}</a>`).join('')}
+        ${[['facturas', 'Facturas', 'facturas'], ['gastos', 'Gastos', 'gastos'], ['reportes', 'Reportes', 'reportes'], ['cliente', 'Créditos', 'creditos'], ['pendientes', 'Pendientes', 'calendario'], ['ajustes', 'Ajustes', 'ajustes']].map(([h, t, i]) => `<a class="acceso" href="#${h}"><span class="ico">${ico(i)}</span>${t}</a>`).join('')}
       </div>
+      <a class="aviso-caja" href="#donde" style="text-decoration:none;background:var(--marca-suave);color:var(--marca)">${ico('buscar', 's')}<span><b>¿Dónde está cada función?</b> Mapa de todo lo que hacía tu app original y dónde queda ahora.</span></a>
       <div class="seccion-titulo"><h2>Factura</h2></div>
       <div class="tarjeta"><ul class="lista">
         ${fila({ ir: 'factura-original', mini: `<span class="mini marca">A</span>`, titulo: 'Factura · Propuesta A (elegida)', sub: 'La distribución de tu app "Cuentas"', valor: '', extra: ico('der', 's') })}
       </ul></div>`,
+  });
+
+  const SECCIONES = [
+    ['negocio', 'Negocio', 'clientes', 'Orisma Accesorios · con foto', 'hoja'],
+    ['creditos', 'Créditos', 'creditos', `Por cobrar ${dinero(169500)}`, 'cliente'],
+    ['factura', 'Factura', 'facturas', 'FACTURA · color, firma y textos', 'ajustes-factura'],
+    ['productos', 'Productos', 'inventario', 'Poco stock desde 3 unid. · Ganancia por defecto 60%', 'hoja'],
+    ['moneda', 'Moneda e impuestos', 'gastos', '$ · Impuesto 0%', 'hoja'],
+    ['respaldo', 'Respaldo', 'compartir', 'Descargar o restaurar tus datos', 'ajustes-respaldo'],
+    ['pin', 'Bloqueo con PIN', 'ajustes', 'Sin PIN', 'hoja'],
+    ['anterior', 'Versión anterior', 'atras', 'Datos traídos de la app "Cuentas"', 'hoja'],
+  ];
+  P_.ajustes = () => ({
+    titulo: 'Ajustes', sub: 'Tu negocio, tu factura y tus datos', volver: 'mas',
+    html: `<div class="tarjeta"><ul class="lista">${SECCIONES.map(([id, t, i, r, destino]) => destino === 'hoja'
+      ? `<li><button class="fila" type="button" data-hoja="aj-${id}"><span class="mini marca">${ico(i, 's')}</span><span class="fila-med"><span class="fila-t">${t}</span><span class="fila-s">${r}</span></span><span class="fila-d">${ico('der', 's')}</span></button></li>`
+      : fila({ ir: destino, mini: `<span class="mini marca">${ico(i, 's')}</span>`, titulo: t, sub: r, valor: '', extra: ico('der', 's') })).join('')}</ul></div>
+      <p class="nota">Las mismas secciones que tiene hoy la app. En el diseño nuevo se llega aquí con el engranaje de arriba a la derecha (como en tu app original), desde "Más" o desde la barra lateral en el computador.</p>
+      <p class="nota" style="text-align:center">Orisma 2.0.0</p>`,
+  });
+  P_['ajustes-respaldo'] = () => ({
+    titulo: 'Respaldo', sub: 'Tus datos se guardan en este teléfono', volver: 'ajustes',
+    html: `
+      <p class="nota" style="font-size:14px;color:var(--texto-2)">Descarga un respaldo de vez en cuando para no perder nada si cambias de teléfono o borras el navegador.</p>
+      <div class="seccion-titulo"><h2>Datos guardados</h2></div>
+      <div class="tarjeta p">${lineas([['Clientes', '5'], ['Productos', '6'], ['Ventas', '6'], ['Gastos', '5'], ['Pendientes', '3'], ['Movimientos de inventario', '14']])}</div>
+      <p class="nota">Espacio usado: 2,4 MB. Datos traídos de la versión anterior el 20 nov 2026; los originales siguen intactos.</p>
+      <button class="btn prim bloque" type="button" data-toast="Respaldo descargado. Revisa la carpeta de Descargas.">${ico('compartir', 's')}Descargar respaldo</button>
+      <div class="seccion-titulo"><h2>Restaurar desde un respaldo</h2></div>
+      <div class="tarjeta p" style="display:grid;gap:10px">
+        <p class="nota">Tus datos actuales se reemplazan por los del archivo. Antes se guarda una copia automática de lo que tienes.</p>
+        <label class="campo"><span class="lbl">Archivo de respaldo (.json)</span><input type="file" class="control" accept=".json" style="padding-top:11px"></label>
+      </div>
+      <div class="seccion-titulo"><h2>Copias automáticas</h2></div>
+      <div class="tarjeta p">${lineas([['Copia original de Cuentas (antes de importar)', '20 nov 2026, 9:12'], ['Antes de restaurar un respaldo', '—']])}</div>`,
+  });
+  P_['ajustes-factura'] = () => ({
+    titulo: 'Factura', sub: 'Cómo se ve tu factura y qué datos incluye', volver: 'ajustes',
+    html: `
+      <div class="tarjeta p" style="display:grid;gap:14px">
+        <div class="campo"><label for="af1">Título del documento</label><input class="control" id="af1" value="FACTURA"></div>
+        <div class="campo"><label for="af2">Color de la factura</label><input class="control" id="af2" type="color" value="#1E4FA0" style="padding:6px;height:48px"></div>
+        <div class="campo"><label for="af3">Texto en "Tenga en cuenta"</label><textarea class="control" id="af3" rows="3" style="padding-top:12px">Cambios dentro de los 8 días con la factura.
+Las piezas a medida no tienen devolución.</textarea></div>
+        <div class="campo"><label for="af4">Pie de página</label><input class="control" id="af4" value="Gracias por su compra"></div>
+      </div>
+      <div class="seccion-titulo"><h2>Qué mostrar</h2></div>
+      <div class="tarjeta p">${[['Pie de página', true], ['"Tenga en cuenta"', true], ['Dirección del negocio', true], ['Teléfono del negocio', true], ['Correo del negocio', true], ['Tabla de pagos recibidos', true], ['Sello PAGADA', true], ['Foto de cada producto', false], ['Firma', true]].map(([t, on], i) => `<label class="interruptor" for="sw${i}"><span>${t}</span><input type="checkbox" id="sw${i}" ${on ? 'checked' : ''}></label>`).join('')}</div>
+      <div class="seccion-titulo"><h2>Firma</h2></div>
+      <div class="tarjeta p" style="display:grid;gap:10px"><div style="height:110px;border:1px dashed var(--borde-fuerte);border-radius:12px;display:grid;place-items:center;color:var(--texto-3)">Firma aquí con el dedo</div><button class="btn peq" type="button">Borrar firma</button></div>
+      <div class="dos"><a class="btn" href="#ajustes">Volver</a><a class="btn prim" href="#factura-original">Guardar y ver factura</a></div>`,
+  });
+  const MAPA = [
+    ['General', [['Pestañas de la app', 'Barra de abajo (6 pestañas)', 'Barra de abajo: Inicio, Ventas, Inventario, Clientes y Más', 'inicio'], ['Ajustes (engranaje)', 'Botón arriba a la derecha', 'Engranaje arriba a la derecha, en "Más" y en la barra lateral', 'ajustes'], ['Buscar', 'Arriba de cada lista', 'Igual, arriba de cada lista', 'clientes'], ['Botón "+"', 'Abajo a la derecha', 'Igual, abajo a la derecha (según la pantalla)', 'ventas']]],
+    ['Clientes', [['Lista, buscar, crear y editar', 'Clientes', 'Clientes', 'clientes'], ['Importar de contactos', 'Formulario de cliente', 'Formulario de cliente', 'formulario'], ['Créditos del cliente y abonar', 'Tocando el cliente', 'Detalle del cliente', 'cliente'], ['Eliminar cliente', 'Formulario de cliente', 'Formulario de cliente (con confirmación)', 'cliente']]],
+    ['Inventario', [['Productos, categorías y poco stock', 'Inventario › Productos', 'Inventario › Productos', 'inventario'], ['Resumen de stock', 'Inventario › Stock', 'Inventario › Stock', 'inventario'], ['Historial', 'Inventario › Historial', 'Inventario › Historial', 'inventario'], ['Compras, editar y eliminar producto', 'Tocando el producto', 'Detalle del producto', 'producto']]],
+    ['Ventas y pendientes', [['Nueva venta (asistente)', 'Ventas › +', 'Ventas › + y "Vender" en Inicio', 'formulario'], ['Lista y detalle de ventas, anular', 'Ventas', 'Ventas y detalle de venta', 'venta'], ['Pedidos, encargos y apartados', 'Ventas › Pendientes', 'Ventas › Pendientes y en Inicio', 'pendientes'], ['Comprobante y recordatorio por WhatsApp', 'Detalle del pendiente', 'Detalle del pendiente', 'pendientes']]],
+    ['Facturas', [['Lista y facturar una venta', 'Facturas', 'Más › Facturas (computador: barra lateral)', 'facturas'], ['Ver, imprimir y compartir PDF', 'Tocando la factura', 'Tocando la factura (propuesta A)', 'factura-original'], ['Editar datos de la factura', 'Dentro de la factura', 'Dentro de la factura', 'factura-original']]],
+    ['Gastos y reportes', [['Gastos y compras de inventario', 'Gastos', 'Más › Gastos y "Gasto" en Inicio', 'gastos'], ['Resumen, Caja y Flujo', 'Reportes', 'Más › Reportes y cifras en Inicio', 'reportes']]],
+    ['Ajustes', [['Negocio: nombre, foto, logo y contacto', 'Ajustes › Usuario', 'Ajustes › Negocio', 'ajustes'], ['Créditos (todos los que deben)', 'Ajustes › Créditos', 'Ajustes › Créditos y Clientes', 'ajustes'], ['Factura: título, color, textos, firma', 'Ajustes › Factura', 'Ajustes › Factura', 'ajustes-factura'], ['Productos: ganancia y poco stock', 'Ajustes › Productos', 'Ajustes › Productos', 'ajustes'], ['Moneda e impuesto', 'Ajustes', 'Ajustes › Moneda e impuestos', 'ajustes'], ['Descargar y restaurar respaldo', 'Ajustes › Respaldo', 'Ajustes › Respaldo', 'ajustes-respaldo']]],
+  ];
+  P_.donde = () => ({
+    titulo: '¿Dónde está cada función?', sub: 'Todo lo de tu app original, en el diseño nuevo', volver: 'mas',
+    html: `<div class="tarjeta tabla-scroll"><table class="mapa"><thead><tr><th>Función</th><th>En tu app original</th><th>En el diseño nuevo</th></tr></thead><tbody>
+      ${MAPA.map(([g, l]) => `<tr class="grupo-m"><td colspan="3">${g}</td></tr>${l.map(([f, a, b, h]) => `<tr><td>${f}</td><td>${a}</td><td><a href="#${h}">${b}</a></td></tr>`).join('')}`).join('')}
+      </tbody></table></div>
+      <p class="nota">Lo nuevo de Orisma también sigue: Bloqueo con PIN, Versión anterior y el registro de errores dentro de Respaldo.</p>`,
   });
 
   P_.facturas = () => ({
@@ -791,6 +875,15 @@ svg.i.s { width: 18px; height: 18px; }
       </div>
       <div class="hoja-pie"><button class="btn" type="button" data-cerrar>Cancelar</button><button class="btn prim" type="button" data-cerrar data-toast="Cliente registrado">Guardar</button></div></div>`,
   };
+  const hojaSimple = (t, sub, cuerpo) => () => `<div class="hoja" role="dialog" aria-modal="true" aria-labelledby="hs"><div class="hoja-cab"><div class="agarre"></div><div class="fila-c"><h2 id="hs">${t}</h2><button class="cerrar" type="button" data-cerrar aria-label="Cerrar">${ico('cerrar', 's')}</button></div><p>${sub}</p></div><div class="hoja-cuerpo">${cuerpo}</div><div class="hoja-pie"><button class="btn" type="button" data-cerrar>Volver</button><button class="btn prim" type="button" data-cerrar data-toast="Ajustes guardados">Guardar</button></div></div>`;
+  const campoD = (id, l, v, extra = '') => `<div class="campo"><label for="${id}">${l}</label><input class="control" id="${id}" value="${v}" ${extra}></div>`;
+  Object.assign(hojas, {
+    'aj-negocio': hojaSimple('Negocio', 'Tu foto de perfil y los datos de tu negocio.', `<div style="display:flex;gap:12px;align-items:center"><span class="avatar-negocio" style="width:56px;height:56px">OA</span><div class="dos" style="flex:1"><button class="btn peq" type="button">Foto de perfil</button><button class="btn peq" type="button">Logo</button></div></div>${campoD('n1', 'Nombre del negocio', 'Orisma Accesorios')}${campoD('n2', 'Dirección', 'Cra 7 # 45-12, Bogotá')}<div class="dos">${campoD('n3', 'Teléfono', '300 123 4567')}${campoD('n4', 'Correo', 'ventas@orisma.co')}</div>`),
+    'aj-productos': hojaSimple('Productos', 'Valores que la app usa al crear y revisar tus productos.', `<div class="dos">${campoD('pr1', 'Ganancia por defecto (%)', '60')}${campoD('pr2', 'Poco stock desde', '3')}</div>`),
+    'aj-moneda': hojaSimple('Moneda e impuestos', 'Se aplican a tus ventas y facturas.', `<div class="dos">${campoD('mo1', 'Símbolo de moneda', '$')}${campoD('mo2', 'Impuesto (%)', '0')}</div>`),
+    'aj-pin': hojaSimple('Bloqueo con PIN', 'El PIN está desactivado.', `<p class="nota">El PIN evita que otra persona abra la app por casualidad en tu teléfono. Se pide al abrir la app y al volver después de 5 minutos.</p>${campoD('pin1', 'PIN', '', 'type="password" placeholder="4 a 8 números"')}${campoD('pin2', 'Repite el PIN', '', 'type="password"')}`),
+    'aj-anterior': hojaSimple('Versión anterior', 'Datos traídos de la app "Cuentas"', `<div class="totales-c">${lineas([['Datos traídos el', '20 nov 2026, 9:12'], ['Clientes', '5'], ['Productos', '6'], ['Ventas', '6']])}</div><p class="nota">Los datos de la versión anterior no cambiaron desde que se trajeron. Siguen guardados en este navegador: Orisma nunca los borra.</p>`),
+  });
   const dialogos = {
     anular: ['¿Anular esta venta?', 'Las unidades vuelven al inventario. Esta acción no se puede deshacer.', 'Anular venta'],
     eliminar: ['¿Eliminar este producto?', 'Sus ventas se conservan. Esta acción no se puede deshacer.', 'Eliminar'],
@@ -812,6 +905,9 @@ svg.i.s { width: 18px; height: 18px; }
     ['reportes', 'Reportes', 'Ganancia destacada, cifras y últimos 6 meses.'],
     ['mas', 'Menú "Más"', 'Facturas, Gastos, Reportes, Créditos y Ajustes.'],
     ['formulario', 'Formularios y ventanas', 'Campos, selectores, hojas y confirmaciones.'],
+    ['ajustes', 'Ajustes', 'Todas las secciones de hoy: Negocio, Créditos, Factura, Productos, Moneda, Respaldo, PIN y Versión anterior.'],
+    ['ajustes-respaldo', 'Ajustes › Respaldo', 'Descargar y restaurar tus datos.'],
+    ['donde', '¿Dónde está cada función?', 'Mapa de tu app original al diseño nuevo.'],
     ['factura-original', 'Factura (propuesta A, elegida)', 'Fiel a tu factura original, como hoja de papel.'],
   ];
   $('#abrirGuia').addEventListener('click', () => {
@@ -843,10 +939,10 @@ svg.i.s { width: 18px; height: 18px; }
     document.querySelectorAll('[data-estilo]').forEach((b) => { if (b.tagName === 'BUTTON') b.setAttribute('aria-pressed', String(b.dataset.estilo === estado.estilo)); });
     const barra = e2() ? [['inicio', 'Inicio'], ['ventas', 'Ventas'], ['formulario', 'Vender', 'central'], ['inventario', 'Inventario'], ['clientes', 'Clientes']] : BARRA;
     $('#barra').innerHTML = barra.map(([h, t, c]) => `<a href="#${h}" ${c ? `class="${c}" data-vender` : ''} ${h === activo && !c ? 'aria-current="page"' : ''}><span class="ico">${ico(c ? 'mas2' : h)}</span>${t}</a>`).join('');
-    $('#lateral').innerHTML = `<div class="neg"><span class="avatar-negocio">OA</span>Orisma Accesorios</div>${LATERAL.map(([g, l]) => `${g ? `<div class="grupo-l">${g}</div>` : ''}${l.map(([h, t, i]) => `<a href="#${h}" ${h === actLat ? 'aria-current="page"' : ''}>${ico(i)}${t}</a>`).join('')}`).join('')}<div class="abajo-l"><a href="#mas">${ico('ajustes')}Ajustes y más</a></div>`;
+    $('#lateral').innerHTML = `<div class="neg"><span class="avatar-negocio">OA</span>Orisma Accesorios</div>${LATERAL.map(([g, l]) => `${g ? `<div class="grupo-l">${g}</div>` : ''}${l.map(([h, t, i]) => `<a href="#${h}" ${h === actLat ? 'aria-current="page"' : ''}>${ico(i)}${t}</a>`).join('')}`).join('')}<div class="abajo-l"><a href="#ajustes" ${['ajustes', 'ajustes-respaldo', 'ajustes-factura'].includes(r) ? 'aria-current="page"' : ''}>${ico('ajustes')}Ajustes</a><a href="#donde" ${r === 'donde' ? 'aria-current="page"' : ''}>${ico('buscar')}¿Dónde está cada función?</a></div>`;
     const derecha = e2()
       ? `${s.fab ? `<a class="btn prim fab-sitio" href="#${s.fab[1]}">${ico('mas2', 's')}${s.fab[0]}</a>` : ''}${!s.volver ? '<a class="mas-boton" href="#mas" aria-label="Más: facturas, gastos, reportes y ajustes">OA</a>' : ''}`
-      : (s.fab ? `<a class="btn prim fab-sitio" href="#${s.fab[1]}">${ico('mas2', 's')}${s.fab[0]}</a>` : '');
+      : `${s.fab ? `<a class="btn prim fab-sitio" href="#${s.fab[1]}">${ico('mas2', 's')}${s.fab[0]}</a>` : ''}${!s.volver ? `<a class="engranaje" href="#ajustes" aria-label="Ajustes">${ico('ajustes', 's')}</a>` : ''}`;
     $('#cabecera').innerHTML = `<div class="cabecera-fila">${s.volver ? `<a class="atras" href="#${s.volver}" aria-label="Volver">${ico('atras')}</a>` : ''}${s.avatar && !e2() ? '<span class="avatar-negocio">OA</span>' : ''}<div class="cabecera-titulo"><h1>${s.titulo}</h1>${s.sub ? `<p>${s.sub}</p>` : ''}</div>${derecha}</div>`;
     $('#contenido').innerHTML = s.html;
     const fab = $('#fab');
