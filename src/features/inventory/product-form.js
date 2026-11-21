@@ -26,6 +26,9 @@ export function abrirFormularioProducto(id) {
     ${tarjetaLineas([['Unidades compradas', hist.unidades, 'fuerte'], ['Total invertido', dinero(hist.invertido)], ['Costo promedio por unidad', dinero(hist.costoPromedio)], ['Unidades vendidas', hist.vendidas]])}
     ${tarjetaLineas(hist.compras.map((g) => [html`<span class="linea-titulo">${fecha(g.fecha)} · ${g.cantidad} unid.</span><span class="linea-sub">${dinero(g.cantidad ? g.monto / g.cantidad : 0)} por unidad</span>`, dinero(g.monto)]))}`
     : nota('Aún no hay compras registradas para este producto. Usa "Registrar compra" para agregarlas.')) : '';
+  // Ajuste autorizado por el dueño: un producto nuevo arranca con 0 unidades (no se puede vender sin stock).
+  // Solo los servicios, marcados a propósito, quedan "sin control de stock".
+  const esServicio = !!p && !tieneControlStock(p);
   const g = p ? gananciaUnitaria(p) : null;
   const clave = p ? cifras([
     { etiqueta: 'Precio', valor: dinero(p.precio) },
@@ -46,9 +49,11 @@ export function abrirFormularioProducto(id) {
       ${filaCampos(
         campo({ id: 'f_costo', etiqueta: `Costo (${aj.moneda})`, tipo: 'number', dinero: true, valor: p && p.costo ? p.costo : '', placeholder: '¿Cuánto te cuesta?' }),
         campo({ id: 'f_margen', etiqueta: 'Ganancia deseada (%)', tipo: 'number', dinero: true, valor: p ? (p.margen || '') : (aj.margenDefault || ''), placeholder: 'Ej. 40' }))}
+      ${interruptor('f_servicio', 'Es un servicio (no lleva control de unidades)', esServicio)}
       ${filaCampos(
         campo({ id: 'f_precio', etiqueta: `Precio de venta (${aj.moneda})`, tipo: 'number', dinero: true, valor: p ? p.precio : '', placeholder: '0' }),
-        campo({ id: 'f_stock', etiqueta: 'Stock (opcional)', tipo: 'number', valor: p && p.stock !== '' ? p.stock : '', placeholder: '—' }))}
+        campo({ id: 'f_stock', etiqueta: 'Unidades en stock', tipo: 'number', valor: p ? (p.stock !== '' ? p.stock : '') : '0', placeholder: '0' }))}
+      <p class="nota" data-nota-stock>${esServicio ? 'Un servicio se puede vender sin unidades en stock.' : 'Sin unidades no se puede vender: registra una compra o escribe cuántas tienes.'}</p>
       <p class="nota" data-vista-ganancia></p>
       ${campo({ id: 'f_umbral', etiqueta: 'Avisar si baja de (unid.)', tipo: 'number', valor: p && p.stockMinimo !== undefined && p.stockMinimo !== '' && p.stockMinimo !== null ? p.stockMinimo : '', placeholder: String(aj.stockMinimo), ayuda: `Déjalo vacío para usar el límite general (${aj.stockMinimo} unid.).` })}
       ${interruptor('f_sinAlerta', 'No avisar de poco stock para este producto', p && p.sinAlerta)}
@@ -76,16 +81,26 @@ export function abrirFormularioProducto(id) {
   $('#f_margen').addEventListener('input', () => { ultimo = 'margen'; recalcular('margen'); });
   $('#f_precio').addEventListener('input', () => { ultimo = 'precio'; recalcular('precio'); });
   vista();
+  // "Es un servicio": oculta las unidades (se guarda sin control de stock).
+  const servicio = $('#f_servicio');
+  const pintarServicio = () => {
+    $('[data-campo="f_stock"]').hidden = servicio.checked;
+    $('[data-nota-stock]').textContent = servicio.checked ? 'Un servicio se puede vender sin unidades en stock.' : 'Sin unidades no se puede vender: registra una compra o escribe cuántas tienes.';
+    if (!servicio.checked && $('#f_stock').value === '') $('#f_stock').value = '0';
+  };
+  servicio.addEventListener('change', () => { pintarServicio(); $('#f_stock').dispatchEvent(new Event('input')); });
+  pintarServicio();
   // Motivo del ajuste si cambia el stock
   const stockOriginal = p && tieneControlStock(p) ? Number(p.stock) : null;
   const motivo = $('[data-zona-motivo]');
-  if (motivo) $('#f_stock').addEventListener('input', () => { const v = $('#f_stock').value === '' ? null : Number($('#f_stock').value); motivo.hidden = v === stockOriginal; });
+  if (motivo) $('#f_stock').addEventListener('input', () => { const v = servicio.checked || $('#f_stock').value === '' ? null : Number($('#f_stock').value); motivo.hidden = v === stockOriginal; });
 
   $('[data-accion="cancelar"]').addEventListener('click', capa.cerrar);
   $('[data-accion="guardar"]').addEventListener('click', async (e) => {
     const r = await operar(el, e.currentTarget, () => guardarProducto(id, {
       nombre: valor(el, 'f_nombre'), categoria: valor(el, 'f_categoria'), descripcion: valor(el, 'f_descripcion'),
-      costo: valor(el, 'f_costo'), margen: valor(el, 'f_margen'), precio: valor(el, 'f_precio'), stock: valor(el, 'f_stock'),
+      costo: valor(el, 'f_costo'), margen: valor(el, 'f_margen'), precio: valor(el, 'f_precio'),
+      stock: servicio.checked ? '' : (valor(el, 'f_stock') === '' ? '0' : valor(el, 'f_stock')),
       foto, stockMinimo: valor(el, 'f_umbral'), sinAlerta: valor(el, 'f_sinAlerta'), motivo: valor(el, 'f_stockMotivo'),
     }));
     if (r.ok) { await capa.cerrar(); notificar(p ? 'Producto actualizado.' : 'Producto agregado.', { tipo: 'exito' }); }

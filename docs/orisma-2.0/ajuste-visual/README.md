@@ -111,3 +111,34 @@ ni desbordes. El PDF de la app (una página) y la impresión (con colores, a lo 
 - La aplicación original ("Cuentas", `main` y commit `9300dfa`) **no se tocó**.
 - La versión anterior de Orisma (2.0.0-rc.1) sigue intacta en su rama.
 - La copia de prueba publicada en `/prueba/` sigue siendo la 2.0.0-rc.1. Actualizarla requiere otra solicitud de cambios autorizada por el dueño.
+
+## 6. Ajustes autorizados por el dueño (21-nov-2026) · versión 2.0.0-rc.3
+Solo estos dos, a pedido del dueño (venían de una versión suya que no se había subido):
+
+1. **Producto nuevo con 0 unidades.**
+   - Al crear un producto, "Unidades en stock" arranca en 0, así que **no se puede vender hasta tener unidades** (por una compra o escribiendo la cantidad).
+   - Los servicios se marcan a propósito con la casilla **"Es un servicio (no lleva control de unidades)"**: así quedan "sin control de stock", como antes.
+   - Los productos existentes no cambian.
+   - Archivo: `src/features/inventory/product-form.js`. La regla que guarda el producto (`business`) no cambió: el formulario solo envía 0 en lugar de vacío.
+2. **Forma de pago en pedidos y encargos.**
+   - El detalle muestra el medio del anticipo ("Anticipo · 20 nov 2026 · Tarjeta") y una sección **"Pagos recibidos"** con fecha, medio y monto de cada pago.
+   - Son los pagos que la app ya guardaba; no se calcula nada nuevo.
+   - Archivo: `src/features/sales/pending-detail.js`.
+
+**Pruebas:**
+
+| Prueba | Resultado |
+|---|---|
+| Unitarias | 77/77 |
+| Núcleo | 28/28 |
+| Datos | 17/17 |
+| Reglas | 46/46, idénticas a la original |
+| Módulos | 9/9, idénticos a la original |
+| Seguridad | 31/31 |
+| Migración | 17/17 |
+| Integral | 19/19, idénticos a la original |
+| Funciones | 24/24, incluidas las nuevas A1–A3: producto nuevo no vendible sin stock, servicio sin control de unidades y medio de pago en el detalle |
+
+**Observación (sin cambio):** en datos muy antiguos sin lista de pagos, la caja cuenta el anticipo como efectivo,
+igual que la app original. El detalle sí muestra el medio guardado. Corregir la caja cambiaría un cálculo y requiere
+autorización aparte.

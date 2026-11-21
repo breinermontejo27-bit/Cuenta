@@ -299,6 +299,60 @@ const cerrar = (p) => p.evaluate(() => import('./src/core/navigation.js').then((
     afirmar(r.costo === '$' && r.etqCosto === 'Costo' && r.margen === '%', JSON.stringify(r));
     await cerrar(p);
   });
+  // ---------- Ajustes autorizados por el dueño (21-nov-2026) ----------
+  await caso('A1 · producto nuevo: arranca con 0 unidades y no se puede vender hasta tener stock', async () => {
+    await ir(p, '#/inventario/productos');
+    await p.click('#accionMovil');
+    afirmar(await p.inputValue(`${ULT} #f_stock`) === '0', 'el stock no arranca en 0');
+    afirmar(!(await p.isChecked(`${ULT} #f_servicio`)), '"Es un servicio" marcado por defecto');
+    await p.fill(`${ULT} #f_nombre`, 'Pulsera nueva'); await p.fill(`${ULT} #f_precio`, '25000');
+    await p.click(`${ULT} [data-accion="guardar"]`);
+    await p.waitForFunction(() => !document.querySelector('#capas .velo'));
+    const r = await p.evaluate(async () => {
+      const st = await import('./src/core/state.js'); const ventas = await import('./src/operations/sales.js');
+      await (await import('./src/operations/clients.js')).guardarCliente(null, { nombre: 'Comprador', telefono: '', email: '', direccion: '' });
+      const prod = st.coleccion('inventario').find((x) => x.nombre === 'Pulsera nueva');
+      let error = '';
+      try { await ventas.registrarVenta({ clienteId: st.coleccion('clientes').at(-1).id, carrito: [{ productoId: prod.id, nombre: prod.nombre, precioCatalogo: 25000, precioUnit: 25000, costo: 0, cantidad: 1, stockDisponible: prod.stock }], descuento: { tipo: 'monto', valor: 0 }, notas: '', medio: 'efectivo', montos: {} }); } catch (e) { error = e.message; }
+      return { stock: prod.stock, error };
+    });
+    afirmar(r.stock === 0 && /stock|unidades|disponible/i.test(r.error), JSON.stringify(r));
+  });
+  await caso('A2 · "Es un servicio": se guarda sin control de unidades y se puede vender sin stock', async () => {
+    await ir(p, '#/inventario/productos');
+    await p.click('#accionMovil');
+    await p.check(`${ULT} #f_servicio`);
+    afirmar(!(await p.isVisible(`${ULT} #f_stock`)), 'el campo de unidades sigue visible');
+    await p.fill(`${ULT} #f_nombre`, 'Grabado'); await p.fill(`${ULT} #f_precio`, '15000');
+    await p.click(`${ULT} [data-accion="guardar"]`);
+    await p.waitForFunction(() => !document.querySelector('#capas .velo'));
+    const stock = await p.evaluate(() => import('./src/core/state.js').then((m) => m.coleccion('inventario').find((x) => x.nombre === 'Grabado').stock));
+    afirmar(stock === '', 'stock guardado: ' + JSON.stringify(stock));
+    await p.click('#contenido .fila >> text=Grabado');
+    afirmar(await p.isChecked(`${ULT} #f_servicio`), 'al editar no aparece como servicio');
+    await cerrar(p);
+  });
+  await caso('A3 · pedido y encargo: el detalle muestra la forma de pago del anticipo y de cada pago', async () => {
+    const ids = await p.evaluate(async () => {
+      const st = await import('./src/core/state.js'); const or = await import('./src/operations/orders.js');
+      const cli = st.coleccion('clientes').at(-1); const prod = st.coleccion('inventario').find((x) => x.id === 'p1');
+      const item = { productoId: prod.id, nombre: prod.nombre, precioCatalogo: prod.precio, precioUnit: prod.precio, costo: 0, cantidad: 1, stockDisponible: prod.stock };
+      const a = await or.crearPendienteDesdeAsistente({ tipo: 'pedido', clienteId: cli.id, carrito: [item], fecha: '2026-12-24', anticipo: '20000', fechaAnticipo: '2026-11-20', metodo: 'tarjeta', notas: '' });
+      await or.abonar(a.id, { monto: '5000', fecha: '2026-11-21', metodo: 'efectivo' }, String);
+      const b = await or.crearPendienteDesdeAsistente({ tipo: 'encargo', clienteId: cli.id, carrito: [item], fecha: '', anticipo: '10000', fechaAnticipo: '2026-11-20', metodo: 'tarjeta', notas: '' });
+      return [a.id, b.id];
+    });
+    for (const [id, pagosEsperados] of [[ids[0], 2], [ids[1], 1]]) {
+      await p.evaluate((x) => import('./src/core/navigation.js').then((m) => m.pedirHoja('pendiente:ver', { pendienteId: x })), id);
+      await p.waitForSelector(`${ULT} .hoja`);
+      const t = await p.textContent(ULT);
+      afirmar(/Anticipo · 20 nov 2026 · Tarjeta/.test(t), 'el anticipo no muestra su medio: ' + t.slice(0, 300));
+      afirmar(t.includes('Pagos recibidos'), 'falta "Pagos recibidos"');
+      const filas = await p.$$eval(`${ULT} .seccion-titulo + .tarjeta .linea`, (x) => x.map((e) => e.textContent.trim()));
+      afirmar(filas.length === pagosEsperados && /Tarjeta/.test(filas[0]) && (pagosEsperados === 1 || /Efectivo/.test(filas[1])), JSON.stringify(filas));
+      await cerrar(p);
+    }
+  });
   await p.context().close();
 
   await caso('G13 · teléfono angosto (320 px): ninguna pantalla ni hoja se sale por los lados', async () => {
