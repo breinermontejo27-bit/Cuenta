@@ -1,0 +1,99 @@
+/* Orisma 2.0 · Variables de diseño (tokens)
+   Fuente única de colores, tipografía, espacios, radios y sombras.
+   Tema claro por defecto; oscuro automático o forzado con data-tema. */
+
+:root {
+  /* Marca: se conserva el azul de la versión actual (#1E4FA0) como color principal */
+  --marca: #1E4FA0;
+  --marca-fuerte: #173F82;
+  --marca-suave: #E8EFFA;
+  --sobre-marca: #FFFFFF;
+
+  /* Superficies y texto */
+  --fondo: #F4F5F7;
+  --superficie: #FFFFFF;
+  --superficie-2: #EFF1F4;
+  --borde: #E1E4EA;
+  --borde-fuerte: #C9CED7;
+  --borde-campo: #7F8693;   /* contorno de campos y casillas: contraste ≥ 3:1 */
+  --texto: #141820;
+  --texto-2: #4A5261;
+  --texto-3: #646C7A;
+
+  /* Estados del negocio */
+  --positivo: #12733F;      /* cobrado, ganancia, pagado */
+  --positivo-suave: #E5F3EB;
+  --negativo: #B42318;      /* deuda, egreso, pérdida, vencido */
+  --negativo-suave: #FCEBE9;
+  --aviso: #8A5600;         /* poco stock, por vencer */
+  --aviso-suave: #FFF3D6;
+  --info: var(--marca);
+  --info-suave: var(--marca-suave);
+
+  /* Tipografía: fuentes del sistema (sin descargas, funcionan sin conexión) */
+  --fuente: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --fuente-num: ui-monospace, "SF Mono", "Roboto Mono", Menlo, Consolas, monospace;
+  --t-xs: 12px;   /* etiquetas pequeñas, insignias */
+  --t-sm: 13px;   /* textos secundarios */
+  --t-base: 15px; /* texto normal */
+  --t-md: 17px;   /* títulos de fila y de hoja */
+  --t-lg: 20px;   /* títulos de sección */
+  --t-xl: 26px;   /* título de pantalla */
+  --t-2xl: 32px;  /* cifra principal */
+  --peso-normal: 400;
+  --peso-medio: 500;
+  --peso-semi: 600;
+  --peso-negrita: 700;
+
+  /* Espacios (múltiplos de 4) */
+  --e-1: 4px; --e-2: 8px; --e-3: 12px; --e-4: 16px; --e-5: 20px; --e-6: 24px; --e-8: 32px; --e-10: 40px;
+
+  /* Radios */
+  --r-sm: 8px;   /* campos, botones */
+  --r-md: 12px;  /* tarjetas, listas */
+  --r-lg: 18px;  /* hojas */
+  --r-pill: 999px;
+
+  /* Sombras */
+  --sombra-1: 0 1px 2px rgba(16, 24, 40, .06);
+  --sombra-2: 0 4px 14px rgba(16, 24, 40, .10);
+  --sombra-3: 0 12px 40px rgba(16, 24, 40, .18);
+
+  /* Tamaños */
+  --toque: 44px;          /* área mínima tocable */
+  --barra-inferior: 64px;
+  --barra-lateral: 248px;
+  --contenido-max: 1180px;
+  --hoja-max: 560px;
+  --panel-ancho: 480px;
+
+  /* Movimiento */
+  --dur: 180ms;
+  --curva: cubic-bezier(.2, .8, .2, 1);
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="claro"]) {
+    --marca: #82A9EE; --marca-fuerte: #A6C2F4; --marca-suave: #1A2944; --sobre-marca: #0A1830;
+    --fondo: #0D1015; --superficie: #161A21; --superficie-2: #1D222B; --borde: #29303B; --borde-fuerte: #3A4250; --borde-campo: #687182;
+    --texto: #E7EAF0; --texto-2: #AAB2BF; --texto-3: #8E97A6;
+    --positivo: #52C48D; --positivo-suave: #12291D; --negativo: #F2796D; --negativo-suave: #3A1714;
+    --aviso: #E6B54A; --aviso-suave: #332507;
+    --sombra-1: none; --sombra-2: 0 4px 14px rgba(0,0,0,.4); --sombra-3: 0 12px 40px rgba(0,0,0,.55);
+    color-scheme: dark;
+  }
+}
+:root[data-tema="oscuro"] {
+  --marca: #82A9EE; --marca-fuerte: #A6C2F4; --marca-suave: #1A2944; --sobre-marca: #0A1830;
+  --fondo: #0D1015; --superficie: #161A21; --superficie-2: #1D222B; --borde: #29303B; --borde-fuerte: #3A4250; --borde-campo: #687182;
+  --texto: #E7EAF0; --texto-2: #AAB2BF; --texto-3: #8E97A6;
+  --positivo: #52C48D; --positivo-suave: #12291D; --negativo: #F2796D; --negativo-suave: #3A1714;
+  --aviso: #E6B54A; --aviso-suave: #332507;
+  --sombra-1: none; --sombra-2: 0 4px 14px rgba(0,0,0,.4); --sombra-3: 0 12px 40px rgba(0,0,0,.55);
+  color-scheme: dark;
+}
+
+/* Puntos de quiebre (referencia; CSS no admite variables en media queries):
+   teléfono < 720px · tableta 720–1023px · computador ≥ 1024px */

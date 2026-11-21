@@ -1,0 +1,16 @@
+/* Orisma 2.0 · Impresión
+   Al imprimir solo se ve el documento marcado con #zonaImpresion (factura o comprobante). */
+@media print {
+  body > *:not(#capas) { display: none !important; }
+  #capas .velo { position: static; background: none; display: block; }
+  #capas .hoja { box-shadow: none; max-height: none; height: auto; padding: 0; }
+  #capas .hoja > :not(.hoja-cuerpo), #capas .hoja-cuerpo > :not(#zonaImpresion) { display: none !important; }
+  /* La factura se imprime a lo ancho de la página (sin la escala de la pantalla ni el ancho de la ventana)
+     y con sus colores: los navegadores no imprimen fondos si el documento no lo pide. */
+  #capas .hoja, #capas .hoja-cuerpo { max-width: none !important; width: auto !important; overflow: visible !important; border: 0; margin: 0; }
+  #zonaImpresion { background: none; border: 0; padding: 0; overflow: visible; }
+  #zonaImpresion .escala-doc { transform: none !important; height: auto !important; width: auto !important; }
+  #zonaImpresion .documento { box-shadow: none; margin: 0 auto; width: 100%; max-width: 720px; min-height: 0; padding: 0; }
+  .documento, .documento * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  @page { margin: 12mm; }
+}
