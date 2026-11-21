@@ -21,8 +21,10 @@ import gastos from './features/expenses/index.js';
 import reportes from './features/reports/index.js';
 import ajustes from './features/settings/settings-menu.js';
 import creditos from './features/credits/index.js';
+import inicio from './features/home/index.js';
+import mas from './features/more/index.js';
 
-const MODULOS = [clientes, inventario, ventas, facturas, gastos, reportes, ajustes];
+const MODULOS = [inicio, clientes, inventario, ventas, facturas, gastos, reportes, ajustes, mas];
 // Módulos sin pestaña propia que solo aportan hojas (se abren desde otros módulos).
 const MODULOS_DE_HOJAS = [creditos];
 
@@ -39,7 +41,7 @@ async function iniciar() {
   vigilarSegundoPlano();
   for (const m of [...MODULOS, ...MODULOS_DE_HOJAS]) for (const [nombre, abrir] of Object.entries(m.hojas || {})) registrarHoja(nombre, abrir);
   iniciarMarco(document.getElementById('app'), MODULOS);
-  iniciarNavegacion({ modulos: MODULOS, inicial: 'clientes' });
+  iniciarNavegacion({ modulos: MODULOS, inicial: 'inicio' });
   registrarServiceWorker();
   mantenimiento();
 }
@@ -98,9 +100,12 @@ function registrarServiceWorker() {
     });
     if (reg.waiting && navigator.serviceWorker.controller) avisar(reg.waiting);
     reg.addEventListener('updatefound', () => {
+      // Solo es "versión nueva" si ya había una versión de Orisma funcionando. En la primera instalación (incluido
+      // el paso desde la app anterior "Cuentas", cuyo service worker controla la página en ese momento) no se avisa.
+      const habiaVersion = !!reg.active;
       const nuevo = reg.installing;
       nuevo.addEventListener('statechange', () => {
-        if (nuevo.state === 'installed' && navigator.serviceWorker.controller) avisar(nuevo);
+        if (nuevo.state === 'installed' && habiaVersion && navigator.serviceWorker.controller) avisar(nuevo);
       });
     });
   }).catch((e) => registrarError(e, 'service-worker')); // la app funciona igual; solo no habrá modo sin conexión

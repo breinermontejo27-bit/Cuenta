@@ -13,6 +13,23 @@ import { operar } from '../../ui/operar.js';
 import { generarFactura } from '../../operations/invoices.js';
 import { anularVenta } from '../../operations/sales.js';
 import { unidadesVendidas } from '../../business/sales-rules.js';
+import { abonadoVenta, saldoVenta } from '../../business/payments.js';
+import { insignia } from '../../ui/components/list.js';
+
+/** Total, estado y (si es a crédito) cuánto se ha pagado, con una barra de avance. */
+function cabeceraVenta(v) {
+  const saldo = saldoVenta(v), pagado = abonadoVenta(v), total = Number(v.total) || 0;
+  const pct = v.fiado && total > 0 ? Math.max(0, Math.min(100, Math.round(pagado / total * 100))) : 100;
+  return html`<section class="tarjeta cabecera-detalle">
+    <div class="arriba"><div><div class="etq">Total</div><div class="val">${dinero(total)}</div></div>${saldo > 0 ? insignia('deuda', 'Debe ' + dinero(saldo)) : insignia('pagado', 'Pagada')}</div>
+    ${v.fiado ? html`<div class="avance" role="img" aria-label="Pagado ${pct}%"><span class="avance-barra" data-ancho="${pct}"></span></div><div class="avance-pie"><span>Pagado ${dinero(pagado)}</span><span>${pct}%</span></div>` : ''}
+  </section>`;
+}
+
+/** La barra de avance toma su ancho del atributo (sin estilos en línea: la política de seguridad no los permite). */
+function anchoAvance(el) {
+  el.querySelectorAll('.avance-barra[data-ancho]').forEach((b) => { b.style.width = `${Number(b.dataset.ancho) || 0}%`; });
+}
 
 export function abrirDetalleVenta(id) {
   const v = coleccion('ventas').find((x) => x.id === id);
@@ -22,6 +39,7 @@ export function abrirDetalleVenta(id) {
     titulo: v.clienteNombre,
     paso: `${fecha(v.fecha)} · Sin factura generada`,
     cuerpo: html`
+      ${cabeceraVenta(v)}
       ${tarjetaLineas((v.items || []).map((it) => [html`<span class="linea-titulo">${it.cantidad} × ${it.nombre}</span><span class="linea-sub">${dinero(it.precio)} c/u</span>`, dinero(it.precio * it.cantidad)]))}
       ${v.notas ? html`<p class="nota"><strong>Notas:</strong> ${v.notas}</p>` : ''}
       ${tarjetaLineas([
@@ -35,6 +53,7 @@ export function abrirDetalleVenta(id) {
     pie: acciones([{ texto: 'Cerrar', accion: 'cerrar-detalle' }, { texto: 'Generar factura', accion: 'factura', tipo: 'primario' }]),
   });
   const el = capa.elemento;
+  anchoAvance(el);
   el.querySelector('[data-accion="cerrar-detalle"]').addEventListener('click', capa.cerrar);
   el.querySelector('[data-accion="factura"]').addEventListener('click', async (e) => {
     const r = await operar(el, e.currentTarget, () => generarFactura(v.id));

@@ -1,6 +1,7 @@
 // Ventas › Ventas: lista agrupada por día (teléfono) y tabla (computador) (renderVentasLista, L1553–1574).
 
 import { coleccion } from '../../core/state.js';
+import { hoy } from '../../core/clock.js';
 import { html, montar } from '../../ui/html.js';
 import { dinero, fecha, folio, etiquetaMedio } from '../../ui/format.js';
 import { estadoVacio, fila, lista, insignia, etiquetaGrupo, alTocarFila, paginar, botonMostrarMas, conectarMostrarMas } from '../../ui/components/list.js';
@@ -25,9 +26,9 @@ export function dibujarVentas(contenedor, busqueda) {
   }
   const sub = (v) => `${v.folio ? 'Factura ' + folio(v.folio) : 'Sin factura'}${etiquetaMedio(v.metodoPago) ? ' · ' + etiquetaMedio(v.metodoPago) : ''}`;
   montar(contenedor, html`
-    <div class="solo-movil">${grupos.map((g) => html`${etiquetaGrupo(fecha(g.fecha))}${lista(g.ventas.map((v) => fila({
-      datos: { id: v.id }, titulo: v.clienteNombre, sub: sub(v), valor: dinero(v.total),
-      extra: saldoVenta(v) > 0 ? [insignia('deuda', 'Saldo ' + dinero(saldoVenta(v)))] : [],
+    <div class="solo-movil">${grupos.map((g) => html`${etiquetaGrupo(g.fecha === hoy() ? 'Hoy' : fecha(g.fecha), `${g.ventas.length} · ${dinero(g.ventas.reduce((s, v) => s + (Number(v.total) || 0), 0))}`)}${lista(g.ventas.map((v) => fila({
+      datos: { id: v.id }, iniciales: v.clienteNombre, titulo: v.clienteNombre, sub: sub(v), valor: dinero(v.total),
+      insignias: saldoVenta(v) > 0 ? [insignia('deuda', 'Debe ' + dinero(saldoVenta(v)))] : [],
     })))}`)}</div>
     <table class="tabla solo-escritorio">
       <thead><tr><th>Fecha</th><th>Cliente</th><th>Factura</th><th>Pago</th><th class="der">Total</th><th class="der">Saldo</th></tr></thead>

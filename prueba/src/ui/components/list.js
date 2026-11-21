@@ -29,7 +29,7 @@ export function fila(f) {
     <span class="fila-principal">
       <span class="fila-titulo">${f.titulo}</span>
       ${f.sub ? html`<span class="fila-sub">${f.sub}</span>` : ''}
-      ${f.sub2 ? html`<span class="fila-sub">${f.sub2}</span>` : ''}
+      ${f.sub2 ? html`<span class="fila-sub ${f.sub2Clase || ''}">${f.sub2}</span>` : ''}
       ${(f.extra || []).length ? html`<span class="fila-extra">${f.extra}</span>` : ''}
     </span>
     <span class="fila-valor">
@@ -45,9 +45,9 @@ export function lista(filas) {
   return html`<ul class="lista">${filas}</ul>`;
 }
 
-/** Título de un grupo dentro de una lista ("HOY", "VENCIDOS"…). */
-export function etiquetaGrupo(texto) {
-  return html`<h3 class="etiqueta-grupo">${texto}</h3>`;
+/** Título de un grupo dentro de una lista ("HOY", "VENCIDOS"…), con un detalle opcional a la derecha. */
+export function etiquetaGrupo(texto, detalle = '') {
+  return html`<h3 class="etiqueta-grupo"><span>${texto}</span>${detalle ? html`<span class="etiqueta-grupo-det">${detalle}</span>` : ''}</h3>`;
 }
 
 /** Conecta el toque de las filas: `fn(valor)` con el valor del atributo data-<clave>. */

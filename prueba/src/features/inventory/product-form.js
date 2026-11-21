@@ -9,10 +9,10 @@ import { confirmar } from '../../ui/overlays/dialog.js';
 import { notificar } from '../../ui/notifications/toast.js';
 import { campo, filaCampos, interruptor, valor, acciones, botonTexto } from '../../ui/components/fields.js';
 import { selectorImagen, conectarSelectorImagen } from '../../ui/components/image-picker.js';
-import { seccion, tarjetaLineas, nota } from '../../ui/components/cards.js';
+import { seccion, tarjetaLineas, nota, cifras } from '../../ui/components/cards.js';
 import { operar } from '../../ui/operar.js';
 import { guardarProducto, eliminarProducto } from '../../operations/products.js';
-import { categorias, comprasDeProducto, recalcularProducto, vistaPreviaProducto, tieneControlStock } from '../../business/inventory-rules.js';
+import { categorias, comprasDeProducto, recalcularProducto, vistaPreviaProducto, tieneControlStock, gananciaUnitaria, esPocoStock, umbralStock } from '../../business/inventory-rules.js';
 import { prepararImagen } from '../../services/images.js';
 import { abrirCompra } from './purchase-form.js';
 
@@ -26,9 +26,18 @@ export function abrirFormularioProducto(id) {
     ${tarjetaLineas([['Unidades compradas', hist.unidades, 'fuerte'], ['Total invertido', dinero(hist.invertido)], ['Costo promedio por unidad', dinero(hist.costoPromedio)], ['Unidades vendidas', hist.vendidas]])}
     ${tarjetaLineas(hist.compras.map((g) => [html`<span class="linea-titulo">${fecha(g.fecha)} · ${g.cantidad} unid.</span><span class="linea-sub">${dinero(g.cantidad ? g.monto / g.cantidad : 0)} por unidad</span>`, dinero(g.monto)]))}`
     : nota('Aún no hay compras registradas para este producto. Usa "Registrar compra" para agregarlas.')) : '';
+  const g = p ? gananciaUnitaria(p) : null;
+  const clave = p ? cifras([
+    { etiqueta: 'Precio', valor: dinero(p.precio) },
+    { etiqueta: 'Costo', valor: dinero(Number(p.costo) || 0) },
+    { etiqueta: 'Ganancia por unidad', valor: g ? `${dinero(g.ganancia)} (${g.porcentaje >= 0 ? '+' : ''}${g.porcentaje}%)` : '—', clase: g && g.ganancia < 0 ? 'neg' : 'pos' },
+    { etiqueta: tieneControlStock(p) ? (umbralStock(p, aj) === null ? 'En stock · sin aviso' : `En stock · aviso desde ${umbralStock(p, aj)}`) : 'Stock', valor: tieneControlStock(p) ? String(p.stock) : 'Sin control', clase: esPocoStock(p, aj) ? 'aviso' : '' },
+  ]) : '';
   const capa = abrirHoja({
-    titulo: p ? 'Editar producto' : 'Nuevo producto',
+    titulo: p ? p.nombre : 'Nuevo producto',
+    paso: p ? `${p.categoria || 'Sin categoría'} · toca un campo para editarlo` : '',
     cuerpo: html`
+      ${clave}
       ${campo({ id: 'f_nombre', etiqueta: 'Nombre del producto', valor: p ? p.nombre : '', placeholder: 'Nombre' })}
       ${selectorImagen('pfoto', 'Foto del producto (opcional)', foto, 'Sin foto')}
       ${campo({ id: 'f_categoria', etiqueta: 'Categoría (opcional)', valor: p ? (p.categoria || '') : '', placeholder: 'Ej. Bebidas, Ropa, Accesorios', lista: 'listaCategorias' })}

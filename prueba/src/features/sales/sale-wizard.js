@@ -125,6 +125,8 @@ export function abrirAsistente() {
           Number(aj.impuesto) > 0 ? [`Impuesto (${aj.impuesto}%)`, dinero(t.impuesto)] : null,
           ['Total a cobrar', dinero(t.total), 'fuerte total'],
         ])}`);
+      // El botón principal dice cuánto se va a cobrar (ajuste visual final).
+      if (est.tipoOp === 'venta') btnGuardar.textContent = est.carrito.length ? `Cobrar ${dinero(t.total)}` : TEXTO_GUARDAR.venta;
       $('#w_descuento').addEventListener('change', (e) => { est.descuento = descuentoPorcentaje(e.target.value); pintarTodo(); });
       $('#w_total').addEventListener('change', (e) => {
         const r = descuentoDesdeTotal(e.target.value, est.descuento, t.suma, aj.impuesto);
@@ -146,7 +148,7 @@ export function abrirAsistente() {
       const zona = $('[data-zona="op"]');
       $('[data-zona="pago-bloque"]').hidden = est.tipoOp !== 'venta';
       btnGuardar.textContent = TEXTO_GUARDAR[est.tipoOp];
-      if (est.tipoOp === 'venta') { montar(zona, html``); return; }
+      if (est.tipoOp === 'venta') { montar(zona, html``); pintarTotales(); return; }
       const esApa = est.tipoOp === 'apartado', esEnc = est.tipoOp === 'encargo';
       montar(zona, html`
         ${esApa ? '' : campo({ id: 'op_fecha', etiqueta: esEnc ? 'Llegada estimada (opcional)' : 'Fecha de entrega', tipo: 'date', valor: esEnc ? '' : hoy() })}

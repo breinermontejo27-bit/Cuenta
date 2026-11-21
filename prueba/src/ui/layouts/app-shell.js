@@ -33,8 +33,20 @@ export function iniciarMarco(elemento, lista) {
   });
 }
 
+// Navegación del Estilo 1 (ajuste visual final aprobado):
+// - Teléfono: barra de abajo con los módulos que declaran `barra` (Inicio, Ventas, Inventario, Clientes, Más);
+//   los demás (Facturas, Gastos, Reportes, Ajustes) se abren desde "Más" y muestran "Volver".
+// - Computador: barra lateral agrupada por `grupo` ("Día a día", "Negocio"); Ajustes abajo.
+// - Encabezado: título, una línea de contexto (`encabezado()` del módulo) y el engranaje de Ajustes.
 function estructura() {
-  const pestanas = modulos.filter((m) => m.pestana !== false);
+  const enBarra = modulos.filter((m) => m.barra).sort((a, b) => a.barra - b.barra);
+  const enLateral = modulos.filter((m) => m.pestana !== false && m.lateral !== false);
+  const grupos = [];
+  for (const m of enLateral) {
+    const g = m.grupo || '';
+    if (!grupos.length || grupos[grupos.length - 1].nombre !== g) grupos.push({ nombre: g, modulos: [] });
+    grupos[grupos.length - 1].modulos.push(m);
+  }
   const enlace = (m, clase) => html`
     <a href="${ruta(m.id)}" class="${clase}" data-modulo="${m.id}">
       ${clase === 'pestana' ? html`<span class="icono-fondo">${icono(m.icono)}</span>` : icono(m.icono)}<span>${m.titulo}</span>
@@ -42,24 +54,25 @@ function estructura() {
   return html`
     <aside class="lateral" aria-label="Navegación principal">
       <div class="negocio" data-negocio></div>
-      <nav>${pestanas.map((m) => enlace(m, 'enlace-lateral'))}</nav>
+      <nav>${grupos.map((g) => html`${g.nombre ? html`<div class="grupo-lateral">${g.nombre}</div>` : ''}${g.modulos.map((m) => enlace(m, 'enlace-lateral'))}`)}</nav>
       <div class="pie"><a href="${ruta('ajustes')}" class="enlace-lateral" data-modulo="ajustes">${icono('ajustes')}<span>Ajustes</span></a></div>
     </aside>
     <div class="principal">
       ${MODO_PRUEBA ? html`<p class="aviso-prueba" role="note"><strong>Copia de prueba.</strong> Lo que hagas aquí no cambia tu app real ni sus datos.</p>` : ''}
       <header class="barra-sup">
         <div class="fila">
+          <a href="${ruta('mas')}" class="boton-icono volver" id="botonVolver" aria-label="Volver" hidden>${icono('atras')}</a>
           <div class="negocio" data-negocio></div>
+          <div class="titulos"><h1 class="titulo-pantalla" id="tituloPantalla"></h1><p class="subtitulo-pantalla" id="subtituloPantalla" hidden></p></div>
+          <button type="button" class="btn btn-primario solo-escritorio" id="accionEscritorio">${icono('mas', 'sm')}<span></span></button>
           <a href="${ruta('ajustes')}" class="boton-icono ajustes" aria-label="Ajustes">${icono('ajustes')}</a>
         </div>
-        <h1 class="titulo-pantalla" id="tituloPantalla"></h1>
         <label class="buscador" id="buscador">${icono('buscar', 'sm')}<span class="oculto-visual">Buscar</span><input id="campoBuscar" type="search" autocomplete="off"></label>
-        <button type="button" class="btn btn-primario solo-escritorio" id="accionEscritorio">${icono('mas', 'sm')}<span></span></button>
       </header>
       <main class="contenido" id="contenido" tabindex="-1"></main>
     </div>
     <button type="button" class="accion-principal" id="accionMovil">${icono('mas')}<span></span></button>
-    <nav class="pestanas" aria-label="Secciones">${pestanas.map((m) => enlace(m, 'pestana'))}</nav>`;
+    <nav class="pestanas" aria-label="Secciones">${enBarra.map((m) => enlace(m, 'pestana'))}</nav>`;
 }
 
 function conectar() {
@@ -89,10 +102,15 @@ function actualizarTodo() {
   const m = porId.get(modulo);
   if (!m) return;
   document.title = `${m.titulo} · Orisma`;
-  raiz.querySelector('#tituloPantalla').textContent = m.titulo;
+  pintarEncabezado();
+  // En la barra de abajo, los módulos que se abren desde "Más" marcan "Más".
+  const marcado = (destino) => destino === modulo || (destino === m.padre && !porId.get(modulo).barra);
   raiz.querySelectorAll('[data-modulo]').forEach((a) => {
-    if (a.dataset.modulo === modulo) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+    const activo = a.classList.contains('pestana') ? marcado(a.dataset.modulo) : a.dataset.modulo === modulo;
+    if (activo) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
   });
+  raiz.querySelector('#botonVolver').hidden = !m.padre;
+  raiz.classList.toggle('en-inicio', modulo === 'inicio');
   const textoBuscar = typeof m.buscador === 'function' ? m.buscador(sub) : m.buscador;
   const buscador = raiz.querySelector('#buscador');
   buscador.hidden = !textoBuscar;
@@ -109,6 +127,18 @@ function actualizarTodo() {
   }
   pintarNegocio();
   dibujarModulo();
+}
+
+/** Título y línea de contexto del módulo actual (p. ej. "5 clientes · 3 con deuda"). */
+function pintarEncabezado() {
+  const m = porId.get(rutaActual().modulo);
+  if (!m || !raiz) return;
+  let e = { titulo: m.titulo, subtitulo: '' };
+  try { if (m.encabezado) e = { ...e, ...m.encabezado(contexto()) }; } catch (err) { informarError(err, `encabezado:${m.id}`); }
+  raiz.querySelector('#tituloPantalla').textContent = e.titulo;
+  const sub = raiz.querySelector('#subtituloPantalla');
+  sub.textContent = e.subtitulo || '';
+  sub.hidden = !e.subtitulo;
 }
 
 function pintarNegocio() {
@@ -131,6 +161,7 @@ export function dibujarModulo() {
       ${m.subvistas.map((s) => html`<button type="button" role="tab" data-sub="${s.id}" aria-selected="${s.id === sub}" aria-pressed="${s.id === sub}">${s.titulo}</button>`)}
     </div>` : '';
   try {
+    pintarEncabezado();
     montar(zona, html`${selector}<div id="vista"></div>`);
     zona.querySelectorAll('[data-sub]').forEach((b) => b.addEventListener('click', () => irA(modulo, b.dataset.sub)));
     m.dibujar(zona.querySelector('#vista'), contexto());
