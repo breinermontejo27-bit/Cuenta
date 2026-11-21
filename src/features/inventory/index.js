@@ -26,13 +26,16 @@ function dibujarProductos(contenedor, busqueda) {
   const filas = pag.visibles.map((p) => {
     const g = gananciaUnitaria(p);
     const res = unidadesReservadas(pedidos, inv, p.id);
-    const stock = tieneControlStock(p) ? `${p.stock} unid.${res > 0 ? ` · ${res} reservadas · ${Math.max(0, p.stock - res)} disponibles` : ''}` : 'Sin control de stock';
+    const control = tieneControlStock(p);
+    const bajo = esPocoStock(p, aj);
     const costo = Number(p.costo) || 0;
+    const etiquetaStock = !control ? insignia('neutra', 'Sin control de stock') : bajo ? insignia('aviso', `${p.stock} · poco stock`) : insignia('pagado', `${p.stock} en stock`);
     return fila({
       datos: { id: p.id }, foto: p.foto, iniciales: p.foto ? undefined : p.nombre,
-      titulo: p.nombre, sub: `${stock}${costo > 0 ? ' · Costo: ' + dinero(costo) : ''}`, sub2: p.categoria || '',
-      valor: dinero(p.precio), valorClase: esPocoStock(p, aj) ? 'neg' : '',
-      extra: [esPocoStock(p, aj) ? insignia('aviso', 'Poco stock') : '', g ? insignia(g.porcentaje < 0 ? 'deuda' : 'pagado', `${g.porcentaje >= 0 ? '+' : ''}${g.porcentaje}% · ${dinero(g.ganancia)}`) : ''].filter(Boolean),
+      titulo: p.nombre, sub: [p.categoria, costo > 0 ? 'Costo ' + dinero(costo) : ''].filter(Boolean).join(' · ') || 'Sin categoría',
+      sub2: g ? `Gana ${dinero(g.ganancia)} por unidad (${g.porcentaje >= 0 ? '+' : ''}${g.porcentaje}%)` : '', sub2Clase: g ? (g.ganancia < 0 ? 'neg' : 'pos') : '',
+      valor: dinero(p.precio), insignias: [etiquetaStock],
+      extra: control && res > 0 ? [insignia('info', `${res} reservadas · ${Math.max(0, p.stock - res)} disponibles`)] : [],
     });
   });
   montar(contenedor, html`
@@ -55,11 +58,18 @@ export default {
   id: 'inventario',
   titulo: 'Inventario',
   icono: 'inventario',
-  orden: 20,
+  orden: 40,
+  barra: 3,
+  grupo: 'Negocio',
   buscador: 'Buscar producto',
   subvistas: [{ id: 'productos', titulo: 'Productos' }, { id: 'stock', titulo: 'Stock' }, { id: 'historial', titulo: 'Historial' }],
   usa: ['inventario', 'pedidos', 'ventas', 'gastos', 'movimientos'],
   accionPrincipal: { texto: 'Nuevo producto', subvistas: ['productos'], ejecutar: () => abrirFormularioProducto(null) },
+  encabezado: () => {
+    const inv = coleccion('inventario');
+    const unidades = inv.filter(tieneControlStock).reduce((s, p) => s + (Number(p.stock) || 0), 0);
+    return { subtitulo: inv.length ? `${inv.length} ${inv.length === 1 ? 'producto' : 'productos'} · ${unidades} unidades en stock` : '' };
+  },
   dibujar(contenedor, { sub, busqueda }) {
     if (sub === 'stock') dibujarStock(contenedor);
     else if (sub === 'historial') dibujarHistorial(contenedor, busqueda);

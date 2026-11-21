@@ -59,7 +59,7 @@ const cerrar = (p) => p.evaluate(() => import('./src/core/navigation.js').then((
   // ================= G. Funciones sin prueba propia =================
   await caso('G1 · tema oscuro automático (0.7): fondo oscuro, texto claro y contraste suficiente en todas las pestañas', async () => {
     const p = await pagina(nav, { colorScheme: 'dark' });
-    for (const h of ['#/clientes', '#/inventario/productos', '#/ventas/ventas', '#/facturas', '#/gastos', '#/reportes/resumen', '#/ajustes']) {
+    for (const h of ['#/inicio', '#/mas', '#/clientes', '#/inventario/productos', '#/ventas/ventas', '#/facturas', '#/gastos', '#/reportes/resumen', '#/ajustes']) {
       await ir(p, h);
       const r = await p.evaluate(() => {
         const lum = (c) => { const [r, g, b] = c.match(/\d+(\.\d+)?/g).slice(0, 3).map(Number).map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
@@ -227,6 +227,77 @@ const cerrar = (p) => p.evaluate(() => import('./src/core/navigation.js').then((
     await p.waitForFunction(() => !document.querySelectorAll('#contenido .linea').length);
     await p.fill('#campoBuscar', '');
   });
+  // ---------- Ajuste visual final (Estilo 1 y factura A) ----------
+  await caso('V1 · factura A: distribución de la original (título centrado, número a la derecha, "Tenga en cuenta" al lado de los totales)', async () => {
+    await p.evaluate(() => import('./src/core/navigation.js').then((m) => m.pedirHoja('factura:ver', { ventaId: 'v1' })));
+    await p.waitForSelector(`${ULT} .documento`);
+    await p.waitForFunction(() => document.querySelector('#capas .escala-doc').style.transform.startsWith('scale'), null, { timeout: 3000 });
+    const r = await p.evaluate(() => {
+      const d = document.querySelector('#capas .documento'); const q = (x) => d.querySelector(x).getBoundingClientRect();
+      const tit = q('.doc-titulo'), num = q('.doc-numero'), cli = q('.doc-cliente'), nota = q('.doc-nota'), tot = q('.doc-totales'), cab = getComputedStyle(d.querySelector('.doc-cabecera'));
+      const centro = (r) => r.left + r.width / 2, dc = d.getBoundingClientRect();
+      return {
+        centrado: Math.abs(centro(tit) - centro(dc)) < 4, numDerecha: num.left > centro(dc), cliIzq: cli.left < centro(dc),
+        notaJuntoTotales: Math.abs(nota.top - tot.top) < 20 && nota.right <= tot.left, lineaNegra: cab.borderBottomStyle === 'solid' && cab.borderBottomColor === 'rgb(17, 24, 39)',
+        gran: getComputedStyle(d.querySelector('.doc-totales .gran')).color, ancho: d.offsetWidth, visor: dc.right <= document.querySelector('#capas .visor-doc').getBoundingClientRect().right + 1,
+      };
+    });
+    afirmar(r.centrado && r.numDerecha && r.cliIzq && r.notaJuntoTotales && r.lineaNegra && r.gran === 'rgb(255, 255, 255)', JSON.stringify(r));
+    afirmar(r.ancho === 720 && r.visor, 'la hoja no cabe a escala en el teléfono: ' + JSON.stringify(r));
+    await p.click(`${ULT} [data-accion="ampliar"]`);
+    afirmar(await p.evaluate(() => document.querySelector('#capas .documento').getBoundingClientRect().width === 720 && document.querySelector('#capas .visor-doc').scrollWidth > document.querySelector('#capas .visor-doc').clientWidth), '"Ver a tamaño real" no amplió');
+    await cerrar(p);
+  });
+  await caso('V2 · imprimir: se ve la factura completa, con sus colores, a lo ancho de la página y sin la app alrededor (antes salía en blanco)', async () => {
+    await p.evaluate(() => import('./src/core/navigation.js').then((m) => m.pedirHoja('factura:ver', { ventaId: 'v1' })));
+    await p.waitForSelector(`${ULT} .documento`);
+    await p.emulateMedia({ media: 'print' });
+    const r = await p.evaluate(() => {
+      const d = document.querySelector('#zonaImpresion .documento');
+      const vis = (e) => !!e && e.offsetParent !== null && e.getBoundingClientRect().height > 0;
+      return { factura: vis(d), colores: getComputedStyle(d.querySelector('th')).printColorAdjust === 'exact', alto: d.getBoundingClientRect().height, ancho: d.getBoundingClientRect().width, total: vis(d.querySelector('.doc-totales .gran')), botones: [...document.querySelectorAll('#capas .hoja-pie, #capas .acciones-doc, .barra-sup, .pestanas')].filter(vis).length };
+    });
+    await p.emulateMedia({ media: 'screen' });
+    afirmar(r.factura && r.colores && r.total && r.alto > 600 && r.ancho > 600 && r.ancho <= 720 && r.botones === 0, JSON.stringify(r));
+    await cerrar(p);
+  });
+  await caso('V3 · Inicio muestra exactamente las cifras de Reportes, Caja y Clientes (sin cálculos nuevos)', async () => {
+    await ir(p, '#/inicio');
+    const r = await p.evaluate(async () => {
+      const st = await import('./src/core/state.js'); const ac = await import('./src/business/accounting.js'); const pa = await import('./src/business/payments.js');
+      const f = await import('./src/ui/format.js'); const reloj = await import('./src/core/clock.js');
+      const dia = reloj.hoy(); const datos = { ventas: st.coleccion('ventas'), pedidos: st.coleccion('pedidos'), gastos: st.coleccion('gastos') };
+      const caja = ac.resumenCaja(datos, ac.rangoDia(dia), dia);
+      const rep = ac.resumenReportes({ ...datos, inventario: st.coleccion('inventario') }, 'mes', st.obtenerAjustes(), dia);
+      const txt = document.querySelector('#contenido').textContent;
+      return { vendido: txt.includes(f.dinero(caja.ventasTot)), caja: txt.includes(f.dinero(caja.ingresos)), cobrar: txt.includes(f.dinero(pa.totalPorCobrar(datos.ventas))), ganancia: txt.includes(f.dinero(rep.periodo.ganancia)) };
+    });
+    afirmar(Object.values(r).every(Boolean), JSON.stringify(r));
+    await ir(p, '#/reportes/resumen');
+    const g = await p.evaluate(() => document.querySelector('#contenido .destacada .val').textContent.trim());
+    await ir(p, '#/inicio');
+    afirmar((await p.textContent('#contenido .kpi:nth-child(2) .kpi-v')).trim() === g, 'la ganancia de Inicio no es la de Reportes');
+  });
+  await caso('V4 · accesos rápidos de Inicio abren venta, pendiente, créditos y gasto', async () => {
+    // Sin clientes (G14 eliminó el único), "Vender" pide crear uno primero, igual que la app original (3.2.1).
+    for (const [a, texto] of [['vender', /nueva venta|necesitas un cliente/], ['pedido', /qué quieres registrar/], ['cobrar', /créditos/], ['gasto', /gasto/]]) {
+      await ir(p, '#/inicio');
+      await p.click(`#contenido [data-acceso="${a}"]`);
+      await p.waitForSelector(`${ULT} .hoja`, { timeout: 3000 });
+      afirmar(texto.test((await p.textContent(`${ULT} .hoja-cabecera`)).toLowerCase()), `${a}: ${(await p.textContent(`${ULT} .hoja-cabecera`)).trim().slice(0, 60)}`);
+      await cerrar(p);
+    }
+  });
+  await caso('V5 · campos de dinero con el símbolo dentro y "%" en porcentajes; la etiqueta no repite la moneda', async () => {
+    await ir(p, '#/inventario/productos');
+    await p.click('#contenido .fila[data-id="p1"]');
+    const r = await p.evaluate(() => {
+      const c = (id) => document.querySelector(`#capas [data-campo="${id}"]`);
+      return { costo: c('f_costo').querySelector('.unidad').textContent, etqCosto: c('f_costo').querySelector('label').textContent, margen: c('f_margen').querySelector('.unidad').textContent };
+    });
+    afirmar(r.costo === '$' && r.etqCosto === 'Costo' && r.margen === '%', JSON.stringify(r));
+    await cerrar(p);
+  });
   await p.context().close();
 
   await caso('G13 · teléfono angosto (320 px): ninguna pantalla ni hoja se sale por los lados', async () => {
@@ -239,7 +310,7 @@ const cerrar = (p) => p.evaluate(() => import('./src/core/navigation.js').then((
       return { scroll: document.documentElement.scrollWidth > ancho, fuera: fuera.slice(0, 3).map((e) => e.tagName + '.' + e.className) };
     });
     const revisar = async (donde) => { const d = await desborde(); afirmar(!d.scroll && !d.fuera.length, `${donde}: ${JSON.stringify(d)}`); };
-    for (const h of ['#/clientes', '#/inventario/productos', '#/inventario/stock', '#/inventario/historial', '#/ventas/ventas', '#/ventas/pendientes', '#/facturas', '#/gastos', '#/reportes/resumen', '#/reportes/caja', '#/reportes/flujo', '#/ajustes']) {
+    for (const h of ['#/inicio', '#/mas', '#/clientes', '#/inventario/productos', '#/inventario/stock', '#/inventario/historial', '#/ventas/ventas', '#/ventas/pendientes', '#/facturas', '#/gastos', '#/reportes/resumen', '#/reportes/caja', '#/reportes/flujo', '#/ajustes']) {
       await ir(q, h); await revisar(h);
       if (await q.isVisible('#accionMovil')) { await q.click('#accionMovil'); await q.waitForTimeout(150); await revisar(h + ' (+)'); await cerrar(q); }
     }

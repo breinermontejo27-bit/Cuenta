@@ -31,7 +31,7 @@ async function nuevaPagina(navegador, vp = { width: 390, height: 844 }) {
   page.on('pageerror', (e) => page.errores.push('error: ' + e.message));
   page.on('console', (m) => { if (m.type() === 'error') page.errores.push('consola: ' + m.text()); });
   await page.goto(URL_APP);
-  await page.waitForSelector('#contenido .vacio, #contenido .lista');
+  await page.waitForSelector('#contenido .vacio, #contenido .lista, #contenido .panel-hoy');
   return page;
 }
 const hash = (page) => page.evaluate(() => location.hash);
@@ -51,23 +51,44 @@ async function ir(page, selector, hashEsperado, tituloEsperado) {
 
   // ---------- Teléfono ----------
   const p = await nuevaPagina(nav);
-  await caso('arranca en #/clientes sin errores ni bloqueos de la política de seguridad', async () => {
-    afirmar(await hash(p) === '#/clientes', 'ruta inicial ' + await hash(p));
-    afirmar(await titulo(p) === 'Clientes', 'título');
+  // Navegación del ajuste visual final (Estilo 1): arranca en Inicio; barra de 5 destinos; Facturas, Gastos y
+  // Reportes se abren desde "Más" (con botón Volver); en el computador, barra lateral agrupada.
+  await caso('arranca en #/inicio sin errores ni bloqueos de la política de seguridad', async () => {
+    afirmar(await hash(p) === '#/inicio', 'ruta inicial ' + await hash(p));
+    afirmar(await titulo(p) === 'Hola, Mi negocio', 'título: ' + await titulo(p));
     afirmar(p.errores.length === 0, p.errores.join(' | '));
   });
   await caso('encabezado con iniciales del negocio por defecto', async () => {
     afirmar((await p.textContent('.barra-sup .avatar')).trim() === 'MN', 'iniciales');
     afirmar((await p.textContent('.barra-sup .negocio-nombre')).trim() === 'Mi negocio', 'nombre');
   });
-  await caso('las 6 pestañas navegan y marcan la activa', async () => {
-    const esperado = [['clientes', 'Clientes'], ['inventario', 'Inventario'], ['ventas', 'Ventas'], ['facturas', 'Facturas'], ['gastos', 'Gastos'], ['reportes', 'Reportes']];
-    afirmar(await p.locator('.pestanas .pestana').count() === 6, 'cantidad de pestañas');
-    const porDefecto = { inventario: '/productos', ventas: '/ventas', reportes: '/resumen' };
+  await caso('los 5 destinos de la barra navegan y marcan el activo', async () => {
+    const esperado = [['ventas', 'Ventas'], ['inventario', 'Inventario'], ['clientes', 'Clientes'], ['mas', 'Más'], ['inicio', 'Hola, Mi negocio']];
+    const orden = await p.$$eval('.pestanas .pestana', (x) => x.map((a) => a.dataset.modulo).join());
+    afirmar(orden === 'inicio,ventas,inventario,clientes,mas', 'barra: ' + orden);
+    const porDefecto = { inventario: '/productos', ventas: '/ventas' };
     for (const [id, t] of esperado) {
       await ir(p, `.pestanas [data-modulo="${id}"]`, '#/' + id + (porDefecto[id] || ''), t);
       afirmar(await p.getAttribute(`.pestanas [data-modulo="${id}"]`, 'aria-current') === 'page', `activa ${id}`);
     }
+  });
+  await caso('"Más" abre Facturas, Gastos, Reportes y Ajustes; marca "Más" y muestra Volver', async () => {
+    const porDefecto = { reportes: '/resumen' };
+    for (const [id, t] of [['facturas', 'Facturas'], ['gastos', 'Gastos'], ['reportes', 'Reportes'], ['ajustes', 'Ajustes']]) {
+      await ir(p, '.pestanas [data-modulo="mas"]', '#/mas', 'Más');
+      await ir(p, `#contenido [data-destino="${id}"]`, '#/' + id + (porDefecto[id] || ''), t);
+      afirmar(await p.getAttribute('.pestanas [data-modulo="mas"]', 'aria-current') === 'page', `"Más" marcado en ${id}`);
+      afirmar(await p.isVisible('#botonVolver'), `Volver en ${id}`);
+    }
+    await ir(p, '#botonVolver', '#/mas', 'Más');
+    afirmar(!(await p.isVisible('#botonVolver')), 'Volver en Más');
+  });
+  await caso('el engranaje de Ajustes está arriba a la derecha en todas las pantallas principales', async () => {
+    for (const id of ['inicio', 'ventas', 'inventario', 'clientes', 'mas']) {
+      await p.evaluate((h) => { location.hash = '#/' + h; }, id); await p.waitForTimeout(60);
+      afirmar(await p.isVisible('.barra-sup a.ajustes'), 'sin engranaje en ' + id);
+    }
+    await ir(p, '.barra-sup a.ajustes', '#/ajustes', 'Ajustes');
   });
   await caso('subvistas de Inventario y botón principal solo en Productos', async () => {
     await ir(p, '.pestanas [data-modulo="inventario"]', '#/inventario/productos', 'Inventario');
@@ -85,29 +106,30 @@ async function ir(page, selector, hashEsperado, tituloEsperado) {
     afirmar((await p.textContent('#accionMovil')).includes('Nuevo pendiente'), 'botón pendientes');
   });
   await caso('Reportes oculta buscador y botón principal', async () => {
-    await ir(p, '.pestanas [data-modulo="reportes"]', '#/reportes/resumen', 'Reportes');
+    await ir(p, '.pestanas [data-modulo="mas"]', '#/mas', 'Más');
+    await ir(p, '#contenido [data-destino="reportes"]', '#/reportes/resumen', 'Reportes');
     afirmar(!(await p.isVisible('#buscador')), 'buscador visible');
     afirmar(!(await p.isVisible('#accionMovil')), 'botón visible');
     afirmar(await p.locator('[data-sub]').count() === 3, 'tres subvistas');
   });
-  await caso('ruta inválida vuelve a Clientes', async () => {
+  await caso('ruta inválida vuelve a Inicio', async () => {
     await p.evaluate(() => { location.hash = '#/no-existe'; });
-    await p.waitForFunction(() => location.hash === '#/clientes');
+    await p.waitForFunction(() => location.hash === '#/inicio');
   });
   await caso('la búsqueda se recuerda por pantalla', async () => {
     await ir(p, '.pestanas [data-modulo="clientes"]', '#/clientes', 'Clientes');
     await p.fill('#campoBuscar', 'ana');
-    await ir(p, '.pestanas [data-modulo="gastos"]', '#/gastos', 'Gastos');
-    afirmar(await p.inputValue('#campoBuscar') === '', 'gastos vacío');
+    await ir(p, '.pestanas [data-modulo="ventas"]', '#/ventas/ventas', 'Ventas');
+    afirmar(await p.inputValue('#campoBuscar') === '', 'ventas vacío');
     await ir(p, '.pestanas [data-modulo="clientes"]', '#/clientes', 'Clientes');
     afirmar(await p.inputValue('#campoBuscar') === 'ana', 'clientes conserva "ana"');
     await p.fill('#campoBuscar', '');
   });
   await caso('atrás del navegador entre pantallas', async () => {
-    await ir(p, '.pestanas [data-modulo="facturas"]', '#/facturas', 'Facturas');
-    await ir(p, '.pestanas [data-modulo="gastos"]', '#/gastos', 'Gastos');
+    await ir(p, '.pestanas [data-modulo="inventario"]', '#/inventario/productos', 'Inventario');
+    await ir(p, '.pestanas [data-modulo="clientes"]', '#/clientes', 'Clientes');
     await p.goBack();
-    await p.waitForFunction(() => location.hash === '#/facturas');
+    await p.waitForFunction(() => location.hash === '#/inventario/productos');
   });
   await caso('recargar conserva la pantalla', async () => {
     await p.evaluate(() => { location.hash = '#/ventas/pendientes'; });
@@ -125,8 +147,8 @@ async function ir(page, selector, hashEsperado, tituloEsperado) {
     afirmar(await p.evaluate(() => document.activeElement && document.activeElement.id === 'accionMovil'), 'el foco no volvió al botón');
   });
   await caso('hoja: se cierra con X, con Escape, tocando fuera y con su botón; sin dejar entradas de historial', async () => {
-    await ir(p, '.pestanas [data-modulo="clientes"]', '#/clientes', 'Clientes');
-    await ir(p, '.pestanas [data-modulo="gastos"]', '#/gastos', 'Gastos');
+    await ir(p, '.pestanas [data-modulo="mas"]', '#/mas', 'Más');
+    await ir(p, '#contenido [data-destino="gastos"]', '#/gastos', 'Gastos');
     for (const forma of ['x', 'escape', 'fuera', 'boton']) {
       await p.click('#accionMovil');
       afirmar(await hojas(p) === 1, 'no abrió (' + forma + ')');
@@ -137,7 +159,7 @@ async function ir(page, selector, hashEsperado, tituloEsperado) {
       await p.waitForFunction(() => !document.querySelector('#capas .velo'), null, { timeout: 3000 });
     }
     await p.goBack();
-    await p.waitForFunction(() => location.hash === '#/clientes', null, { timeout: 3000 });
+    await p.waitForFunction(() => location.hash === '#/mas', null, { timeout: 3000 });
   });
   await caso('diálogo de confirmación: Aceptar → true; Cancelar, Escape y atrás → false', async () => {
     const abrir = () => p.evaluate(() => { window.__resp = 'pendiente'; import('./src/ui/overlays/dialog.js').then((m) => m.confirmar({ titulo: '¿Eliminar?', mensaje: 'No se puede deshacer.', aceptar: 'Eliminar', peligro: true }).then((r) => { window.__resp = r; })); });
@@ -148,7 +170,7 @@ async function ir(page, selector, hashEsperado, tituloEsperado) {
     await abrir(); await p.waitForSelector('#capas .dialogo'); await p.click('#capas [data-accion="no"]'); await esperar(false);
     await abrir(); await p.waitForSelector('#capas .dialogo'); await p.keyboard.press('Escape'); await esperar(false);
     await abrir(); await p.waitForSelector('#capas .dialogo'); await p.goBack(); await esperar(false);
-    afirmar(await hash(p) === '#/clientes', 'cambió de pantalla');
+    afirmar(await hash(p) === '#/mas', 'cambió de pantalla: ' + await hash(p));
   });
   await caso('avisos: el normal se cierra solo; el grave no, hasta cerrarlo', async () => {
     const antes = await p.locator('.toast').count();
@@ -208,7 +230,12 @@ async function ir(page, selector, hashEsperado, tituloEsperado) {
     await d.evaluate(() => import('./src/core/navigation.js').then((m) => m.irA('gastos')));
     await d.waitForFunction(() => location.hash === '#/gastos' && !document.querySelector('#capas .velo'), null, { timeout: 3000 });
     await d.goBack();
-    await d.waitForFunction(() => location.hash === '#/clientes', null, { timeout: 3000 });
+    await d.waitForFunction(() => location.hash === '#/inicio', null, { timeout: 3000 });
+  });
+  await caso('computador: barra lateral agrupada en "Día a día" y "Negocio", sin "Más"', async () => {
+    const t = await d.$$eval('.lateral nav > *', (x) => x.map((e) => e.dataset.modulo || e.textContent.trim()).join());
+    afirmar(t === 'inicio,Día a día,ventas,facturas,clientes,Negocio,inventario,gastos,reportes', t);
+    afirmar(!(await d.isVisible('#botonVolver')), 'Volver visible en el computador');
   });
   await caso('computador: Ajustes al pie de la barra lateral', async () => {
     await ir(d, '.lateral a[data-modulo="ajustes"]', '#/ajustes', 'Ajustes');
@@ -221,7 +248,7 @@ async function ir(page, selector, hashEsperado, tituloEsperado) {
   await caso('320 px: ninguna pantalla se desborda a lo ancho', async () => {
     const s = await nuevaPagina(nav, { width: 320, height: 640 });
     const malas = [];
-    for (const r of ['clientes', 'inventario/productos', 'inventario/stock', 'ventas/ventas', 'ventas/pendientes', 'facturas', 'gastos', 'reportes/resumen', 'ajustes']) {
+    for (const r of ['inicio', 'mas', 'clientes', 'inventario/productos', 'inventario/stock', 'ventas/ventas', 'ventas/pendientes', 'facturas', 'gastos', 'reportes/resumen', 'ajustes']) {
       await s.evaluate((r) => { location.hash = '#/' + r; }, r);
       await s.waitForTimeout(50);
       const w = await s.evaluate(() => document.documentElement.scrollWidth);
@@ -240,8 +267,9 @@ async function ir(page, selector, hashEsperado, tituloEsperado) {
     await s.reload();
     await s.waitForFunction(() => !!navigator.serviceWorker.controller);
     await ctx.setOffline(true);
-    await s.reload(); await s.waitForSelector('#contenido .vacio');
-    await ir(s, '.pestanas [data-modulo="reportes"]', '#/reportes/resumen', 'Reportes');
+    await s.reload(); await s.waitForSelector('#contenido .panel-hoy');
+    await ir(s, '.pestanas [data-modulo="mas"]', '#/mas', 'Más');
+    await ir(s, '#contenido [data-destino="reportes"]', '#/reportes/resumen', 'Reportes');
     const r = await s.evaluate(() => fetch('./src/no-existe.js').then((x) => ({ ok: x.ok, tipo: x.headers.get('content-type') })).catch(() => ({ ok: false, tipo: 'error de red' })));
     afirmar(!r.ok && !(r.tipo || '').includes('html'), 'respondió ' + JSON.stringify(r));
     await ctx.close();

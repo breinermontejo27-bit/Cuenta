@@ -35,7 +35,9 @@ export default {
   id: 'facturas',
   titulo: 'Facturas',
   icono: 'facturas',
-  orden: 40,
+  orden: 20,
+  grupo: 'Día a día',
+  padre: 'mas',
   buscador: 'Buscar por cliente o folio',
   subvistas: [],
   usa: ['ventas'],
@@ -44,6 +46,10 @@ export default {
     'comprobante:ver': ({ documento }) => verComprobante(documento),
   },
   accionPrincipal: { texto: 'Facturar venta', ejecutar: elegirVentaParaFacturar },
+  encabezado: () => {
+    const f = coleccion('ventas').filter((v) => v.folio).map((v) => Number(v.folio)).filter(Number.isFinite);
+    return { subtitulo: f.length ? `Última: ${folio(Math.max(...f))}` : '' };
+  },
   dibujar(contenedor, { busqueda }) {
     const r = filtrarFacturas(coleccion('ventas'), busqueda);
     const pag = paginar(r.facturas, `facturas|${busqueda || ''}`);

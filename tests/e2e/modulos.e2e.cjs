@@ -52,7 +52,7 @@ async function abrir(nav, app, datos) {
   await page.evaluate((s) => { localStorage.clear(); for (const [k, v] of Object.entries(s)) localStorage.setItem(k, JSON.stringify(v)); }, datos);
   await page.evaluate(() => new Promise((r) => { const p = indexedDB.deleteDatabase('orisma'); p.onsuccess = p.onerror = p.onblocked = () => r(); }));
   await page.reload();
-  if (app === 'nuevo') { await page.waitForSelector('#contenido .lista, #contenido .vacio'); await page.evaluate(() => document.querySelectorAll('.toast').forEach((t) => t.remove())); }
+  if (app === 'nuevo') { await page.waitForSelector('#contenido .lista, #contenido .vacio, #contenido .panel-hoy'); await page.evaluate(() => document.querySelectorAll('.toast').forEach((t) => t.remove())); }
   return page;
 }
 async function leer(page, app) {

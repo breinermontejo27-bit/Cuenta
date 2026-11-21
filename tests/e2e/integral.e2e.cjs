@@ -37,7 +37,7 @@ async function abrir(nav, app, datos) {
   await p.evaluate((s) => { localStorage.clear(); for (const [k, v] of Object.entries(s)) if (v !== undefined) localStorage.setItem(k, JSON.stringify(v)); }, datos);
   await p.evaluate(() => new Promise((r) => { const q = indexedDB.deleteDatabase('orisma'); q.onsuccess = q.onerror = q.onblocked = () => r(); }));
   await p.reload();
-  if (app === 'nuevo') { await p.waitForSelector('#contenido .lista, #contenido .vacio'); await p.evaluate(() => document.querySelectorAll('.toast').forEach((t) => t.remove())); }
+  if (app === 'nuevo') { await p.waitForSelector('#contenido .lista, #contenido .vacio, #contenido .panel-hoy'); await p.evaluate(() => document.querySelectorAll('.toast').forEach((t) => t.remove())); }
   else await p.waitForSelector('#listWrap');
   return p;
 }

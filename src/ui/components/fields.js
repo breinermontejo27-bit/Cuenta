@@ -1,6 +1,7 @@
 // Campos de formulario, interruptores y mensajes de error junto al campo.
 
 import { html, icono } from '../html.js';
+import { obtenerAjustes } from '../../core/state.js';
 
 /**
  * Campo con etiqueta. tipo: 'text' | 'number' | 'tel' | 'email' | 'date' | 'month' | 'textarea' | 'select' | 'color'.
@@ -13,7 +14,16 @@ export function campo({ id, etiqueta, tipo = 'text', valor = '', placeholder = '
   if (tipo === 'textarea') control = html`<textarea id="${id}" name="${id}" class="${clase}" rows="${filas}" placeholder="${placeholder}">${valor}</textarea>`;
   else if (tipo === 'select') control = html`<select id="${id}" name="${id}" class="${clase}">${opciones.map(([v, t]) => html`<option value="${v}"${String(v) === String(valor) ? html` selected` : ''}>${t}</option>`)}</select>`;
   else control = html`<input id="${id}" name="${id}" class="${clase}" type="${tipo}" value="${valor}" placeholder="${placeholder}"${inputmode ? html` inputmode="${inputmode}"` : ''}${lista ? html` list="${lista}"` : ''}${autocompletar ? html` autocomplete="${autocompletar}"` : ''}${tipo === 'number' ? html` step="any"` : ''}>`;
-  return html`<div class="campo" data-campo="${id}"><label for="${id}">${etiqueta}</label>${control}${ayuda ? html`<span class="ayuda">${ayuda}</span>` : ''}<span class="mensaje" id="${id}-error" hidden></span></div>`;
+  // Ajuste visual final: los campos de dinero muestran el símbolo de la moneda dentro del recuadro y los de
+  // porcentaje un "%" al final. La etiqueta deja de repetir la moneda. Solo cambia la presentación.
+  let texto = etiqueta;
+  if (dinero && tipo === 'number') {
+    const moneda = String(obtenerAjustes().moneda || '$');
+    const esPct = /%/.test(String(etiqueta));
+    if (!esPct) texto = String(etiqueta).replace(` (${moneda})`, '').replace(`, ${moneda})`, ')');
+    control = html`<div class="control-con-unidad${esPct ? ' sufijo' : ''}">${esPct ? '' : html`<span class="unidad" aria-hidden="true">${moneda}</span>`}${control}${esPct ? html`<span class="unidad" aria-hidden="true">%</span>` : ''}</div>`;
+  }
+  return html`<div class="campo" data-campo="${id}"><label for="${id}">${texto}</label>${control}${ayuda ? html`<span class="ayuda">${ayuda}</span>` : ''}<span class="mensaje" id="${id}-error" hidden></span></div>`;
 }
 
 /** Interruptor (casilla con aspecto de switch). */

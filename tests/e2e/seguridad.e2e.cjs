@@ -88,7 +88,7 @@ async function sembrar(p, datos) {
   await p.evaluate((s) => { localStorage.clear(); for (const [k, v] of Object.entries(s)) localStorage.setItem(k, JSON.stringify(v)); }, datos);
   await p.evaluate(() => new Promise((r) => { const q = indexedDB.deleteDatabase('orisma'); q.onsuccess = q.onerror = q.onblocked = () => r(); }));
   await p.reload();
-  await p.waitForSelector('#contenido .lista, #contenido .vacio');
+  await p.waitForSelector('#contenido .lista, #contenido .vacio, #contenido .panel-hoy');
 }
 // Revisión de la página: nada se ejecutó, no hay atributos de evento, ni scripts, ni marcos, ni enlaces javascript:.
 async function revisar(p, donde) {
@@ -403,7 +403,7 @@ const irA = async (p, hash) => { await p.evaluate((h) => { location.hash = h; },
     await d.evaluate(() => setTimeout(() => { throw new Error('fallo de diagnóstico'); }));
     await d.waitForSelector('.toast.grave');
     await d.waitForTimeout(300);
-    await d.reload(); await d.waitForSelector('#contenido .vacio, #contenido .lista');
+    await d.reload(); await d.waitForSelector('#contenido .vacio, #contenido .lista, #contenido .panel-hoy');
     const r = await d.evaluate(() => import('./src/core/errors.js').then((m) => m.erroresRegistrados()));
     afirmar(r.some((e) => e.mensaje === 'fallo de diagnóstico'), JSON.stringify(r).slice(0, 200));
   });
@@ -432,7 +432,7 @@ const irA = async (p, hash) => { await p.evaluate((h) => { location.hash = h; },
     await e.waitForFunction(() => navigator.serviceWorker.controller !== null, null, { timeout: 15000 }).catch(async () => { await e.reload(); await e.waitForFunction(() => navigator.serviceWorker.controller !== null, null, { timeout: 15000 }); });
     await ctx.setOffline(true);
     await e.reload();
-    await e.waitForSelector('#contenido .lista');
+    await e.waitForSelector('#contenido .panel-hoy');
     const r = await e.evaluate(async () => {
       const ventas = await import('./src/operations/sales.js');
       const fact = await import('./src/operations/invoices.js');
@@ -451,7 +451,7 @@ const irA = async (p, hash) => { await p.evaluate((h) => { location.hash = h; },
     });
     afirmar(r.stock === 3 && r.folio === 1 && r.pdf > 5000 && r.ventasRespaldo === 1, JSON.stringify(r));
     await e.reload();
-    await e.waitForSelector('#contenido .lista');
+    await e.waitForSelector('#contenido .panel-hoy');
     const tras = await e.evaluate(() => import('./src/core/state.js').then((m) => m.coleccion('ventas').length));
     afirmar(tras === 1, 'la venta no sobrevivió a recargar sin red');
     afirmar(!errores.length, errores.join(' | '));

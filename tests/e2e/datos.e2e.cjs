@@ -59,7 +59,7 @@ async function contexto(nav) {
   return { ctx, page };
 }
 const leerLS = (page) => page.evaluate(() => Object.fromEntries(Object.keys(localStorage).sort().map((k) => [k, localStorage.getItem(k)])));
-const abrirOrisma = async (page) => { await page.goto(BASE + '/index.html'); await page.waitForSelector('#contenido .vacio, #contenido .lista'); };
+const abrirOrisma = async (page) => { await page.goto(BASE + '/index.html'); await page.waitForSelector('#contenido .vacio, #contenido .lista, #contenido .panel-hoy'); };
 // Lee lo guardado en IndexedDB con las imágenes reconstruidas (usando los módulos de la app).
 const leerOrisma = (page) => page.evaluate(async () => {
   const db = await import('./src/data/database.js'); const f = await import('./src/data/files.js');

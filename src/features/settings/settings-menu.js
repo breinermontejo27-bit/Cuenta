@@ -36,6 +36,7 @@ export default {
   icono: 'ajustes',
   orden: 90,
   pestana: false,
+  padre: 'mas',
   buscador: null,
   subvistas: [],
   usa: ['ventas'],
