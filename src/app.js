@@ -2,6 +2,7 @@
 // Para agregar un módulo: crear su carpeta en features/ e incluirlo en MODULOS (Etapa 2, §3.5).
 
 import { eventos, EVENTOS } from './core/events.js';
+import { MODO_PRUEBA } from './core/config.js';
 import { iniciarCapturaErrores, registrarError, informarError, conectarRegistro, ErrorDeAlmacenamiento } from './core/errors.js';
 import { iniciarNavegacion, registrarHoja } from './core/navigation.js';
 import { iniciarMarco } from './ui/layouts/app-shell.js';
@@ -52,7 +53,21 @@ function mantenimiento() {
   luego(() => {
     avisarSiCambioLaVersionAnterior();
     limpiarImagenes().catch((e) => registrarError(e, 'limpiar imágenes'));
+    retirarCacheDeLaAppAnterior().catch((e) => registrarError(e, 'caché anterior'));
   });
+}
+
+/**
+ * El service worker de Orisma borra el caché de la app anterior ("cuentas-…") al instalarse, pero el de la app
+ * anterior, que todavía atiende esa primera carga, puede volver a crearlo. Cuando Orisma ya controla la página y
+ * tiene su caché completo, se borra lo que haya quedado: no sirve para nada y ocupa espacio. En la copia de prueba
+ * no se toca (la app anterior sigue en uso en la dirección principal).
+ */
+async function retirarCacheDeLaAppAnterior() {
+  if (MODO_PRUEBA || !('caches' in window) || !navigator.serviceWorker || !navigator.serviceWorker.controller) return;
+  const claves = await caches.keys();
+  if (!claves.some((k) => k.startsWith('orisma-') && !k.startsWith('orisma-prueba-'))) return;
+  await Promise.all(claves.filter((k) => k.startsWith('cuentas-')).map((k) => caches.delete(k)));
 }
 
 /** El registro de errores sobrevive a recargar la app (se guarda en el dispositivo; nunca se envía). */
@@ -87,25 +102,27 @@ async function cargarDatos() {
  * Registra el service worker y avisa cuando hay una versión nueva esperando (no actualiza a mitad de una operación).
  * Si el navegador no lo permite (p. ej. algunas ventanas privadas), se anota en el registro sin alarmar al usuario.
  */
-function registrarServiceWorker() {
+async function registrarServiceWorker() {
   if (!('serviceWorker' in navigator)) return;
   let recargando = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if (recargando) location.reload();
   });
+  // ¿Ya había una versión de Orisma funcionando en esta dirección? Se mira ANTES de registrar, por su caché propio
+  // ("orisma-…", o "orisma-prueba-…" en la copia de prueba). No sirve mirar si hay un service worker activo: el de la
+  // app anterior "Cuentas" usa el mismo archivo sw.js y la misma dirección. Solo así "Hay una versión nueva" no aparece
+  // en la primera instalación, ni el día en que Orisma reemplaza a la app anterior.
+  const prefijo = MODO_PRUEBA ? 'orisma-prueba-' : 'orisma-';
+  let habiaVersion = false;
+  try { habiaVersion = (await caches.keys()).some((k) => k.startsWith(prefijo) && (MODO_PRUEBA || !k.startsWith('orisma-prueba-'))); } catch (_) { /* sin caché: se trata como primera vez */ }
   navigator.serviceWorker.register('sw.js').then((reg) => {
     if (!reg) return; // algunos navegadores (o modos de prueba) lo bloquean sin dar error
-    const avisar = (trabajador) => eventos.emitir(EVENTOS.ACTUALIZACION, {
-      activar: () => { recargando = true; trabajador.postMessage('ACTIVAR'); },
-    });
+    const avisar = (trabajador) => { if (habiaVersion) eventos.emitir(EVENTOS.ACTUALIZACION, { activar: () => { recargando = true; trabajador.postMessage('ACTIVAR'); } }); };
     if (reg.waiting && navigator.serviceWorker.controller) avisar(reg.waiting);
     reg.addEventListener('updatefound', () => {
-      // Solo es "versión nueva" si ya había una versión de Orisma funcionando. En la primera instalación (incluido
-      // el paso desde la app anterior "Cuentas", cuyo service worker controla la página en ese momento) no se avisa.
-      const habiaVersion = !!reg.active;
       const nuevo = reg.installing;
       nuevo.addEventListener('statechange', () => {
-        if (nuevo.state === 'installed' && habiaVersion && navigator.serviceWorker.controller) avisar(nuevo);
+        if (nuevo.state === 'installed' && navigator.serviceWorker.controller) avisar(nuevo);
       });
     });
   }).catch((e) => registrarError(e, 'service-worker')); // la app funciona igual; solo no habrá modo sin conexión

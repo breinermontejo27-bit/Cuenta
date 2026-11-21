@@ -142,3 +142,29 @@ Solo estos dos, a pedido del dueño (venían de una versión suya que no se hab�
 **Observación (sin cambio):** en datos muy antiguos sin lista de pagos, la caja cuenta el anticipo como efectivo,
 igual que la app original. El detalle sí muestra el medio guardado. Corregir la caja cambiaría un cálculo y requiere
 autorización aparte.
+
+## 7. Preparación de la instalación · versión 2.0.0-rc.4
+La prueba del escenario real de instalación (app anterior con datos, copia de prueba abierta y luego Orisma publicado
+en la dirección principal) encontró dos detalles. Se corrigieron solo esos dos (`src/app.js`):
+1. **Aviso falso de "Hay una versión nueva"** al reemplazar la app anterior: su service worker usa el mismo archivo
+   `sw.js` y la app lo confundía con una versión de Orisma. Ahora se mira si ya existía el caché propio de Orisma.
+2. **Caché de la app anterior que reaparecía** en la primera carga (lo recreaba el service worker anterior). Ahora el
+   mantenimiento lo borra cuando Orisma ya controla la página. No afectaba el funcionamiento, solo ocupaba espacio.
+
+Nueva prueba permanente `tests/e2e/instalacion.e2e.cjs` (9 casos), incluida en `npm run test:e2e`. Falla con la
+2.0.0-rc.3 en esos dos puntos y pasa con la rc.4.
+
+**Batería completa (2.0.0-rc.4):**
+
+| Prueba | Resultado |
+|---|---|
+| Unitarias | 77/77 |
+| Núcleo | 28/28 |
+| Datos | 17/17 |
+| Reglas | 46/46 |
+| Módulos | 9/9, idénticos a la original |
+| Seguridad | 31/31 |
+| Migración | 17/17 |
+| Integral | 19/19 |
+| Funciones | 24/24 |
+| Instalación | 9/9 |
