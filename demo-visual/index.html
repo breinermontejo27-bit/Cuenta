@@ -273,6 +273,54 @@ svg.i.s { width: 18px; height: 18px; }
 .fb .firma .trazo { height: 46px; border-bottom: 1px solid var(--tinta); margin-bottom: 4px; display: grid; place-items: end center; font: italic 26px/1 "Segoe Script", "Bradley Hand", cursive; color: #26365E; padding-bottom: 2px; }
 .fb .pie-f { text-align: center; font-size: 12px; color: #667085; margin-top: 28px; padding-top: 12px; border-top: 1px solid #E9EDF2; }
 
+/* ---------- Selector de estilo (demo) ---------- */
+.estilos { display: inline-grid; grid-auto-flow: column; background: var(--superficie); border: 1px solid var(--demo); border-radius: 999px; padding: 2px; }
+.estilos button { border: 0; background: transparent; color: var(--demo); border-radius: 999px; padding: 3px 10px; font-size: 12.5px; font-weight: 650; white-space: nowrap; }
+.estilos button[aria-pressed="true"] { background: var(--demo); color: var(--superficie); }
+
+/* ---------- Estilo 2 · "Libreta": plano, blanco, lista primero ---------- */
+[data-estilo="2"] body, [data-estilo="2"] .barra, [data-estilo="2"] .hoja-cab, [data-estilo="2"] .hoja-pie { background: var(--superficie); }
+[data-estilo="2"] .cabecera { padding-top: 12px; }
+[data-estilo="2"] .cabecera h1 { font-size: 22px; }
+[data-estilo="2"] .cabecera p { font-size: 13.5px; margin-top: 2px; }
+[data-estilo="2"] .cabecera .atras { border: 0; background: var(--superficie-2); border-radius: 50%; }
+[data-estilo="2"] .avatar-negocio { border-radius: 50%; }
+[data-estilo="2"] .cabecera-fila { align-items: center; }
+[data-estilo="2"] .tarjeta { border: 0; border-radius: 0; background: transparent; }
+[data-estilo="2"] .tarjeta.p { padding: 4px 0; }
+[data-estilo="2"] .contenido > .tarjeta:not(.p) { margin-inline: -4px; }
+[data-estilo="2"] .fila { padding: 12px 4px; }
+[data-estilo="2"] .mini { border-radius: 50%; width: 40px; height: 40px; }
+[data-estilo="2"] .pill { background: none !important; padding: 0; font-weight: 600; }
+[data-estilo="2"] .pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+[data-estilo="2"] .buscador { background: var(--superficie-2); border-color: transparent; border-radius: 12px; }
+[data-estilo="2"] .segmentos { background: transparent; border-bottom: 1px solid var(--borde); border-radius: 0; padding: 0; gap: 0; }
+[data-estilo="2"] .segmentos button { border-radius: 0; padding: 10px 4px; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+[data-estilo="2"] .segmentos button[aria-pressed="true"] { background: transparent; box-shadow: none; color: var(--marca); border-bottom-color: var(--marca); }
+[data-estilo="2"] .kpis { display: flex; gap: 0; overflow-x: auto; scrollbar-width: none; border-block: 1px solid var(--borde); }
+[data-estilo="2"] .kpi { flex: 1 0 auto; border: 0; border-radius: 0; background: transparent; padding: 12px 16px 12px 0; }
+[data-estilo="2"] .kpi + .kpi { border-left: 1px solid var(--borde); padding-left: 16px; }
+[data-estilo="2"] .accesos { display: none; }
+[data-estilo="2"] .seccion-titulo h2 { font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--texto-3); }
+[data-estilo="2"] .aviso-caja { border-radius: 12px; }
+[data-estilo="2"] .grupo { border-bottom: 1px solid var(--borde); padding-bottom: 8px; }
+[data-estilo="2"] .fab { display: none; }
+[data-estilo="2"] .btn { border-radius: 999px; }
+[data-estilo="2"] .control { border-radius: 10px; background: var(--superficie-2); border-color: transparent; }
+[data-estilo="2"] .control.mal { border-color: var(--negativo); }
+[data-estilo="2"] .totales-c { background: transparent; padding: 0; border-top: 1px solid var(--borde); }
+[data-estilo="2"] .hoja { border-radius: 26px 26px 0 0; }
+[data-estilo="2"] .visor { border: 0; }
+/* Barra con botón central para vender */
+[data-estilo="2"] .barra a.central .ico { width: 52px; height: 52px; margin-top: -18px; border-radius: 50%; background: var(--marca); color: var(--sobre-marca); box-shadow: var(--sombra-2); }
+[data-estilo="2"] .barra a.central { color: var(--marca); }
+/* Inicio del Estilo 2 */
+.hoy2 { display: grid; gap: 6px; padding-block: 4px 8px; }
+.hoy2 .cifra { font-size: 40px; font-weight: 780; letter-spacing: -.02em; line-height: 1.05; color: var(--marca); }
+.hoy2 .det { color: var(--texto-3); font-size: 14px; }
+.atencion .fila .btn { min-height: 34px; padding: 0 14px; font-size: 13.5px; }
+.mas-boton { width: 40px; height: 40px; border-radius: 50%; border: 0; background: var(--marca); color: var(--sobre-marca); display: grid; place-items: center; font-weight: 700; font-size: 14px; flex: none; text-decoration: none; }
+
 /* ---------- Computador ---------- */
 @media (min-width: 900px) {
   .marco { min-height: calc(100% - 37px); }
@@ -283,6 +331,10 @@ svg.i.s { width: 18px; height: 18px; }
   .lateral a[aria-current="page"] { background: var(--marca-suave); color: var(--marca); }
   .lateral .abajo-l { margin-top: auto; }
   .barra { display: none; }
+  [data-estilo="2"] .lateral { background: var(--superficie); border-right-color: var(--borde); }
+  [data-estilo="2"] .lateral a[aria-current="page"] { background: transparent; color: var(--marca); box-shadow: inset 3px 0 0 var(--marca); border-radius: 0 10px 10px 0; }
+  [data-estilo="2"] .contenido > .tarjeta:not(.p) { margin-inline: 0; }
+  .mas-boton { display: none; }
   .principal { padding-bottom: 32px; }
   .cabecera, .contenido { max-width: 1080px; padding-left: 32px; padding-right: 32px; }
   .cabecera { padding-top: 28px; }
@@ -299,6 +351,7 @@ svg.i.s { width: 18px; height: 18px; }
 
 <div class="demo-banda" role="note">
   <strong>Demostración</strong><span>Propuesta visual · datos de ejemplo · nada se guarda</span>
+  <div class="estilos" role="group" aria-label="Estilo"><button type="button" data-estilo="1" aria-pressed="true">Estilo 1</button><button type="button" data-estilo="2" aria-pressed="false">Estilo 2</button></div>
   <button type="button" id="abrirGuia">Pantallas</button>
 </div>
 
@@ -413,10 +466,44 @@ svg.i.s { width: 18px; height: 18px; }
   const lineas = (l) => `<dl class="lineas">${l.map(([a, b, c = '']) => `<div class="linea ${c}"><dt>${a}</dt><dd>${b}</dd></div>`).join('')}</dl>`;
 
   // ---------- Pantallas ----------
-  const estado = { ventasVista: 'ventas', repPeriodo: 'mes', invCat: '', facturaEj: 'credito', ampliar: false };
+  let estiloGuardado = '1';
+  try { estiloGuardado = localStorage.getItem('orisma-demo-estilo') || '1'; } catch (_) { /* sin almacenamiento */ }
+  const estado = { ventasVista: 'ventas', repPeriodo: 'mes', invCat: '', facturaEj: 'credito', ampliar: false, estilo: estiloGuardado === '2' ? '2' : '1' };
+  const e2 = () => estado.estilo === '2';
   const P_ = {};
 
-  P_.inicio = () => ({
+  P_.inicio = () => (e2() ? inicio2() : inicio1());
+  const inicio2 = () => ({
+    titulo: 'Hoy', sub: 'Viernes, 20 de noviembre', mas: true,
+    html: `
+      <section class="hoy2" aria-label="Hoy">
+        <span class="etiqueta">Vendido hoy · 3 ventas</span>
+        <span class="cifra num">${dinero(279000)}</span>
+        <span class="det">Caja ${dinero(144000)} · A crédito ${dinero(135000)}</span>
+      </section>
+      <div class="kpis">
+        <a class="kpi" href="#clientes"><span class="t">Por cobrar</span><span class="v neg-t">${dinero(169500)}</span></a>
+        <a class="kpi" href="#reportes"><span class="t">Ganancia del mes</span><span class="v pos-t">${dinero(1286400)}</span></a>
+        <a class="kpi" href="#pendientes"><span class="t">Pendientes</span><span class="v">3</span></a>
+        <a class="kpi" href="#inventario"><span class="t">Poco stock</span><span class="v av-t">2</span></a>
+      </div>
+      <div class="dos-col">
+        <div style="display:grid;gap:8px">
+          <div class="seccion-titulo"><h2>Necesita atención</h2></div>
+          <div class="tarjeta atencion"><ul class="lista">
+            <li><div class="fila"><span class="mini neg">${ico('creditos', 's')}</span><span class="fila-med"><span class="fila-t">Camila Torres debe ${dinero(120000)}</span><span class="fila-s">Venta del 20 nov · F-0026</span></span><a class="btn" href="#cliente">Cobrar</a></div></li>
+            <li><div class="fila"><span class="mini av">${ico('alerta', 's')}</span><span class="fila-med"><span class="fila-t">Collar plata 925: quedan 2</span><span class="fila-s">Avisas desde 3 unidades</span></span><a class="btn" href="#producto">Reponer</a></div></li>
+            <li><div class="fila"><span class="mini marca">${ico('calendario', 's')}</span><span class="fila-med"><span class="fila-t">Pedido de Laura Gómez</span><span class="fila-s">Se entrega mañana · resto ${dinero(40000)}</span></span><a class="btn" href="#pendientes">Ver</a></div></li>
+          </ul></div>
+        </div>
+        <div style="display:grid;gap:8px">
+          <div class="seccion-titulo"><h2>Últimas ventas</h2><a href="#ventas">Ver todas</a></div>
+          <div class="tarjeta"><ul class="lista">${VEN.slice(0, 4).map(ventaFila).join('')}</ul></div>
+        </div>
+      </div>
+      <p class="nota">Todas las cifras ya existen hoy en la app: el inicio solo las reúne.</p>`,
+  });
+  const inicio1 = () => ({
     titulo: 'Hola, Orisma Accesorios', sub: 'Viernes, 20 de noviembre', avatar: true, fab: ['Nueva venta', 'formulario'],
     html: `
       <section class="destacada" aria-label="Hoy">
@@ -591,10 +678,9 @@ svg.i.s { width: 18px; height: 18px; }
       <div class="mas-rejilla">
         ${[['facturas', 'Facturas', 'facturas'], ['gastos', 'Gastos', 'gastos'], ['reportes', 'Reportes', 'reportes'], ['cliente', 'Créditos', 'creditos'], ['pendientes', 'Pendientes', 'calendario'], ['formulario', 'Ajustes', 'ajustes']].map(([h, t, i]) => `<a class="acceso" href="#${h}"><span class="ico">${ico(i)}</span>${t}</a>`).join('')}
       </div>
-      <div class="seccion-titulo"><h2>Propuestas de factura</h2></div>
+      <div class="seccion-titulo"><h2>Factura</h2></div>
       <div class="tarjeta"><ul class="lista">
-        ${fila({ ir: 'factura-original', mini: `<span class="mini marca">A</span>`, titulo: 'Propuesta A · Fiel a la original', sub: 'La distribución de tu app "Cuentas"', valor: '', extra: ico('der', 's') })}
-        ${fila({ ir: 'factura-refinada', mini: `<span class="mini marca">B</span>`, titulo: 'Propuesta B · Original refinada', sub: 'La misma distribución, más ordenada', valor: '', extra: ico('der', 's') })}
+        ${fila({ ir: 'factura-original', mini: `<span class="mini marca">A</span>`, titulo: 'Factura · Propuesta A (elegida)', sub: 'La distribución de tu app "Cuentas"', valor: '', extra: ico('der', 's') })}
       </ul></div>`,
   });
 
@@ -648,7 +734,7 @@ svg.i.s { width: 18px; height: 18px; }
         </div>
         <div class="tarjeta p" style="display:grid;gap:10px">
           <button class="btn peq" type="button" id="ampliar">${ico('zoom', 's')}${estado.ampliar ? 'Ver la hoja completa' : 'Ver a tamaño real'}</button>
-          <a class="btn peq" href="#${prop === 'a' ? 'factura-refinada' : 'factura-original'}">Ver propuesta ${prop === 'a' ? 'B' : 'A'}</a>
+          ${prop === 'a' ? '<span class="pill pos" style="justify-self:start">Propuesta elegida</span>' : '<a class="btn peq" href="#factura-original">Ver propuesta A</a>'}
           <p class="nota">${prop === 'a'
             ? 'Recupera tu factura original: encabezado con línea negra, "FACTURA" centrado, número y fecha en color a la derecha, tabla con encabezado de color y "Tenga en cuenta" al lado de los totales, con el gran total en una franja de color y el saldo en rojo.'
             : 'La misma distribución con ajustes de orden: franja de color arriba, cliente y número en un recuadro, encabezados de tabla más legibles, filas alternadas, totales en un bloque propio con el saldo resaltado y pie separado.'}</p>
@@ -715,7 +801,7 @@ svg.i.s { width: 18px; height: 18px; }
   let reloj;
   const aviso = (t) => { const el = $('#toast'); el.innerHTML = `${ico('ok', 's')}${t}`; el.hidden = false; clearTimeout(reloj); reloj = setTimeout(() => { el.hidden = true; }, 2200); };
   const GUIA = [
-    ['inicio', 'Inicio (nuevo)', 'Resumen del día, accesos rápidos y lo que necesita atención.'],
+    ['inicio', 'Inicio (nuevo)', 'Estilo 1: resumen en tarjetas y accesos rápidos. Estilo 2: la cifra del día y "Necesita atención".'],
     ['ventas', 'Ventas', 'Agrupadas por día con su total; pendientes en la otra pestaña.'],
     ['venta', 'Detalle de venta', 'Total, cuánto se ha pagado y acciones a mano.'],
     ['inventario', 'Inventario', 'Stock como etiqueta de color; filtros por categoría.'],
@@ -726,8 +812,7 @@ svg.i.s { width: 18px; height: 18px; }
     ['reportes', 'Reportes', 'Ganancia destacada, cifras y últimos 6 meses.'],
     ['mas', 'Menú "Más"', 'Facturas, Gastos, Reportes, Créditos y Ajustes.'],
     ['formulario', 'Formularios y ventanas', 'Campos, selectores, hojas y confirmaciones.'],
-    ['factura-original', 'Factura · Propuesta A', 'Fiel a tu factura original.'],
-    ['factura-refinada', 'Factura · Propuesta B', 'La original con ajustes de orden.'],
+    ['factura-original', 'Factura (propuesta A, elegida)', 'Fiel a tu factura original, como hoja de papel.'],
   ];
   $('#abrirGuia').addEventListener('click', () => {
     velo.innerHTML = `<div class="hoja" role="dialog" aria-modal="true" aria-labelledby="hg"><div class="hoja-cab"><div class="agarre"></div><div class="fila-c"><h2 id="hg">Pantallas de la demostración</h2><button class="cerrar" type="button" data-cerrar aria-label="Cerrar">${ico('cerrar', 's')}</button></div><p>También puedes navegar con la barra de abajo, como en la app.</p></div><div class="hoja-cuerpo"><ol class="lista guia">${GUIA.map(([h, t, d]) => `<li><a href="#${h}" data-cerrar>${t}</a><p>${d}</p></li>`).join('')}</ol></div></div>`;
@@ -754,9 +839,15 @@ svg.i.s { width: 18px; height: 18px; }
     const s = P_[r]();
     const activo = PADRE[r] || r;
     const actLat = { venta: 'ventas', pendientes: 'ventas', producto: 'inventario', cliente: 'clientes', 'factura-original': 'facturas', 'factura-refinada': 'facturas', formulario: 'inicio' }[r] || r;
-    $('#barra').innerHTML = BARRA.map(([h, t]) => `<a href="#${h}" ${h === activo ? 'aria-current="page"' : ''}><span class="ico">${ico(h)}</span>${t}</a>`).join('');
+    document.documentElement.dataset.estilo = estado.estilo;
+    document.querySelectorAll('[data-estilo]').forEach((b) => { if (b.tagName === 'BUTTON') b.setAttribute('aria-pressed', String(b.dataset.estilo === estado.estilo)); });
+    const barra = e2() ? [['inicio', 'Inicio'], ['ventas', 'Ventas'], ['formulario', 'Vender', 'central'], ['inventario', 'Inventario'], ['clientes', 'Clientes']] : BARRA;
+    $('#barra').innerHTML = barra.map(([h, t, c]) => `<a href="#${h}" ${c ? `class="${c}" data-vender` : ''} ${h === activo && !c ? 'aria-current="page"' : ''}><span class="ico">${ico(c ? 'mas2' : h)}</span>${t}</a>`).join('');
     $('#lateral').innerHTML = `<div class="neg"><span class="avatar-negocio">OA</span>Orisma Accesorios</div>${LATERAL.map(([g, l]) => `${g ? `<div class="grupo-l">${g}</div>` : ''}${l.map(([h, t, i]) => `<a href="#${h}" ${h === actLat ? 'aria-current="page"' : ''}>${ico(i)}${t}</a>`).join('')}`).join('')}<div class="abajo-l"><a href="#mas">${ico('ajustes')}Ajustes y más</a></div>`;
-    $('#cabecera').innerHTML = `<div class="cabecera-fila">${s.volver ? `<a class="atras" href="#${s.volver}" aria-label="Volver">${ico('atras')}</a>` : ''}${s.avatar ? '<span class="avatar-negocio">OA</span>' : ''}<div class="cabecera-titulo"><h1>${s.titulo}</h1>${s.sub ? `<p>${s.sub}</p>` : ''}</div>${s.fab ? `<a class="btn prim fab-sitio" href="#${s.fab[1]}">${ico('mas2', 's')}${s.fab[0]}</a>` : ''}</div>`;
+    const derecha = e2()
+      ? `${s.fab ? `<a class="btn prim fab-sitio" href="#${s.fab[1]}">${ico('mas2', 's')}${s.fab[0]}</a>` : ''}${!s.volver ? '<a class="mas-boton" href="#mas" aria-label="Más: facturas, gastos, reportes y ajustes">OA</a>' : ''}`
+      : (s.fab ? `<a class="btn prim fab-sitio" href="#${s.fab[1]}">${ico('mas2', 's')}${s.fab[0]}</a>` : '');
+    $('#cabecera').innerHTML = `<div class="cabecera-fila">${s.volver ? `<a class="atras" href="#${s.volver}" aria-label="Volver">${ico('atras')}</a>` : ''}${s.avatar && !e2() ? '<span class="avatar-negocio">OA</span>' : ''}<div class="cabecera-titulo"><h1>${s.titulo}</h1>${s.sub ? `<p>${s.sub}</p>` : ''}</div>${derecha}</div>`;
     $('#contenido').innerHTML = s.html;
     const fab = $('#fab');
     fab.hidden = !s.fab || matchMedia('(min-width: 900px)').matches;
@@ -767,6 +858,8 @@ svg.i.s { width: 18px; height: 18px; }
   document.addEventListener('click', (e) => {
     const b = e.target.closest('button, a');
     if (!b) return;
+    if (b.tagName === 'BUTTON' && b.dataset.estilo) { estado.estilo = b.dataset.estilo; try { localStorage.setItem('orisma-demo-estilo', estado.estilo); } catch (_) { /* sin almacenamiento */ } pintar(); return; }
+    if (b.dataset.vender !== undefined) { e.preventDefault(); abrirHoja('venta'); return; }
     if (b.dataset.toast) aviso(b.dataset.toast);
     if (b.dataset.dialogo) abrirDialogo(b.dataset.dialogo);
     if (b.dataset.hoja) abrirHoja(b.dataset.hoja);
