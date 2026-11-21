@@ -100,9 +100,12 @@ function registrarServiceWorker() {
     });
     if (reg.waiting && navigator.serviceWorker.controller) avisar(reg.waiting);
     reg.addEventListener('updatefound', () => {
+      // Solo es "versión nueva" si ya había una versión de Orisma funcionando. En la primera instalación (incluido
+      // el paso desde la app anterior "Cuentas", cuyo service worker controla la página en ese momento) no se avisa.
+      const habiaVersion = !!reg.active;
       const nuevo = reg.installing;
       nuevo.addEventListener('statechange', () => {
-        if (nuevo.state === 'installed' && navigator.serviceWorker.controller) avisar(nuevo);
+        if (nuevo.state === 'installed' && habiaVersion && navigator.serviceWorker.controller) avisar(nuevo);
       });
     });
   }).catch((e) => registrarError(e, 'service-worker')); // la app funciona igual; solo no habrá modo sin conexión

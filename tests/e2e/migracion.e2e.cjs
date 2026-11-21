@@ -77,6 +77,7 @@ const SEMILLA = {
     await p.waitForFunction(() => caches.keys().then((k) => !k.includes('cuentas-v3')), null, { timeout: 15000 });
     const sw = await p.evaluate(() => navigator.serviceWorker.getRegistration().then((r) => ({ activo: !!r.active, esperando: !!r.waiting })));
     afirmar(sw.activo && !sw.esperando, JSON.stringify(sw));
+    afirmar(!(await p.locator('.toast:has-text("Hay una versión nueva")').count()), 'avisó una "versión nueva" falsa en la primera instalación');
   });
   await caso('M4 · después, sin conexión, abre Orisma (no la app anterior) con todos los datos', async () => {
     await ctx.setOffline(true);
@@ -233,6 +234,8 @@ const SEMILLA = {
     afirmar(k.includes('cuentas-v3') && !k.some((x) => /^orisma-(?!prueba)/.test(x)), 'cachés: ' + k.join(','));
     const intacto = await t.evaluate((s) => Object.entries(s).every(([kk, v]) => localStorage.getItem(kk) === JSON.stringify(v)), SEMILLA);
     afirmar(intacto, 'cambió localStorage');
+    await t.waitForTimeout(800);
+    afirmar(!(await t.locator('.toast:has-text("Hay una versión nueva")').count()), 'avisó una "versión nueva" falsa al abrir la copia por primera vez');
   });
   await caso('P2 · sin conexión siguen funcionando las dos: la app anterior y la copia de prueba', async () => {
     await cp.setOffline(true);

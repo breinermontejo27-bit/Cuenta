@@ -101,7 +101,11 @@ ni desbordes. El PDF de la app (una página) y la impresión (con colores, a lo 
 2. **Al imprimir no salían los colores** de la factura y la hoja se cortaba por la derecha. Corregido: la factura pide imprimir sus colores y usa el ancho de la página.
 3. El PDF agregaba una segunda página casi vacía. Corregido con una tolerancia sobre el margen blanco final.
 4. Durante la construcción: un desborde en Inicio a 390 px, barras del gráfico sin altura y la etiqueta de ganancia cortada en pantallas angostas. Corregidos antes de las pruebas finales.
-5. Ajustes de las pruebas por la navegación nueva (Inicio como primera pantalla, destinos desde "Más"). Lo que verifica cada prueba no cambió.
+5. **Aviso falso de "Hay una versión nueva"** la primera vez que se abre Orisma mientras el service worker de la app
+   anterior controla la página. Pasaba al abrir la copia de prueba y habría pasado el día de la publicación. Ahora
+   solo avisa si ya había una versión de Orisma funcionando. Lo detecta la prueba de migración (P1), que falla con
+   el código anterior y pasa con el corregido.
+6. Ajustes de las pruebas por la navegación nueva (Inicio como primera pantalla, destinos desde "Más"). Lo que verifica cada prueba no cambió.
 
 ## 5. Confirmaciones
 - La aplicación original ("Cuentas", `main` y commit `9300dfa`) **no se tocó**.
