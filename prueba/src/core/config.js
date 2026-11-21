@@ -1,7 +1,7 @@
 // Constantes de la aplicación. Sin lógica: solo valores que el resto de módulos consulta.
 
 export const NOMBRE_APP = 'Orisma';
-export const VERSION_APP = '2.0.0-rc.2';
+export const VERSION_APP = '2.0.0-rc.3';
 
 // Copia de prueba (Etapa 10): si la app se abre desde una carpeta "/prueba/", usa su PROPIA base de datos.
 // Así el dueño puede probarla en su teléfono con sus datos reales (se copian, nunca se modifican) sin gastar

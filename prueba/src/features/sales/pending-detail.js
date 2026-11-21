@@ -5,7 +5,7 @@ import { coleccion, obtenerAjustes } from '../../core/state.js';
 import { pedirHoja, cerrarTodasLasHojas } from '../../core/navigation.js';
 import { hoy } from '../../core/clock.js';
 import { html, montar, imagenSegura } from '../../ui/html.js';
-import { dinero, fecha } from '../../ui/format.js';
+import { dinero, fecha, etiquetaMedio } from '../../ui/format.js';
 import { abrirHoja } from '../../ui/overlays/sheet.js';
 import { notificar } from '../../ui/notifications/toast.js';
 import { campo, filaCampos, valor, acciones, botonTexto } from '../../ui/components/fields.js';
@@ -44,16 +44,24 @@ export function abrirDetallePendiente(id) {
   if (!p) return;
   const total = sumaPendiente(p), anticipo = Number(p.anticipo) || 0, saldo = saldoDetallePendiente(p);
   const estado = estadoPorFecha(p, hoy());
+  // Forma de pago (ajuste autorizado por el dueño): el medio del anticipo y cada pago recibido, con su medio.
+  // Son los pagos que la app ya guarda (los mismos del comprobante y de la caja); no se calcula nada nuevo.
+  // Datos antiguos sin lista de pagos: el anticipo se muestra con su medio guardado (anticipoMetodo).
+  const pagos = (p.abonos || []).length ? p.abonos
+    : anticipo > 0 ? abonosConAnticipo(p, hoy()).map((a) => ({ ...a, metodo: p.anticipoMetodo || a.metodo })) : [];
+  const medioDelAnticipo = pagos.length ? pagos[0].metodo : '';
+  const medioAnticipo = anticipo > 0 && etiquetaMedio(medioDelAnticipo || 'efectivo') ? ' · ' + etiquetaMedio(medioDelAnticipo || 'efectivo') : '';
   const capa = abrirHoja({
     titulo: p.clienteNombre,
     cuerpo: html`
       <div class="fila-extra">${insignia('info', p.tipo === 'encargo' ? 'Encargo' : 'Pedido')}${p.fechaEntrega ? insignia(estado === 'vencido' ? 'vencido' : 'neutra', `${estado === 'vencido' ? 'Vencido · ' : estado === 'hoy' ? 'Hoy · ' : 'Entrega: '}${fecha(p.fechaEntrega)}`) : insignia('neutra', 'Sin fecha estimada')}</div>
       <div class="tarjeta">${lineasItems(p)}${lineas([
         ['Total estimado', dinero(total), 'fuerte'],
-        [`Anticipo${p.fechaAnticipo ? ' · ' + fecha(p.fechaAnticipo) : ''}`, dinero(anticipo)],
+        [`Anticipo${p.fechaAnticipo ? ' · ' + fecha(p.fechaAnticipo) : ''}${medioAnticipo}`, dinero(anticipo)],
         ['Saldo al entregar', dinero(saldo), 'fuerte', saldo > 0 ? 'neg' : ''],
         ['Ganancia estimada', dinero(total - costoPendiente(p, coleccion('inventario'))), '', total - costoPendiente(p, coleccion('inventario')) < 0 ? 'neg' : 'pos'],
       ])}</div>
+      ${pagos.length ? html`<h3 class="seccion-titulo">Pagos recibidos</h3>${tarjetaLineas(pagos.map((a) => [`${fecha(a.fecha)} · ${etiquetaMedio(a.metodo || 'efectivo') || 'Efectivo'}`, dinero(a.monto)]))}` : ''}
       ${p.notas ? nota(`Notas: ${p.notas}`) : ''}
       <div class="botones-detalle">
         ${total - anticipo > 0 ? html`<button type="button" class="btn btn-secundario" data-accion="abonar">Registrar abono</button>` : ''}
