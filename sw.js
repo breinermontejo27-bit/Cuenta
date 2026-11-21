@@ -1,20 +1,54 @@
-const CACHE = "cuentas-v3";
-const FILES = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png"];
-self.addEventListener("install", e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
+// Service worker de Orisma: funcionamiento sin conexión y actualizaciones (Etapa 2, §12).
+// La lista de archivos y la versión salen de src/precache-list.js (generado por tools/precache.js).
+// - Navegación: la página guardada (index.html); si no está, la red.
+// - Archivos de la app: primero la copia guardada, luego la red.
+// - Nunca se responde con index.html a algo que no sea una navegación (corrige D4-12).
+// - La versión nueva espera hasta que el usuario acepta "Actualizar" (salvo la primera instalación).
+
+importScripts('./src/precache-list.js');
+const { version, archivos } = self.ORISMA_PRECACHE;
+// La copia de prueba (carpeta "/prueba/", Etapa 10) usa su propio caché y nunca borra los de la app real ni el de
+// la app anterior: conviven en el mismo sitio.
+const PRUEBA = /\/prueba\/$/.test(new URL(self.registration.scope).pathname);
+const PREFIJO = PRUEBA ? 'orisma-prueba-' : 'orisma-';
+const CACHE = PREFIJO + version;
+const esPropio = (k) => k.startsWith(PREFIJO) && (PRUEBA || !k.startsWith('orisma-prueba-'));
+// La app real, al instalarse, también retira el caché de la app anterior ("cuentas-…").
+const sePuedeBorrar = (k) => k !== CACHE && (esPropio(k) || (!PRUEBA && k.startsWith('cuentas-')));
+
+self.addEventListener('install', (e) => {
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(archivos))
+    // Primera instalación de Orisma (incluido el paso desde la app anterior "Cuentas", cuyo caché se llama
+    // "cuentas-…"): se activa enseguida. No hay una versión de Orisma a mitad de una operación que proteger.
+    // Las actualizaciones de Orisma a Orisma siguen esperando a que el usuario toque "Actualizar".
+    .then(() => caches.keys())
+    .then((claves) => { if (!claves.some((k) => esPropio(k) && k !== CACHE)) return self.skipWaiting(); return undefined; }));
 });
-self.addEventListener("activate", e => {
-  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim()));
+
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys()
+      .then((claves) => Promise.all(claves.filter(sePuedeBorrar).map((k) => caches.delete(k))))
+      .then(() => self.clients.claim()),
+  );
 });
-// Primero intenta la versión de internet (así llegan las actualizaciones);
-// si no hay conexión, usa la copia guardada en el teléfono.
-self.addEventListener("fetch", e => {
-  if (e.request.method !== "GET") return;
+
+self.addEventListener('message', (e) => {
+  if (e.data === 'ACTIVAR') self.skipWaiting();
+});
+
+self.addEventListener('fetch', (e) => {
+  const req = e.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  if (url.origin !== self.location.origin) return;
+  if (req.mode === 'navigate') {
+    e.respondWith(
+      caches.match('./index.html', { cacheName: CACHE }).then((guardada) => guardada || fetch(req)),
+    );
+    return;
+  }
   e.respondWith(
-    fetch(e.request).then(res => {
-      const copy = res.clone();
-      caches.open(CACHE).then(c => c.put(e.request, copy)).catch(() => {});
-      return res;
-    }).catch(() => caches.match(e.request).then(hit => hit || caches.match("./index.html")))
+    caches.match(req, { cacheName: CACHE, ignoreSearch: true }).then((guardada) => guardada || fetch(req)),
   );
 });
