@@ -1,0 +1,20 @@
+/* Orisma 2.0 · Base
+   Reinicio, tipografía, utilidades y foco. Usa solo variables de variables.css. */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--fondo); color: var(--texto); font: var(--peso-normal) var(--t-base)/1.45 var(--fuente); }
+h1, h2, h3, p { margin: 0; }
+button, input, select, textarea { font: inherit; color: inherit; }
+.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pos { color: var(--positivo); } .neg { color: var(--negativo); } .avi { color: var(--aviso); } .sec { color: var(--texto-2); } .ter { color: var(--texto-3); }
+.icono { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.icono.sm { width: 18px; height: 18px; }
+:focus-visible { outline: 3px solid var(--marca); outline-offset: 2px; border-radius: 6px; }
+.oculto-visual { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+[hidden] { display: none !important; }
+img.avatar { object-fit: cover; padding: 0; }
+.contenido:focus { outline: none; }
+.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+.sin-js { padding: var(--e-6); text-align: center; }
