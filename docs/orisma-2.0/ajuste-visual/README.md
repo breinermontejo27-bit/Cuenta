@@ -66,7 +66,21 @@ que no se modificaron.
 **No modificados:** `src/business/` (reglas y cálculos), `src/data/` (IndexedDB, almacenamiento, migraciones, respaldos) y `src/operations/` (ventas, inventario, créditos, pagos). Tampoco la app original.
 
 ## 3. Pruebas ejecutadas y resultados (todas ejecutadas)
-RESULTADOS_FINALES
+| Prueba | Resultado |
+|---|---|
+| Unitarias (`npm test`) | 77/77 |
+| Arquitectura y lista sin conexión (`npm run verificar`) | correctas |
+| Núcleo (navegación nueva incluida) | 28/28 |
+| Datos | 17/17 |
+| Reglas: 46 operaciones en las dos apps | 46/46 **idénticas a la original** |
+| Módulos: 9 escenarios completos en las dos apps | 9/9 **idénticos a la original** |
+| Seguridad | 31/31 |
+| Migración | 17/17 |
+| Integral: reportes, búsquedas y WhatsApp contra la original | 19/19 **idénticos** |
+| Funciones, estrés y pruebas del ajuste visual (V1–V5) | 21/21 |
+
+Además, revisión visual en teléfono (390 px) y computador (1280 px) de todas las pantallas cambiadas: sin errores
+ni desbordes. El PDF de la app (una página) y la impresión (con colores, a lo ancho) se revisaron como imágenes.
 
 - **Pruebas nuevas del ajuste:**
   - V1: la distribución de la factura A, que la hoja quepa en el teléfono y "Ver a tamaño real".

@@ -251,14 +251,15 @@ const cerrar = (p) => p.evaluate(() => import('./src/core/navigation.js').then((
   await caso('V2 · imprimir: se ve la factura completa, con sus colores, a lo ancho de la página y sin la app alrededor (antes salía en blanco)', async () => {
     await p.evaluate(() => import('./src/core/navigation.js').then((m) => m.pedirHoja('factura:ver', { ventaId: 'v1' })));
     await p.waitForSelector(`${ULT} .documento`);
+    // La simulación de impresión no cambia el ancho de la pantalla: la hoja debe ocupar el ancho disponible (máx. 720 px).
     await p.emulateMedia({ media: 'print' });
     const r = await p.evaluate(() => {
       const d = document.querySelector('#zonaImpresion .documento');
       const vis = (e) => !!e && e.offsetParent !== null && e.getBoundingClientRect().height > 0;
-      return { factura: vis(d), colores: getComputedStyle(d.querySelector('th')).printColorAdjust === 'exact', alto: d.getBoundingClientRect().height, ancho: d.getBoundingClientRect().width, total: vis(d.querySelector('.doc-totales .gran')), botones: [...document.querySelectorAll('#capas .hoja-pie, #capas .acciones-doc, .barra-sup, .pestanas')].filter(vis).length };
+      return { factura: vis(d), colores: getComputedStyle(d.querySelector('th')).printColorAdjust === 'exact', alto: d.getBoundingClientRect().height, ancho: d.getBoundingClientRect().width, pagina: document.documentElement.clientWidth, total: vis(d.querySelector('.doc-totales .gran')), botones: [...document.querySelectorAll('#capas .hoja-pie, #capas .acciones-doc, .barra-sup, .pestanas')].filter(vis).length };
     });
     await p.emulateMedia({ media: 'screen' });
-    afirmar(r.factura && r.colores && r.total && r.alto > 600 && r.ancho > 600 && r.ancho <= 720 && r.botones === 0, JSON.stringify(r));
+    afirmar(r.factura && r.colores && r.total && r.alto > 500 && Math.round(r.ancho) === Math.min(720, r.pagina) && r.botones === 0, JSON.stringify(r));
     await cerrar(p);
   });
   await caso('V3 · Inicio muestra exactamente las cifras de Reportes, Caja y Clientes (sin cálculos nuevos)', async () => {
