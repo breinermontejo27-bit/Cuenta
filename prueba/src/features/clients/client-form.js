@@ -8,12 +8,14 @@ import { abrirHoja } from '../../ui/overlays/sheet.js';
 import { confirmar } from '../../ui/overlays/dialog.js';
 import { notificar } from '../../ui/notifications/toast.js';
 import { campo, filaCampos, valor, acciones, botonTexto } from '../../ui/components/fields.js';
-import { fila, lista, alTocarFila } from '../../ui/components/list.js';
+import { fila, lista, alTocarFila, insignia } from '../../ui/components/list.js';
 import { lineas, seccion, nota } from '../../ui/components/cards.js';
 import { operar } from '../../ui/operar.js';
 import { guardarCliente, eliminarCliente } from '../../operations/clients.js';
 import { ventasFiadasCliente, saldoVenta, abonadoVenta, deudaCliente } from '../../business/payments.js';
 import { puedeImportarContactos, elegirContacto } from '../../services/contacts.js';
+import { abrirWhatsApp, numeroWhatsApp } from '../../services/whatsapp.js';
+import { icono } from '../../ui/html.js';
 
 export function abrirFormularioCliente(id) {
   const c = id ? coleccion('clientes').find((x) => x.id === id) : null;
@@ -26,9 +28,16 @@ export function abrirFormularioCliente(id) {
     ${lineas([['Saldo pendiente', dinero(deuda), 'fuerte', deuda > 0 ? 'neg' : 'pos']])}
     ${lista(fiadas.map((v) => fila({ datos: { venta: v.id }, titulo: `${fecha(v.fecha)} · ${v.folio ? folio(v.folio) : 'Sin factura'}`, sub: `Abonado ${dinero(abonadoVenta(v))} de ${dinero(v.total)}`, valor: saldoVenta(v) > 0 ? dinero(saldoVenta(v)) : 'Pagado', valorClase: saldoVenta(v) > 0 ? 'neg' : 'pos' })))}
     ${nota('Toca una venta para registrar un abono.')}`) : '';
+  const tel = c ? numeroWhatsApp(c.telefono) : '';
+  const cabecera = c ? html`
+    ${deuda > 0 ? html`<section class="tarjeta cabecera-detalle"><div class="arriba"><div><div class="etq">Debe</div><div class="val neg">${dinero(deuda)}</div></div>${insignia('deuda', `${fiadas.filter((v) => saldoVenta(v) > 0).length} a crédito`)}</div>
+      <button type="button" class="btn btn-primario btn-bloque" data-accion="ver-creditos">Ver créditos y abonar</button></section>` : ''}
+    ${tel ? html`<div class="acciones-contacto"><button type="button" class="btn btn-secundario" data-accion="whatsapp-cliente">${icono('mensaje', 'sm')}WhatsApp</button><a class="btn btn-secundario" href="tel:${tel}">${icono('telefono', 'sm')}Llamar</a></div>` : ''}` : '';
   const capa = abrirHoja({
-    titulo: c ? 'Editar cliente' : 'Nuevo cliente',
+    titulo: c ? c.nombre : 'Nuevo cliente',
+    paso: c ? 'Datos del cliente y sus créditos' : '',
     cuerpo: html`
+      ${cabecera}
       ${campo({ id: 'f_nombre', etiqueta: 'Nombre', valor: c ? c.nombre : '', placeholder: 'Nombre del cliente' })}
       ${puedeImportarContactos() ? botonTexto('Importar de contactos', 'contactos') : ''}
       ${filaCampos(campo({ id: 'f_telefono', etiqueta: 'Teléfono', tipo: 'tel', valor: c ? c.telefono : '', placeholder: 'Opcional' }), campo({ id: 'f_email', etiqueta: 'Correo', tipo: 'email', valor: c ? c.email : '', placeholder: 'Opcional' }))}
@@ -57,6 +66,10 @@ export function abrirFormularioCliente(id) {
     await capa.cerrar();
     pedirHoja('credito:abono', { ventaId, alVolver: () => abrirFormularioCliente(id) });
   });
+  const verCreditos = el.querySelector('[data-accion="ver-creditos"]');
+  if (verCreditos) verCreditos.addEventListener('click', async () => { await capa.cerrar(); pedirHoja('creditos:cliente', { clienteId: c.id, alVolver: () => abrirFormularioCliente(id) }); });
+  const wa = el.querySelector('[data-accion="whatsapp-cliente"]');
+  if (wa) wa.addEventListener('click', () => abrirWhatsApp(c.telefono, ''));
   const btnEliminar = el.querySelector('[data-accion="eliminar"]');
   if (btnEliminar) btnEliminar.addEventListener('click', async () => {
     const deudaTotal = deudaCliente(ventas, c.id);

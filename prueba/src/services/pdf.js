@@ -31,7 +31,10 @@ export async function crearPdf(elemento) {
   const imgH = lienzo.height * imgW / lienzo.width;
   const altoUtil = altoPag - margen * 2;
   const imagen = lienzo.toDataURL('image/jpeg', 0.92);
-  for (let k = 0; k * altoUtil < imgH; k++) {
+  // La hoja termina con un margen blanco de 44 px (unos 12 mm en el PDF). Si lo único que no cabe en la página es
+  // parte de ese margen (hasta 8 mm), no se agrega una segunda página vacía.
+  const TOLERANCIA_MM = 8;
+  for (let k = 0; k * altoUtil < imgH - TOLERANCIA_MM; k++) {
     if (k > 0) pdf.addPage();
     pdf.addImage(imagen, 'JPEG', margen, margen - k * altoUtil, imgW, imgH);
   }

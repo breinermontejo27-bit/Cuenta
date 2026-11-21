@@ -21,8 +21,10 @@ import gastos from './features/expenses/index.js';
 import reportes from './features/reports/index.js';
 import ajustes from './features/settings/settings-menu.js';
 import creditos from './features/credits/index.js';
+import inicio from './features/home/index.js';
+import mas from './features/more/index.js';
 
-const MODULOS = [clientes, inventario, ventas, facturas, gastos, reportes, ajustes];
+const MODULOS = [inicio, clientes, inventario, ventas, facturas, gastos, reportes, ajustes, mas];
 // Módulos sin pestaña propia que solo aportan hojas (se abren desde otros módulos).
 const MODULOS_DE_HOJAS = [creditos];
 
@@ -39,7 +41,7 @@ async function iniciar() {
   vigilarSegundoPlano();
   for (const m of [...MODULOS, ...MODULOS_DE_HOJAS]) for (const [nombre, abrir] of Object.entries(m.hojas || {})) registrarHoja(nombre, abrir);
   iniciarMarco(document.getElementById('app'), MODULOS);
-  iniciarNavegacion({ modulos: MODULOS, inicial: 'clientes' });
+  iniciarNavegacion({ modulos: MODULOS, inicial: 'inicio' });
   registrarServiceWorker();
   mantenimiento();
 }
