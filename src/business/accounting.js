@@ -156,3 +156,45 @@ export function resumenReportes({ ventas, gastos, inventario }, periodo, ajustes
     masVendidos: masVendidos(ventasP),
   };
 }
+
+/**
+ * Estado de resultados de un mes (actualización contable, nov-2026), comparado con el mes anterior.
+ * No hay fórmulas nuevas de ganancia: todo sale de resumenReportes() / gananciaDe(), las mismas cifras de
+ * Reportes › Resumen para ese mes. La utilidad bruta es ventas − costo de lo vendido y la neta es la ganancia de
+ * gananciaDe() (= bruta − gastos operativos). Las compras de inventario van aparte: no son gasto operativo.
+ * @param {string} mes  AAAA-MM
+ * @param {string} hoy  fecha de hoy (para la caja del mes)
+ */
+export function estadoDeResultados({ ventas, gastos, inventario, pedidos = [] }, mes, ajustes, hoy) {
+  const mesAnt = mesAnterior(`${mes}-15`);
+  const delMes = (m) => resumenReportes({ ventas, gastos, inventario }, 'mes', ajustes, `${m}-15`);
+  const r = delMes(mes);
+  const P = r.periodo, Q = delMes(mesAnt).periodo;
+  const lineas = (x) => ({
+    ventas: x.ventasTot, costo: x.costo, utilidadBruta: x.ventasTot - x.costo,
+    gastosOperativos: x.otros, utilidadNeta: x.ganancia, compras: x.compras,
+  });
+  const actual = lineas(P), anterior = lineas(Q);
+  // Mismo criterio que la comparación de Reportes: sin ventas ni gastos en el mes anterior, no hay con qué comparar.
+  const sinDatosAnterior = Q.ventasTot === 0 && Q.gastosTot === 0;
+  const comparacion = {};
+  for (const k of Object.keys(actual)) {
+    const base = anterior[k];
+    comparacion[k] = {
+      actual: actual[k], anterior: base, diferencia: actual[k] - base,
+      // Solo con una base distinta de cero; si no, un porcentaje sería engañoso.
+      porcentaje: sinDatosAnterior || base === 0 ? null : (actual[k] - base) / Math.abs(base) * 100,
+    };
+  }
+  const ventasDelMes = ventas.filter((v) => mesDe(v.fecha) === mes);
+  const caja = resumenCaja({ ventas, pedidos, gastos }, rangoMes(mes), hoy);
+  return {
+    mes, mesAnterior: mesAnt, actual, anterior, sinDatosAnterior, comparacion,
+    margenBruto: actual.ventas > 0 ? actual.utilidadBruta / actual.ventas * 100 : null,
+    margenNeto: actual.ventas > 0 ? actual.utilidadNeta / actual.ventas * 100 : null,
+    numeroVentas: ventasDelMes.length,
+    impuestoIncluido: ventasDelMes.reduce((s, v) => s + num(v.impuesto), 0),
+    masVendidos: r.masVendidos,
+    caja: { efectivo: caja.efectivo, tarjeta: caja.tarjeta, ingresos: caja.ingresos, abonosCred: caja.abonosCred, gastosTot: caja.gastosTot, neto: caja.neto },
+  };
+}

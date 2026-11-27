@@ -55,3 +55,26 @@
 .documento-pdf { position: fixed; left: -10000px; top: 0; width: 720px; background: #fff; }
 .documento-pdf .documento { box-shadow: none; min-height: 0; }
 .documento { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+/* ---------- Estado de resultados (actualización contable): misma identidad que la factura ---------- */
+.escala-doc > .documento + .documento { margin-top: 16px; }
+.documento.er .doc-titulo { margin: 20px 0 6px; }
+.er-periodo-doc { display: flex; justify-content: space-between; font-size: 12.5px; color: #4B5563; border-bottom: 1px solid #D5DAE1; padding-bottom: 10px; }
+.er-seccion { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--color-factura); margin: 22px 0 8px; }
+.er-cifras { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.er-cifras > div { border: 1px solid #D5DAE1; border-radius: 10px; padding: 10px 12px; display: grid; gap: 4px; }
+.er-cifras span { font-size: 11.5px; color: #4B5563; }
+.er-cifras b { font-size: 16px; white-space: nowrap; }
+.er-cifras .pos b { color: #12733F; } .er-cifras .neg b { color: #B42318; }
+.documento table.er-tabla { margin-top: 0; }
+.er-tabla td { padding: 9px 10px; }
+.er-tabla tr.fuerte td { font-weight: 700; }
+.er-tabla tr.subtotal td { font-weight: 700; border-top: 2px solid #111827; }
+.er-comparacion th:first-child { width: 30%; }
+.er-neto { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding: 12px 14px; background: var(--color-factura); color: #fff; border-radius: 6px; font-size: 15px; font-weight: 700; }
+.er-neto.neg { background: #B42318; }
+.er-neto b { font-size: 20px; }
+.er-nota-doc p { margin: 0 0 6px; font-size: 12.5px; color: #374151; }
+.er-aviso { margin: 0 0 10px; padding: 10px 12px; border: 1px solid #E6B54A; background: #FFF7E0; border-radius: 8px; font-size: 12.5px; }
+.er-pie-tabla { font-size: 11.5px; color: #667085; margin: 8px 0 0; }
+.er-periodo { padding: 4px 16px; margin-bottom: var(--e-3); }

@@ -1,7 +1,7 @@
 // GENERADO por tools/precache.js — no editar a mano.
 // Archivos que el service worker guarda para funcionar sin conexión.
 self.ORISMA_PRECACHE = {
-  "version": "41d789c88afa",
+  "version": "ad29e5f0ac50",
   "archivos": [
     "./",
     "./assets/icons/apple-touch-icon.png",
@@ -58,6 +58,7 @@ self.ORISMA_PRECACHE = {
     "./src/features/more/index.js",
     "./src/features/reports/cash-view.js",
     "./src/features/reports/flow-view.js",
+    "./src/features/reports/income-statement.js",
     "./src/features/reports/index.js",
     "./src/features/reports/summary-view.js",
     "./src/features/sales/index.js",
@@ -101,6 +102,7 @@ self.ORISMA_PRECACHE = {
     "./src/services/pin.js",
     "./src/services/whatsapp.js",
     "./src/ui/components/cards.js",
+    "./src/ui/components/document-viewer.js",
     "./src/ui/components/fields.js",
     "./src/ui/components/image-picker.js",
     "./src/ui/components/list.js",
