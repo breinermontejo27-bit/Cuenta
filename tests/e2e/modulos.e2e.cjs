@@ -273,6 +273,15 @@ const ESCENARIOS = [
       const pn = await abrir(nav, 'nuevo', SEMILLA()); await e.nuevo(pn); const dn = await leer(pn, 'nuevo');
       const graves = await pn.locator('.toast.grave').allTextContents();
       const difs = [];
+      // Desviación autorizada (actualización contable, nov-2026): la compra hecha desde el producto lleva además
+      // tipo 'compra', metodo, productoId y cantidad. Se comprueban y se quitan para comparar el resto con la original.
+      (dn.gastos || []).forEach((g, i) => {
+        const o = (dv.gastos || [])[i];
+        if (o && !o.tipo && o.categoria === 'Inventario' && g.tipo === 'compra') {
+          if (!g.metodo || !g.productoId || !(g.cantidad > 0)) difs.push('compra sin los campos contables: ' + JSON.stringify(g));
+          for (const k of ['tipo', 'metodo', 'productoId', 'cantidad']) delete g[k];
+        }
+      });
       for (const c of Object.keys(CLAVES)) {
         const a = JSON.stringify(normalizar(c === 'config' ? completar(dn[c]) : dn[c])), b = JSON.stringify(normalizar(c === 'config' ? completar(dv[c]) : dv[c]));
         if (a !== b) difs.push(`${c}\n   Orisma:   ${a.slice(0, 700)}\n   original: ${b.slice(0, 700)}`);

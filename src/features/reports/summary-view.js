@@ -9,6 +9,8 @@ import { destacada, cifras, seccion, tarjetaLineas, nota } from '../../ui/compon
 import { resumenReportes } from '../../business/accounting.js';
 import { mesDe, mesAnterior } from '../../business/dates.js';
 import { insignia } from '../../ui/components/list.js';
+import { icono } from '../../ui/html.js';
+import { abrirEstadoResultados } from './income-statement.js';
 
 const ETIQUETA = { mes: 'este mes', anterior: 'el mes anterior', todo: 'todo el tiempo' };
 
@@ -36,7 +38,7 @@ export function dibujarResumen(contenedor) {
     : `${r.comparacion.diferencia >= 0 ? '▲' : '▼'} ${dinero(Math.abs(r.comparacion.diferencia))} frente al mes anterior`) : '';
   const cmpEtiqueta = cmp ? insignia(!r.comparacion || r.comparacion.sinDatos ? 'neutra' : r.comparacion.diferencia >= 0 ? 'pagado' : 'deuda', cmp) : '';
   montar(contenedor, html`
-    ${chips('periodo', [['mes', 'Este mes'], ['anterior', 'Mes anterior'], ['todo', 'Todo']], periodo)}
+    <div class="resumen-cabecera">${chips('periodo', [['mes', 'Este mes'], ['anterior', 'Mes anterior'], ['todo', 'Todo']], periodo)}<button type="button" class="btn btn-secundario" data-accion="estado-resultados">${icono('facturas', 'sm')}Estado de resultados</button></div>
     ${destacada({ etiqueta: `Ganancia de ${ETIQUETA[periodo]}`, valor: dinero(P.ganancia), clase: P.ganancia >= 0 ? 'pos' : 'neg', detalle: html`${dinero(P.ventasTot)} en ventas · ${dinero(P.costo)} de costo de lo vendido${cmpEtiqueta ? html`<span class="destacada-cmp">${cmpEtiqueta}</span>` : ''}` })}
     ${graficoSeisMeses()}
     ${nota('Ganancia = ventas − costo de lo vendido − otros gastos. Las compras de inventario no restan hasta que se venden.')}
@@ -45,6 +47,7 @@ export function dibujarResumen(contenedor) {
     ${seccion('Inventario', cifras([{ etiqueta: 'Valor de costo en stock', valor: dinero(r.valorInventario) }, { etiqueta: 'Productos con poco stock', valor: r.pocoStock, clase: r.pocoStock > 0 ? 'neg' : '' }]))}
     ${r.masVendidos.length ? seccion('Productos más vendidos', tarjetaLineas(r.masVendidos.map(([nombre, cant], i) => [`${i + 1} · ${nombre}`, `${cant} unid.`])))
       : nota('Cuando registres ventas en este período, aquí verás tus productos más vendidos.')}`);
+  contenedor.querySelector('[data-accion="estado-resultados"]').addEventListener('click', abrirEstadoResultados);
   contenedor.querySelectorAll('.barra-mes i[data-alto]').forEach((b) => { b.style.height = `${Math.max(2, Number(b.dataset.alto) || 0)}%`; });
   contenedor.querySelectorAll('[data-grupo="periodo"] .chip').forEach((b) => b.addEventListener('click', () => {
     escribirInterfaz('reportes:periodo', b.dataset.valor);

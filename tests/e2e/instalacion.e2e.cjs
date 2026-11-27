@@ -5,6 +5,7 @@
 const { chromium } = require('playwright'); const http = require('http'), fs = require('fs'), path = require('path'), os = require('os');
 const { execSync } = require('child_process');
 const RAIZ = path.join(__dirname, '..', '..');
+const c_VERSION = require('../../package.json').version;
 const VIEJO = fs.mkdtempSync(path.join(os.tmpdir(), 'cuentas-original-'));
 execSync(`git -C "${RAIZ}" archive 9300dfa | tar -x -C "${VIEJO}"`);
 let R = VIEJO; const NUEVO = RAIZ;
@@ -27,7 +28,7 @@ const ok = (c, m) => { total++; if (!c) { console.log('FALLA', m); process.exitC
   R = NUEVO;
   await p.goto('http://localhost:8890/'); await p.waitForSelector('.pestanas [data-modulo="inicio"]', { timeout: 15000 }); await p.waitForTimeout(2500);
   const r = await p.evaluate(async () => { const st = await import('./src/core/state.js'); const c = await import('./src/core/config.js'); return { version: c.VERSION_APP, clientes: st.coleccion('clientes').map((x) => x.nombre), ventas: st.coleccion('ventas').length, aviso: [...document.querySelectorAll('.toast')].map((t) => t.textContent.trim().slice(0, 70)), prueba: !!document.querySelector('.aviso-prueba'), titulo: document.querySelector('#tituloPantalla').textContent }; });
-  ok(r.version === '2.0.0-rc.4', 'abre Orisma 2.0.0-rc.4 en la dirección principal: ' + r.version);
+  ok(r.version === c_VERSION, 'abre Orisma ' + c_VERSION + ' en la dirección principal: ' + r.version);
   ok(JSON.stringify(r.clientes) === '["Laura","Andrés"]' && r.ventas === 1, 'trae los datos de la app anterior (no los de la prueba): ' + JSON.stringify(r.clientes));
   ok(r.aviso.some((t) => t.startsWith('Se trajeron tus datos')) && !r.aviso.some((t) => t.includes('versión nueva')), 'avisa "Se trajeron tus datos" y ningún aviso falso: ' + JSON.stringify(r.aviso));
   ok(!r.prueba && r.titulo === 'Hola, Orisma Accesorios', 'sin franja de prueba; Inicio con el nombre del negocio');

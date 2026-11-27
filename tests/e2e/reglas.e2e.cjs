@@ -169,7 +169,11 @@ const conReglas = (page, fn, arg) => page.evaluate(async ({ fn, arg }) => {
       const r = await conReglas(page, (R, ctx, a) => R.inv.compraDesdeProducto(a.p, { cantidad: a.cant, costoUnitario: a.costo, fecha: a.hoy, precioNuevo: a.env.precio, margenNuevo: a.env.margen }, ctx), { hoy, p: BASEDATOS().cuentas_inventario[0], cant, costo, env: enviados });
       if (!r.ok) { afirmarIgual(fin.cuentas_gastos, [], 'no debía registrar'); return page.context().close(); }
       afirmarIgual(r.producto, fin.cuentas_inventario[0], 'producto');
-      afirmarIgual(normalizar(r.gasto), normalizar(fin.cuentas_gastos[0]), 'gasto');
+      // Desviación autorizada (actualización contable, nov-2026): Orisma agrega tipo, metodo, productoId y cantidad
+      // para que la compra no cuente como gasto operativo. El resto del registro sigue idéntico a la original.
+      const { tipo, metodo, productoId, cantidad, ...resto } = r.gasto;
+      afirmarIgual(normalizar(resto), normalizar(fin.cuentas_gastos[0]), 'gasto (campos de la original)');
+      afirmarIgual({ tipo, metodo, productoId, cantidad }, { tipo: 'compra', metodo: 'efectivo', productoId: 'p1', cantidad: Number(cant) }, 'campos contables nuevos');
       // el precio/ganancia que muestra el formulario también se calcula con las reglas
       const nuevoCosto = await conReglas(page, (R, ctx, a) => R.inv.costoPromedio(20, 30000, Number(a.cant), Number(a.costo)), { hoy, cant, costo });
       if (Number(cant) > 0) afirmarIgual(nuevoCosto, fin.cuentas_inventario[0].costo, 'costo promedio');

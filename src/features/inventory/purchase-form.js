@@ -1,5 +1,5 @@
-// Registrar compra desde el producto (openCompraForm, L2172–2276). Conserva el comportamiento original
-// (el gasto no queda marcado como compra: D4-01, decisión 4 pendiente).
+// Registrar compra desde el producto (openCompraForm, L2172–2276). Desde la actualización contable (nov-2026) la compra
+// queda registrada igual que desde Gastos: como compra de inventario, con su medio de pago, producto y cantidad.
 
 import { coleccion, obtenerAjustes } from '../../core/state.js';
 import { hoy } from '../../core/clock.js';
@@ -8,6 +8,7 @@ import { dinero } from '../../ui/format.js';
 import { abrirHoja } from '../../ui/overlays/sheet.js';
 import { notificar } from '../../ui/notifications/toast.js';
 import { campo, filaCampos, valor, acciones } from '../../ui/components/fields.js';
+import { segmentos, conectarSegmentos } from '../../ui/components/segmented.js';
 import { operar } from '../../ui/operar.js';
 import { comprarDesdeProducto } from '../../operations/purchases.js';
 import { sincronizarCompra, tieneControlStock } from '../../business/inventory-rules.js';
@@ -24,6 +25,7 @@ export function abrirCompra(productoId) {
     cuerpo: html`
       ${filaCampos(campo({ id: 'c_cantidad', etiqueta: 'Cantidad comprada', tipo: 'number', placeholder: 'Ej. 10' }), campo({ id: 'c_costo', etiqueta: `Costo unitario (${aj.moneda})`, tipo: 'number', dinero: true, valor: costoActual || '', placeholder: '0' }))}
       ${campo({ id: 'c_fecha', etiqueta: 'Fecha de la compra', tipo: 'date', valor: hoy() })}
+      <div class="campo"><span class="etiqueta-campo">Forma de pago</span>${segmentos('medio-compra', [['efectivo', 'Efectivo'], ['tarjeta', 'Tarjeta']], 'efectivo')}</div>
       <p class="nota" data-promedio></p>
       ${filaCampos(campo({ id: 'c_precioNuevo', etiqueta: `Nuevo precio de venta (${aj.moneda})`, tipo: 'number', dinero: true, valor: p.precio || '', placeholder: '0' }), campo({ id: 'c_margenNuevo', etiqueta: 'Ganancia (%)', tipo: 'number', dinero: true, valor: p.margen || '', placeholder: 'Ej. 40' }))}
       <p class="nota" data-ganancia></p>`,
@@ -31,6 +33,7 @@ export function abrirCompra(productoId) {
   });
   const el = capa.elemento;
   const $ = (s) => el.querySelector(s);
+  const medio = conectarSegmentos(el, 'medio-compra');
   let ultimo = Number(p.margen) ? 'margen' : 'precio';
   const promedio = () => {
     const cant = Number($('#c_cantidad').value) || 0, costo = Number($('#c_costo').value) || 0;
@@ -53,7 +56,7 @@ export function abrirCompra(productoId) {
   $('[data-accion="guardar"]').addEventListener('click', async (e) => {
     const r = await operar(el, e.currentTarget, () => comprarDesdeProducto(p.id, {
       cantidad: valor(el, 'c_cantidad'), costoUnitario: valor(el, 'c_costo'), fecha: valor(el, 'c_fecha'),
-      precioNuevo: valor(el, 'c_precioNuevo'), margenNuevo: valor(el, 'c_margenNuevo'),
+      precioNuevo: valor(el, 'c_precioNuevo'), margenNuevo: valor(el, 'c_margenNuevo'), metodo: medio() || 'efectivo',
     }));
     if (r.ok) { await capa.cerrar(); notificar('Compra registrada.', { tipo: 'exito' }); }
   });

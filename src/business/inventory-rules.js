@@ -167,10 +167,13 @@ export function costoPromedio(stockActual, costoActual, cantidad, costoCompra) {
 
 /**
  * RI-07 … RI-10 · Compra registrada desde el PRODUCTO (openCompraForm, L2249–2268).
- * Conserva el comportamiento actual: el gasto no lleva tipo, medio, producto ni cantidad (D4-01, decisión 4 pendiente).
+ * Corrección contable autorizada por el dueño (actualización contable, nov-2026; antes D4-01, decisión 4): el gasto
+ * se guarda igual que una compra desde Gastos — tipo 'compra', medio, producto y cantidad —, así que la compra es
+ * inventario y no un gasto operativo (gananciaDe no la resta). El medio por defecto es efectivo, como la caja ya la
+ * contaba cuando el registro no lo traía.
  * @returns {{ ok: false } | { ok: true, producto: Object, gasto: Object }}
  */
-export function compraDesdeProducto(p, { cantidad, costoUnitario, fecha, precioNuevo, margenNuevo }, { hoy, nuevoId }) {
+export function compraDesdeProducto(p, { cantidad, costoUnitario, fecha, precioNuevo, margenNuevo, metodo = 'efectivo' }, { hoy, nuevoId }) {
   const cant = num(cantidad);
   const costoCompra = num(costoUnitario);
   if (cant <= 0) return { ok: false };
@@ -183,7 +186,10 @@ export function compraDesdeProducto(p, { cantidad, costoUnitario, fecha, precioN
     precio: num(precioNuevo) || p.precio || 0,
     margen: num(margenNuevo),
   };
-  const gasto = { id: nuevoId(), descripcion: `Compra de inventario: ${p.nombre} x${cant}`, monto: cant * costoCompra, fecha: fecha || hoy, categoria: 'Inventario' };
+  const gasto = {
+    id: nuevoId(), tipo: 'compra', metodo: metodo || 'efectivo', productoId: p.id, cantidad: cant,
+    descripcion: `Compra de inventario: ${p.nombre} x${cant}`, monto: cant * costoCompra, fecha: fecha || hoy, categoria: 'Inventario',
+  };
   return { ok: true, producto, gasto };
 }
 
@@ -359,4 +365,29 @@ export function sincronizarCompra(ultimo, stockActual, costoActual, cantidadText
   else if (nuevoCosto > 0) margen = String(Math.round(((num(precioTexto) - nuevoCosto) / nuevoCosto) * 100));
   const precioFinal = num(precio);
   return { precio, margen, nuevoCosto, gananciaUnidad: nuevoCosto > 0 && precioFinal > 0 ? precioFinal - nuevoCosto : null };
+}
+
+// ---------------- Compras antiguas registradas como gasto (actualización contable, nov-2026) ----------------
+
+const PATRON_COMPRA = /^Compra de inventario: (.+) x(\d+(?:\.\d+)?)$/;
+
+/**
+ * Compras hechas desde el PRODUCTO antes de la corrección: se guardaron sin tipo 'compra', así que la ganancia las
+ * restó como gasto operativo. Se reconocen por la descripción exacta que pone el sistema y la categoría
+ * "Inventario". SOLO PROPONE la corrección (no cambia nada): `confiable` es true cuando hay exactamente un producto
+ * con ese nombre; si el producto se renombró o se eliminó, queda para revisar a mano.
+ * @returns {Array<{ gasto, nombre, cantidad, productoId: string|null, confiable: boolean, corregido: Object|null }>}
+ */
+export function comprasAntiguasSinMarcar(gastos, inventario) {
+  return gastos.filter((g) => !g.tipo && g.categoria === 'Inventario' && PATRON_COMPRA.test(String(g.descripcion || '')))
+    .map((g) => {
+      const [, nombre, cant] = PATRON_COMPRA.exec(g.descripcion);
+      const productos = inventario.filter((p) => p.nombre === nombre);
+      const confiable = productos.length === 1;
+      const productoId = confiable ? productos[0].id : null;
+      return {
+        gasto: g, nombre, cantidad: Number(cant), productoId, confiable,
+        corregido: confiable ? { ...g, tipo: 'compra', metodo: g.metodo || 'efectivo', productoId, cantidad: Number(cant) } : null,
+      };
+    });
 }
