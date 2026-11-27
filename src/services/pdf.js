@@ -23,9 +23,21 @@ function cargarLibrerias() {
  */
 export async function crearPdf(elemento) {
   await cargarLibrerias();
-  const lienzo = await window.html2canvas(elemento, { scale: 2, backgroundColor: '#ffffff' });
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF({ unit: 'mm', format: 'a4' });
+  // Documento de varias hojas (p. ej. el estado de resultados): cada hoja va en su propia página, así ninguna tabla
+  // queda partida entre páginas. Un documento de una sola hoja (factura) sigue el camino de siempre.
+  const hojas = [...elemento.querySelectorAll(':scope > .documento')];
+  if (hojas.length > 1) {
+    for (const [i, hoja] of hojas.entries()) {
+      const c = await window.html2canvas(hoja, { scale: 2, backgroundColor: '#ffffff' });
+      const w = 210 - 16, h = c.height * w / c.width;
+      if (i > 0) pdf.addPage();
+      pdf.addImage(c.toDataURL('image/jpeg', 0.92), 'JPEG', 8, 8, w, Math.min(h, 297 - 16));
+    }
+    return pdf.output('blob');
+  }
+  const lienzo = await window.html2canvas(elemento, { scale: 2, backgroundColor: '#ffffff' });
   const margen = 8, anchoPag = 210, altoPag = 297;
   const imgW = anchoPag - margen * 2;
   const imgH = lienzo.height * imgW / lienzo.width;

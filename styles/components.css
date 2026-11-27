@@ -239,3 +239,12 @@ details.plegable > .nota { padding: 0 var(--e-4) var(--e-3); }
 
 /* Copia de prueba (Etapa 10) */
 .aviso-prueba { margin: 0; padding: var(--e-2) var(--e-4); background: var(--aviso-suave); color: var(--aviso); font-size: var(--t-sm); text-align: center; }
+
+/* Reportes › Resumen: período y botón "Estado de resultados" en una fila */
+.resumen-cabecera { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--e-2); margin-bottom: var(--e-3); }
+.resumen-cabecera .chips { margin-bottom: 0; }
+/* Estado de resultados: tres acciones; en el teléfono, Compartir PDF ocupa su propia fila */
+.acciones-er .acciones { flex-wrap: wrap; }
+.acciones-er .acciones .btn { flex: 1 1 40%; min-width: 0; }
+.acciones-er .acciones .btn-primario { flex-basis: 100%; }
+@media (min-width: 1024px) { .acciones-er .acciones .btn, .acciones-er .acciones .btn-primario { flex: 1 1 0; } }

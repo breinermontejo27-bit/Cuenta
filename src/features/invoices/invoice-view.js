@@ -13,6 +13,7 @@ import { crearPdf, compartirArchivo } from '../../services/pdf.js';
 import { descargar } from '../../services/export.js';
 import { abrirWhatsApp } from '../../services/whatsapp.js';
 import { documento, aplicarColor } from './invoice-document.js';
+import { conectarVisor } from '../../ui/components/document-viewer.js';
 import { abrirEdicionFactura } from './invoice-edit.js';
 
 export function verFactura(ventaId) {
@@ -42,29 +43,6 @@ function abrirDocumento(v, { esFactura }) {
   if (editar) editar.addEventListener('click', async () => { await capa.cerrar(); abrirEdicionFactura(v.id, () => verFactura(v.id)); });
   const anular = el.querySelector('[data-accion="anular"]');
   if (anular) anular.addEventListener('click', () => pedirHoja('venta:anular', { ventaId: v.id }));
-}
-
-/**
- * La factura es una hoja de ancho fijo. En pantalla se escala para caber en la hoja emergente; "Ver a tamaño real"
- * la deja al 100 % con desplazamiento lateral (para leer de cerca). Al imprimir y en el PDF se usa a su tamaño.
- */
-function conectarVisor(el) {
-  const visor = el.querySelector('.visor-doc');
-  const escala = el.querySelector('.escala-doc');
-  const papel = escala.firstElementChild;
-  const boton = el.querySelector('[data-accion="ampliar"]');
-  let ampliado = false;
-  const ajustar = () => {
-    if (!visor.isConnected) { removeEventListener('resize', ajustar); return; }
-    const k = ampliado ? 1 : Math.min(1, (visor.clientWidth - 24) / papel.offsetWidth);
-    escala.style.transform = k === 1 ? '' : `scale(${k})`;
-    escala.style.height = `${papel.offsetHeight * k}px`;
-    visor.classList.toggle('ampliado', ampliado);
-    boton.textContent = ampliado ? 'Ver la hoja completa' : 'Ver a tamaño real';
-  };
-  boton.addEventListener('click', () => { ampliado = !ampliado; ajustar(); });
-  addEventListener('resize', ajustar);
-  requestAnimationFrame(ajustar);
 }
 
 /** Genera el PDF y lo comparte; si el teléfono no permite compartir archivos, lo descarga y abre el chat (L3467–3514). */
